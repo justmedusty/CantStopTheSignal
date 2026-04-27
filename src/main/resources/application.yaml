@@ -1,0 +1,12 @@
+ktor:
+  deployment:
+    port: 8080
+  application:
+    modules:
+      - com.freedom.HttpKt.configureHttp
+      - com.freedom.SerializationKt.configureSerialization
+      - com.freedom.SecurityKt.configureSecurity
+      - com.freedom.RateLimitingKt.configureRateLimiting
+      - com.freedom.ThymeleafKt.configureThymeleaf
+      - com.freedom.StatusPagesKt.configureStatusPages
+      - com.freedom.RoutingKt.configureRouting
