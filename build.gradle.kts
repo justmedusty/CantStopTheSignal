@@ -12,7 +12,7 @@ application {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(26)
 }
 dependencies {
     implementation(ktorLibs.serialization.jackson)
@@ -27,6 +27,9 @@ dependencies {
     implementation(ktorLibs.server.thymeleaf)
     implementation(libs.flaxoos.ktorServerRateLimiting)
     implementation(libs.logback.classic)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.jdbc)
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

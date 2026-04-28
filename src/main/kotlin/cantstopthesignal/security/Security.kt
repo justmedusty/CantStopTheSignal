@@ -10,7 +10,7 @@ import io.ktor.server.response.*
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
     val jwtAudience = "cantstopthesignal"
-    val jwtDomain = "TBD
+    val jwtDomain = "TBD"
     val jwtRealm = "cantstopthesignal"
     val jwtSecret = System.getenv("JWT_SECRET")
     authentication {
