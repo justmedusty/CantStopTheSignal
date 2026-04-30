@@ -3,13 +3,9 @@ package com.freedom
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import com.fasterxml.jackson.databind.*
-import io.ktor.serialization.jackson.*
-import io.ktor.server.plugins.contentnegotiation.*
+import com.freedom.cantstopthesignal.ThymeleafUser
 import io.ktor.server.auth.*
-import io.ktor.server.thymeleaf.Thymeleaf
 import io.ktor.server.thymeleaf.ThymeleafContent
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 
 fun Application.configureRouting() {
     routing {
