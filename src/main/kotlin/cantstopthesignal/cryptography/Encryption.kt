@@ -48,3 +48,4 @@ fun encryptMessage(publicKey: String, message: String): ByteArray? {
     }
 
 }
+

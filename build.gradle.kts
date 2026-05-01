@@ -36,8 +36,10 @@ dependencies {
     implementation("org.pgpainless:pgpainless-core:2.0.3")
     implementation("org.bouncycastle:bcprov-jdk18on:1.84")
     implementation("org.bouncycastle:bcpg-jdk18on:1.84")
-    // Source: https://mvnrepository.com/artifact/org.mindrot/jbcrypt
+    implementation("org.jetbrains.exposed:exposed-java-time:1.2.0")
     implementation("org.mindrot:jbcrypt:0.4")
+
+
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
 }
