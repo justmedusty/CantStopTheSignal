@@ -2,19 +2,14 @@ package cantstopthesignal.database.users
 
 
 import cantstopthesignal.log.logger
-import cantstopthesignal.security.hashPassword
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
-import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
-import org.mindrot.jbcrypt.BCrypt
-
 
 
 data class ProfileDataEntry(

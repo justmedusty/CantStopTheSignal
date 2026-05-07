@@ -11,7 +11,6 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
@@ -79,14 +78,14 @@ fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: 
 
 
             transaction {
-                Messages.selectAll().where{ (Messages.receiverId eq requesterId) and (Messages.senderId eq requestedId) }
+                Messages.selectAll().where{ (receiverId eq requesterId) and (senderId eq requestedId) }
                     .limit(limit).offset(offsetVal).map {
                         Message(
                             id = it[Messages.id],
                             senderUserName = senderUserNameString,
                             receiverUserName = receiverUserNameString,
-                            message = it[Messages.message],
-                            timeSent = it[Messages.timeSent]
+                            message = it[message],
+                            timeSent = it[timeSent]
                         )
                     }
             }
@@ -106,16 +105,16 @@ fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
         try {
             transaction {
 
-                Messages.selectAll().where { (Messages.receiverId eq userId) }.limit(limit).offset(offsetVal).map {
-                    val senderId = it[Messages.senderId]
+                Messages.selectAll().where { (receiverId eq userId) }.limit(limit).offset(offsetVal).map {
+                    val senderId = it[senderId]
                     val senderUserNameString = getUserName(senderId) ?: "Unknown"
 
                     Message(
                         id = it[Messages.id],
                         senderUserName = senderUserNameString,
                         receiverUserName = receiverUserNameString,
-                        message = it[Messages.message],
-                        timeSent = it[Messages.timeSent]
+                        message = it[message],
+                        timeSent = it[timeSent]
                     )
                 }
             }
@@ -132,10 +131,10 @@ fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<Profil
 
     try {
         transaction {
-            val senderIdsByMostRecent = Messages.selectAll().where { Messages.receiverId eq userId }
+            val senderIdsByMostRecent = Messages.selectAll().where { receiverId eq userId }
                 .orderBy(Messages.id, SortOrder.DESC)
                 .limit(limit).offset(offsetVal)
-                .map { it[Messages.senderId] }
+                .map { it[senderId] }
 
 
             senderIdsByMostRecent.forEach { senderId ->

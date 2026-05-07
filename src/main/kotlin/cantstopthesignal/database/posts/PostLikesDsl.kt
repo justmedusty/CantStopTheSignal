@@ -27,7 +27,7 @@ fun getLikesForPost(postId: Long): Long {
 fun isPostLikedByUser(postId: Long, userId: Long): Boolean {
     return try {
         transaction {
-            PostLikes.select((PostLikes.postId eq postId) and (PostLikes.likedById eq userId)).count() > 0
+            PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId)).count() > 0
         }
     } catch (e: Exception) {
         logger.error { e.message }
@@ -60,7 +60,7 @@ fun likePost(likedById: Long, postId: Long): Boolean {
 fun isRequesterPostLikeOwner(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            val match = PostLikes.select((PostLikes.postId eq postId) and (PostLikes.likedById eq userId) )
+            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId) )
             match.count() > 0
         }
     } catch (e: Exception) {
