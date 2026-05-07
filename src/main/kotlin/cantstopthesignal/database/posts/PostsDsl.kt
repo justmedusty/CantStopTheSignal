@@ -1,11 +1,33 @@
 package com.freedom.cantstopthesignal.database.posts
 
+import cantstopthesignal.database.posts.addPostContents
+import cantstopthesignal.database.posts.checkLastPostEdit
+import cantstopthesignal.database.posts.getDislikesForPost
+import cantstopthesignal.database.posts.getLikesForPost
+import cantstopthesignal.database.posts.isPostDislikedByUser
+import cantstopthesignal.database.posts.isPostLikedByUser
+import cantstopthesignal.database.users.getUserName
+import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostContents
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostEdits
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
+import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.count
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 
@@ -54,7 +76,7 @@ fun insertAndGetId(poster: Long, postTopic: String): Long {
 fun getPostOwnerId(postId: Long): Long? {
     return try {
         transaction {
-            val result = Posts.select { Posts.id eq postId }.singleOrNull()
+            val result = Posts.select(Posts.id eq postId).singleOrNull()
             result?.get(Posts.posterId)
         }
     } catch (e: Exception) {
@@ -65,10 +87,10 @@ fun getPostOwnerId(postId: Long): Long? {
 fun verifyUserId(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            Posts.select {
+            Posts.select(
                 (Posts.id eq postId) and (Posts.posterId eq userId)
 
-            }.count() > 0
+            ).count() > 0
         }
     } catch (e: Exception) {
         logger.error { e.message }
@@ -107,12 +129,12 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
 
         return transaction {
             val queryParam = "%$postTopic%"
-            val relevantPostIds = Posts.select { Posts.topic like queryParam }.map { it[Posts.id] }
+            val relevantPostIds = Posts.select(Posts.topic like queryParam).map { it[Posts.id] }
 
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
-                .leftJoin(PostLikes).slice(
+                .leftJoin(PostLikes).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
-                ).select { Posts.id inList relevantPostIds }
+                ).where { Posts.id inList relevantPostIds }
 
             if (orderByCount != null) {
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(orderByCount, sortOrder)
@@ -120,7 +142,7 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(Posts.id, sortOrder)
             }
 
-            query.limit(limit, offset = ((page - 1) * limit).toLong())
+            query.limit(limit).offset((page - 1) * limit.toLong())
 
             query.map {
                 val postId = it[Posts.id]
@@ -154,7 +176,7 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
 fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
     return try {
         transaction {
-            (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).slice(
+            (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).select(
                 Posts.id,
                 Posts.posterId,
                 Posts.topic,
@@ -163,8 +185,8 @@ fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
                 PostContents.content,
                 PostLikes.postId.count(),
                 PostDislikes.postId.count()
-            ).select(Posts.posterId eq userId).groupBy(Posts.id).orderBy(PostLikes.id.count(), SortOrder.DESC)
-                .limit(limit, offset = ((page - 1) * limit).toLong()).map {
+            ).where(Posts.posterId eq userId).groupBy(Posts.id).orderBy(PostLikes.id.count(), SortOrder.DESC)
+                .limit(limit).offset(((page - 1) * limit).toLong()).map {
                     val postId = it[Posts.id]
                     val posterUsername = it[Posts.posterId]
                     val username = getUserName(posterUsername) ?: return@transaction emptyList<Post>()
@@ -199,10 +221,10 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
     return try {
         transaction {
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
-                .leftJoin(PostLikes).slice(
+                .leftJoin(PostLikes).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
-                ).select(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
-                .orderBy(Posts.id, SortOrder.DESC).limit(limit, offset = ((page - 1) * limit).toLong()).map {
+                ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
+                .orderBy(Posts.id, SortOrder.DESC).limit(limit).offset(((page - 1) * limit).toLong()).map {
                     val postId = it[Posts.id]
                     val posterUsername = it[Posts.posterId]
                     val username = getUserName(posterUsername) ?: "Could not get username"
@@ -245,9 +267,9 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             val relevantPostIds = Posts.selectAll().map { it[Posts.id] }
 
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
-                .leftJoin(PostLikes).slice(
+                .leftJoin(PostLikes).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
-                ).select { Posts.id inList relevantPostIds }
+                ).where { Posts.id inList relevantPostIds }
 
             if (orderByCount != null) {
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(orderByCount, sortOrder)
@@ -255,7 +277,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(Posts.id, sortOrder)
             }
 
-            query.limit(limit, offset = ((page - 1) * limit).toLong())
+            query.limit(limit).offset((page - 1) * limit.toLong())
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]
@@ -290,12 +312,12 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
 
         transaction {
             val query = "%$queryParam%"
-            val postsWithContents = (Posts innerJoin PostContents).slice(
+            val postsWithContents = (Posts innerJoin PostContents).select(
                 Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
-            ).select { (PostContents.title like query) or (PostContents.content like query) }
+            ).where { (PostContents.title like query) or (PostContents.content like query) }
 
             val paginatedQuery =
-                postsWithContents.limit(limit, (page - 1) * limit.toLong()).orderBy(Posts.id, SortOrder.DESC)
+                postsWithContents.limit(limit).offset((page - 1) * limit.toLong()).orderBy(Posts.id, SortOrder.DESC)
 
             val posts = paginatedQuery.map { row ->
                 val postId = row[Posts.id]
@@ -326,7 +348,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
 
 
     } catch (e: Exception) {
-        logger.error("Error occurred while searching posts: ${e.message}")
+        logger.error { "Error occurred while searching posts: ${e.message}" }
         null
     }
 

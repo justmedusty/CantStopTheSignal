@@ -12,9 +12,9 @@ import org.jetbrains.exposed.v1.jdbc.update
 fun getDislikesForPost(postId: Long): Long {
     return try {
         transaction {
-            PostDislikes.select {
+            PostDislikes.select(
                 (PostDislikes.postId eq postId)
-            }.count()
+            ).count()
         }
     } catch (e: Exception) {
         println("Error getting likes for post: $e")
@@ -58,7 +58,7 @@ fun dislikePost(likedById: Long, postId: Long): Boolean {
 fun isRequesterPostDislikeOwner(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            val match = PostLikes.select { (PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) }
+            val match = PostLikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) )
             match.count() > 0
         }
     } catch (e: Exception) {

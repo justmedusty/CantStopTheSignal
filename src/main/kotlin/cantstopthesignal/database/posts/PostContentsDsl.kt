@@ -44,31 +44,31 @@ fun updatePostContents(newTitle: String?, newContent: String?, postId: Long): Bo
             return false
         }
     } else if (newTitle != null) {
-        try {
+        return try {
             transaction {
                 PostContents.update({ PostContents.id eq postId }) {
                     it[title] = newTitle
                 }
             }
-            return true
+            true
 
         } catch (e: Exception) {
             logger.error { e.message }
-            return false
+            false
         }
 
     } else if (newContent != null) {
-        try {
+        return try {
             transaction {
                 PostContents.update({ PostContents.id eq postId }) {
                     it[content] = newContent
                 }
             }
-            return true
+            true
 
         } catch (e: Exception) {
             logger.error { e.message }
-            return false
+            false
         }
 
 
