@@ -1,6 +1,11 @@
-package cantstopthesignal.database.users
+package cantstopthesignal.database.messages
 
 import cantstopthesignal.cryptography.encryptMessage
+import cantstopthesignal.database.users.ProfileDataEntry
+import cantstopthesignal.database.users.getProfileDataEntry
+import cantstopthesignal.database.users.getPublicKey
+import cantstopthesignal.database.users.getUserName
+import cantstopthesignal.database.users.hasAutoEncryptionEnabled
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
