@@ -17,7 +17,7 @@ data class ProfileDataEntry(
     val bio: String?,
     val publicKey: String?,
     val profilePhoto: ByteArray?,
-    val autoEncrypt : Boolean
+    val autoEncrypt: Boolean
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -44,6 +44,7 @@ data class ProfileDataEntry(
         return result
     }
 }
+
 fun hasAutoEncryptionEnabled(userId: Long): Boolean {
     return try {
         transaction {
@@ -68,6 +69,7 @@ fun getPublicKey(userId: Long): String? {
         null
     }
 }
+
 fun updateBio(userId: Long, bioContents: String): Boolean {
     return try {
         transaction {
@@ -111,18 +113,17 @@ fun updateProfilePhoto(userId: Long, photo: ByteArray): Boolean {
     }
 }
 
-fun doesUserHavePublicKey(userId: Long) : Boolean{
+fun doesUserHavePublicKey(userId: Long): Boolean {
     return try {
-        transaction {
-            ProfileData.selectAll().where { ProfileData.userId eq userId }
-                .map { it[ProfileData.publicKey] } // Assuming publicKey is the column name for storing public keys
-                .singleOrNull() != null // Check if public key exists for the user
-        }
+        ProfileData.selectAll().where { ProfileData.userId eq userId }
+            .map { it[ProfileData.publicKey] } // Assuming publicKey is the column name for storing public keys
+            .singleOrNull() != null // Check if public key exists for the user
     } catch (e: Exception) {
         logger.error { e.message }
         false
     }
 }
+
 fun changeAutoEncryptionFlag(userId: Long): Boolean {
 
     return when {
@@ -141,6 +142,7 @@ fun changeAutoEncryptionFlag(userId: Long): Boolean {
             logger.error { e.message }
             false
         }
+
         else -> false
     }
 }
@@ -151,15 +153,15 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
         transaction {
             ProfileData.selectAll().where { ProfileData.userId eq userId }.map {
                 profileDataEntry = ProfileDataEntry(
-                    userName = getUserName(userId)?: "Could not get username",
+                    userName = getUserName(userId) ?: "Could not get username",
                     bio = it[ProfileData.bio] ?: "No bio for this user",
-                    publicKey = it[ProfileData.publicKey]?: "No public key for this user",
+                    publicKey = it[ProfileData.publicKey] ?: "No public key for this user",
                     profilePhoto = it[ProfileData.profilePhoto]?.bytes,
                     autoEncrypt = it[ProfileData.autoEncrypt]
                 )
             }
         }
-    }catch (e:Exception){
+    } catch (e: Exception) {
         logger.error { e.message }
         return null
     }
