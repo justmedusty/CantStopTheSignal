@@ -11,4 +11,5 @@ ktor:
       - cantstopthesignal.config.StatusPagesKt.configureStatusPages
       - cantstopthesignal.config.RoutingKt.configureRouting
       - cantstopthesignal.routing.IndexKt.indexRouting
+      - cantstopthesignal.routing.posts.PostsRoutingKt.configurePostRouting
 

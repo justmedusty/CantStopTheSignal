@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Posts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1e293b;
+        }
+        .post-meta {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+        }
+        .post-content {
+            margin: 1rem 0;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .post-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .btn {
+            padding: 0.5rem 0.875rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .like {
+            background: #2563eb;
+            color: white;
+        }
+        .dislike {
+            background: #dc2626;
+            color: white;
+        }
+        .edit, .delete {
+            background: #64748b;
+            color: white;
+        }
+        .comment-list {
+            margin-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1rem;
+        }
+        .comment {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+        .comment:last-child {
+            border-bottom: none;
+        }
+        .comment-author {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .comment-content {
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Posts</h1>
+    <div class="card" th:each="post : ${posts}">
+        <div class="post-header">
+            <h2 class="post-title" th:text="${post.title}">Sample Post Title</h2>
+            <p class="post-meta">
+                by <span th:text="${post.author}">Unknown Author</span>
+                • <span th:text="${post.createdAt}">Today</span>
+            </p>
+        </div>
+
+        <div class="post-content" th:text="${post.content}">
+            This is the content of the post.
+        </div>
+
+        <div class="post-actions">
+            <span th:text="|Likes: ${post.likes}|" class="like-count">Likes: 0</span>
+            <span th:text="|Dislikes: ${post.dislikes}|" class="dislike-count">Dislikes: 0</span>
+
+            <button class="btn like" type="button" th:attr="data-post-id=${post.id}">Like</button>
+            <button class="btn dislike" type="button" th:attr="data-post-id=${post.id}">Dislike</button>
+            <a class="btn edit" th:href="@{/posts/{id}/edit(id=${post.id})}">Edit</a>
+            <a class="btn delete" th:href="@{/posts/{id}/delete(id=${post.id})}">Delete</a>
+        </div>
+
+        <div class="comment-list" th:if="${not #lists.isEmpty(post.comments)}">
+            <p><strong>Comments</strong></p>
+            <div class="comment" th:each="comment : ${post.comments}">
+                <span class="comment-author" th:text="${comment.author}">Comment Author</span>
+                <p class="comment-content" th:text="${comment.content}">Comment text here.</p>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(posts)}" class="card">
+        <p>No posts yet. Be the first to create one!</p>
+        <a class="btn signup" th:href="@{posts/create}">Create Post</a>
+    </div>
+</div>
+</body>
+</html>
