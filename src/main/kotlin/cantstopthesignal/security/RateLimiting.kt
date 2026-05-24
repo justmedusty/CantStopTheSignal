@@ -1,4 +1,4 @@
-package com.freedom
+package cantstopthesignal.security
 
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*

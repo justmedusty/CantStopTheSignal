@@ -3,10 +3,12 @@ ktor:
     port: 8080
   application:
     modules:
-      - com.freedom.HttpKt.configureHttp
-      - com.freedom.SerializationKt.configureSerialization
-      - com.freedom.SecurityKt.configureSecurity
-      - com.freedom.RateLimitingKt.configureRateLimiting
+      - cantstopthesignal.config.HttpKt.configureHttp
+      - cantstopthesignal.config.SerializationKt.configureSerialization
+      - cantstopthesignal.security.SecurityKt.configureSecurity
+      - cantstopthesignal.security.RateLimitingKt.configureRateLimiting
       - com.freedom.ThymeleafKt.configureThymeleaf
-      - com.freedom.StatusPagesKt.configureStatusPages
-      - com.freedom.RoutingKt.configureRouting
+      - cantstopthesignal.config.StatusPagesKt.configureStatusPages
+      - cantstopthesignal.config.RoutingKt.configureRouting
+      - cantstopthesignal.routing.IndexKt.indexRouting
+

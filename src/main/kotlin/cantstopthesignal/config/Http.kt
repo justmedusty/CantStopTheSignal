@@ -1,8 +1,7 @@
-package com.freedom
+package cantstopthesignal.config
 
 import io.ktor.server.application.*
 import io.ktor.server.plugins.defaultheaders.*
-import io.ktor.server.response.*
 
 fun Application.configureHttp() {
     install(DefaultHeaders) {

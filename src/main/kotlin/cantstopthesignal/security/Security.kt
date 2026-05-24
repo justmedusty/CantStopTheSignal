@@ -1,4 +1,4 @@
-package com.freedom
+package cantstopthesignal.security
 
 import io.ktor.server.application.*
 import com.auth0.jwt.JWT
@@ -6,14 +6,13 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.freedom.cantstopthesignal.helper.verifyCredentials
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.response.*
 
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
     val jwtAudience = "cantstopthesignal"
     val jwtDomain = "TBD"
     val jwtRealm = "cantstopthesignal"
-    val jwtSecret = System.getenv("JWT_SECRET")
+    val jwtSecret = "totally secret"//System.getenv("JWT_SECRET")
     authentication {
         jwt(name = "jwt") {
             realm = jwtRealm

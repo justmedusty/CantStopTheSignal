@@ -1,4 +1,4 @@
-package com.freedom
+package cantstopthesignal.config
 
 import io.ktor.http.*
 import io.ktor.server.application.*
