@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)
     implementation(libs.exposed.jdbc)
+    implementation("org.postgresql:postgresql:42.7.3")
     implementation("at.favre.lib:bcrypt:0.10.2")
     implementation("io.ktor:ktor-server-call-logging-jvm")
     implementation("io.github.oshai:kotlin-logging:8.0.01")

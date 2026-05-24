@@ -11,5 +11,9 @@ ktor:
       - cantstopthesignal.config.StatusPagesKt.configureStatusPages
       - cantstopthesignal.config.RoutingKt.configureRouting
       - cantstopthesignal.routing.IndexKt.indexRouting
+      - com.freedom.cantstopthesignal.routing.LoginKt.configureLoginRoutes
+      - cantstopthesignal.routing.SignUpKt.configureSignupRoutes
       - cantstopthesignal.routing.posts.PostsRoutingKt.configurePostRouting
+      - cantstopthesignal.config.DatabaseKt.configureDatabase
+
 
