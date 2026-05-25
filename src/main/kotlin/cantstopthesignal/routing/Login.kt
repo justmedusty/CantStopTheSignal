@@ -31,8 +31,15 @@ fun Application.configureLoginRoutes() {
 
         post("/login") {
             val params = call.receiveParameters()
-            val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-            val password = params["password"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+            //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
+            val username = params["username"] ?: return@post call.respond(
+                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a username"))
+            )
+
+            val password = params["password"] ?: return@post call.respond(
+                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
+            )
 
             if(!verifyCredentials(username,password)) {
                 val model = buildMap {

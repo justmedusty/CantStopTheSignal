@@ -42,12 +42,12 @@ data class User(
  */
 fun userNameAlreadyExists(userName: String): Boolean {
     return try {
-        transaction {
-            Users
-                .selectAll()
-                .where { Users.userName eq userName }
-                .count() > 0
-        }
+
+        Users
+            .selectAll()
+            .where { Users.userName eq userName }
+            .count() > 0
+
     } catch (e: Exception) {
         logger.error { "Error checking username $e" }
         true
@@ -115,22 +115,27 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
  *
  * @param user
  */ // Functions to perform CRUD operations on Users table
-fun createUser(user: User) {
-    return try {
+fun createUser(user: User) : Boolean {
+    try {
         transaction {
             if (userAndPasswordValidation(user.userName, "") && userAndPasswordValidation("", user.passwordHash)) {
-                val id : Long = Users.insert {
+                val id: Long = Users.insert {
                     it[userName] = user.userName
                     it[passwordHash] = hashPassword(user.passwordHash)
                 } get Users.id
 
                 ProfileData.insert {
                     it[userId] = id
+                    it[publicKey] = user.publicKey
+
+
                 }
             }
         }
+        return true
     } catch (e: Exception) {
         logger.error { "Error creating user $e" }
+        return false
     }
 }
 
@@ -182,7 +187,7 @@ fun getUserName(id: Long): String? {
  * @param password
  * @param newValue
  */
-fun updateUserCredentials(userName: String, password: Boolean, newValue: String) : Boolean {
+fun updateUserCredentials(userName: String, password: Boolean, newValue: String): Boolean {
     return try {
         transaction {
             when {
@@ -200,7 +205,6 @@ fun updateUserCredentials(userName: String, password: Boolean, newValue: String)
                     }
                     return@transaction true
                 }
-
 
 
                 else -> {
@@ -246,6 +250,7 @@ fun fetchAllUsers(page: Int, limit: Int): List<String> {
         emptyList()
     }
 }
+
 fun searchAllUsers(query: String, page: Int, limit: Int): List<String> {
     val offset = ((page - 1) * limit).toLong()
 

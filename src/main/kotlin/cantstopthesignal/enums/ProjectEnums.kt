@@ -17,7 +17,7 @@ enum class Notif(val value: Long) {
 }
 
 enum class ThymeLeafMapKeys(val value: String) {
-
+    SUCCESS("success"),
     ERROR("error"),
     POSTS("posts"),
     COMMENTS("comments"),
