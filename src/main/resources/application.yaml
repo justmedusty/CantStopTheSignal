@@ -18,6 +18,7 @@ ktor:
       - cantstopthesignal.config.DatabaseKt.configureDatabase
       - cantstopthesignal.routing.profile.MyProfileRoutingKt.configureProfileRoutes
       - cantstopthesignal.routing.profile.NotificationsRoutingKt.configureNotificationRoutes
+      - cantstopthesignal.routing.posts.PostCreationRoutingKt.configurePostCreationRouting
 
 
 
@@ -26,6 +27,12 @@ site:
   name: "Can't Stop The Signal."
   topic: "Anonymous discussion, uncensored."
   motd: "“There is some good in this world, and it’s worth fighting for.” — Samwise Gamgee"
+  pgp_help: "You may choose to upload your PGP public key, doing so will enroll you for auto-encrypt, so your messages will be stored and be retrieved by you in encrypted form and only you can decrypt them. If you lose your key, or want to use a new one, you will need to either remove or replace your key on your profile."
+  no_encrypt_warning_group: "Someone in this group does not have a public key uploaded! The chat cannot be encrypted! Do not share personal information until all members have PGP keys uploaded!"
+  no_encrypt_warning_individual: "The person you are messaging does not have a public key uploaded! The chat cannot be encrypted! Do not share personal information until all members have PGP keys uploaded!"
+  encryption_explanation: "You should upload a PGP key for private messages, but you do not have to. It will make your communication much more private and secure, otherwise the messages with live plaintext on a server. If there is no identifiable information then it is not a huge deal, however it is always best to encrypt."
+  audience: "cantstopthesignal"
   issuer: "cantstopthesignal.i2p"
   baseUrl: "http://cantstopthesignal.i2p"
+  token_lifetime_minutes: "15"
 

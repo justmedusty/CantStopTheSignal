@@ -32,7 +32,7 @@ fun Application.configureLoginRoutes() {
             //We should probably do some invalidation , but it's short lived enough so maybe this is fine
             val model = buildMap {
                 put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                put(ThymeLeafMapKeys.SUCCESS.value,"Successfully logged out")
+                put(ThymeLeafMapKeys.SUCCESS.value,"You have been logged out")
             }
 
             call.respond(
@@ -65,19 +65,28 @@ fun Application.configureLoginRoutes() {
                     ThymeleafContent("login", model)
                 )
             }
+            val model = buildMap {
+                put(
+                    ThymeLeafMapKeys.SERVER_CONFIG.value,
+                    siteConfig
+                )
+            }
+
+
 
             val token = (createJWT(
                 JWTConfig(
-                    "cantstopthesignal",
-                    "cantstopthesignal.i2p",
+                    siteConfig?.audience ?: "someoneisbadanddidntsetthis",
+                    siteConfig?.issuer ?: "someoneisbadanddidntsetthis",
                     System.getenv("JWT_SECRET"),
                     getUserId(username),
-                    Length.JWT_TOKEN_LIFETIME_MS.value,
+                    (siteConfig?.token_lifetime_minutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
                 ),
             ))
             call.response.cookies.append(
                 Cookie(name = "jwt", value = token, httpOnly = true, secure = true, path = "/"),
             )
+            //Redirect user to the home page
             call.respondRedirect("/feed")
 
 

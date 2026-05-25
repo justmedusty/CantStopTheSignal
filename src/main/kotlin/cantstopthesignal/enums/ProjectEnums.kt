@@ -8,7 +8,7 @@ enum class Length(val value: Long) {
     MAX_PHOTO_SIZE_BYTES(1_048_576),
     MAX_DM_MESSAGE_LENGTH(5_000),
     MAX_PAGE_LIMIT(50),
-    JWT_TOKEN_LIFETIME_MS(1000 * 60 * 20) //20 minutes
+    JWT_TOKEN_LIFETIME_MS(1000 * 60 * 20) //20 minutes, this mostly serves as a backup ins case the application.yaml value is taken out for some reason, don't do that. But I prepared just in case you do.
 }
 
 enum class Notif(val value: Long) {

@@ -38,11 +38,7 @@ fun Application.configureSecurity() {
             }
 
             challenge { _, _ ->
-                val cookie = call.request.cookies["jwt"]
-                logger.warn({ "Auth failed — cookie value: $cookie" })
-                call.respond(
-                    ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "Session expired or invalid, please log in again."))
-                )
+              call.respondRedirect("/logout")
             }
         }
     }
