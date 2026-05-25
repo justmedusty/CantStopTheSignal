@@ -48,7 +48,8 @@
 <body>
 
 <div class="card">
-    <h1>Can't Stop The Signal</h1>
+    <h1 th:text="${server_config.name}">Can't Stop the Signal</h1>
+    <h2 th:text="${server_config.topic}">Anonymous discussion, uncensored.</h2>
     <p>Please log in or create an account to continue.</p>
 
     <div class="buttons">

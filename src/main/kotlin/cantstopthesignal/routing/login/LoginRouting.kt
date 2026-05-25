@@ -6,8 +6,10 @@ import cantstopthesignal.security.JWTConfig
 import cantstopthesignal.security.createJWT
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
+import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.http.Cookie
 import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondRedirect
@@ -24,6 +26,21 @@ fun Application.configureLoginRoutes() {
                 ThymeleafContent("login", mapOf<String, Any>())
             )
         }
+    authenticate("jwt") {
+
+        get("/logout") {
+            //We should probably do some invalidation , but it's short lived enough so maybe this is fine
+            val model = buildMap {
+                put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                put(ThymeLeafMapKeys.SUCCESS.value,"Successfully logged out")
+            }
+
+            call.respond(
+                ThymeleafContent("login", model)
+            )
+        }
+    }
+
 
         post("/login") {
             val params = call.receiveParameters()

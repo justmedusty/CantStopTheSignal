@@ -4,6 +4,7 @@ ktor:
   application:
     modules:
       - cantstopthesignal.config.HttpKt.configureHttp
+      - cantstopthesignal.config.CustomizationKt.loadSiteConfig
       - cantstopthesignal.config.SerializationKt.configureSerialization
       - cantstopthesignal.security.SecurityKt.configureSecurity
       - cantstopthesignal.security.RateLimitingKt.configureRateLimiting
@@ -17,4 +18,12 @@ ktor:
       - cantstopthesignal.config.DatabaseKt.configureDatabase
       - cantstopthesignal.routing.profile.MyProfileRoutingKt.configureProfileRoutes
 
+
+
+site:
+  name: "Can't Stop The Signal."
+  topic: "Anonymous discussion, uncensored."
+  motd: "“There is some good in this world, and it’s worth fighting for.” — Samwise Gamgee"
+  issuer: "cantstopthesignal.i2p"
+  baseUrl: "http://cantstopthesignal.i2p"
 
