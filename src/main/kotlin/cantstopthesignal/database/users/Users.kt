@@ -42,12 +42,12 @@ data class User(
  */
 fun userNameAlreadyExists(userName: String): Boolean {
     return try {
-
+    transaction {
         Users
             .selectAll()
             .where { Users.userName eq userName }
             .count() > 0
-
+    }
     } catch (e: Exception) {
         logger.error { "Error checking username $e" }
         true

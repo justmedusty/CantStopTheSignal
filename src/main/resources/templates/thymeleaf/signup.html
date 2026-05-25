@@ -66,8 +66,8 @@
 <body>
 <div class="card">
     <h1>Sign Up</h1>
-    <form th:action="@{feed}" method="get">
-        <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <form th:action="@{signup}" method="post">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required />

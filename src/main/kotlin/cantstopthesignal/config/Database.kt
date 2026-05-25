@@ -28,9 +28,9 @@ import kotlin.system.exitProcess
  *
  */
 fun Application.configureDatabase() {
-    val url = "jdbc:postgresql://localhost:5432/postgres"//System.getenv("POSTGRES_URL")
-    val user = "postgres"//System.getenv("POSTGRES_USER")
-    val password = "postgres"//System.getenv("POSTGRES_PASSWORD")
+    val url = System.getenv("POSTGRES_URL")
+    val user = System.getenv("POSTGRES_USER")
+    val password = System.getenv("POSTGRES_PASSWORD")
 
     try {
         Database.connect(url, driver = "org.postgresql.Driver", user = user, password = password)

@@ -34,14 +34,14 @@ fun Application.configureSignupRoutes() {
 
             //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
             val username = params["username"] ?: return@post call.respond(
-                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a username"))
+                ThymeleafContent("signup", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a username"))
             )
 
             val password = params["password"] ?: return@post call.respond(
-                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
+                ThymeleafContent("signup", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
             )
 
-            val pgp_publicKey = params["pgp_public_key"]
+            val pgp_publicKey = params["pgp"]
 
             if (pgp_publicKey != null && !isValidOpenPGPPublicKey(pgp_publicKey)) {
                 call.respond(
