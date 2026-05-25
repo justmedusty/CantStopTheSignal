@@ -50,11 +50,22 @@
             font-weight: 600;
         }
         button:hover { background: #1d4ed8; }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>Login</h1>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
     <form th:action="@{login}" method="post">
         <div class="form-group">
             <label for="username">Username</label>

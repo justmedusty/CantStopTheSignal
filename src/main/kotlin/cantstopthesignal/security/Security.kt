@@ -28,15 +28,5 @@ fun Application.configureSecurity() {
             }
         }
     }
-    authentication {
-        basic(name = "basic") {
-            realm = "cantstopthesignal"
-            validate { credentials ->
-                if (verifyCredentials(credentials.name, credentials.password)
-                ) UserIdPrincipal(credentials.name) else null
-            }
-        }
 
-
-    }
 }
