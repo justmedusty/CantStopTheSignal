@@ -1,7 +1,6 @@
-package cantstopthesignal.routing
+package cantstopthesignal.routing.login
 
 
-import io.ktor.http.ContentType
 import io.ktor.server.application.Application
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get

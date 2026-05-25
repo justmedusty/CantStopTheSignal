@@ -10,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.LocalDateTime
 
 
 data class ProfileDataEntry(
@@ -17,7 +18,8 @@ data class ProfileDataEntry(
     val bio: String?,
     val publicKey: String?,
     val profilePhoto: ByteArray?,
-    val autoEncrypt: Boolean
+    val autoEncrypt: Boolean,
+    val createdAt: LocalDateTime,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -157,7 +159,8 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     bio = it[ProfileData.bio] ?: "No bio for this user",
                     publicKey = it[ProfileData.publicKey] ?: "No public key for this user",
                     profilePhoto = it[ProfileData.profilePhoto]?.bytes,
-                    autoEncrypt = it[ProfileData.autoEncrypt]
+                    autoEncrypt = it[ProfileData.autoEncrypt],
+                    createdAt = it[ProfileData.createdAt]
                 )
             }
         }

@@ -14,6 +14,84 @@
             max-width: 800px;
             margin: 0 auto;
         }
+
+        /* ── Top bar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 { margin: 0; }
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 0.5rem 0.875rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary  { background: #2563eb; color: white; }
+        .btn-primary:hover  { background: #1d4ed8; }
+        .like    { background: #2563eb; color: white; }
+        .dislike { background: #dc2626; color: white; }
+        .edit, .delete { background: #64748b; color: white; }
+
+        /* ── Icon buttons (notifications / messages) ── */
+        .btn-icon {
+            position: relative;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-icon:hover { background: #cbd5e1; }
+
+        /* glowing red badge */
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.5);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.4); }
+            50%       { box-shadow: 0 0 0 2px #dc2626, 0 0 16px 6px rgba(220,38,38,0.7); }
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ── Cards ── */
         .card {
             background: white;
             padding: 1.5rem;
@@ -33,43 +111,17 @@
             margin: 0;
             color: #1e293b;
         }
-        .post-meta {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 0;
-        }
-        .post-content {
-            margin: 1rem 0;
-            color: #334155;
-            line-height: 1.5;
-        }
+        .post-meta { font-size: 0.9rem; color: #64748b; margin: 0; }
+        .post-content { margin: 1rem 0; color: #334155; line-height: 1.5; }
         .post-actions {
             display: flex;
             gap: 0.75rem;
             align-items: center;
             font-size: 0.9rem;
+            flex-wrap: wrap;
         }
-        .btn {
-            padding: 0.5rem 0.875rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
-        }
-        .like {
-            background: #2563eb;
-            color: white;
-        }
-        .dislike {
-            background: #dc2626;
-            color: white;
-        }
-        .edit, .delete {
-            background: #64748b;
-            color: white;
-        }
+
+        /* ── Comments ── */
         .comment-list {
             margin-top: 1rem;
             border-top: 1px solid #e2e8f0;
@@ -81,21 +133,62 @@
             font-size: 0.9rem;
             color: #334155;
         }
-        .comment:last-child {
-            border-bottom: none;
+        .comment:last-child { border-bottom: none; }
+        .comment-author { font-weight: 600; color: #1e293b; }
+        .comment-content { margin-top: 0.25rem; }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-bottom: 2rem;
         }
-        .comment-author {
+        .pagination a, .pagination span {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             font-weight: 600;
-            color: #1e293b;
+            font-size: 0.875rem;
+            text-decoration: none;
         }
-        .comment-content {
-            margin-top: 0.25rem;
-        }
+        .pagination a { background: #2563eb; color: white; }
+        .pagination a:hover { background: #1d4ed8; }
+        .pagination .current { background: #e2e8f0; color: #64748b; cursor: default; }
+        .pagination .disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Posts</h1>
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <h1>Posts</h1>
+        <div class="topbar-actions">
+
+            <!-- Notifications: glows red when there are unread notifications -->
+            <a class="btn-icon"
+               th:href="@{notifications}"
+               th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
+                🔔
+                <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+            </a>
+
+            <!-- Messages: glows red when there are unread messages -->
+            <a class="btn-icon"
+               th:href="@{messages}"
+               th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
+                ✉️
+                <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
+            </a>
+
+            <a class="btn btn-primary" th:href="@{profile}">My Profile</a>
+            <a class="btn btn-primary" th:href="@{posts/create}">Create Post</a>
+        </div>
+    </div>
+
+    <!-- Post list -->
     <div class="card" th:each="post : ${posts}">
         <div class="post-header">
             <h2 class="post-title" th:text="${post.title}">Sample Post Title</h2>
@@ -112,11 +205,10 @@
         <div class="post-actions">
             <span th:text="|Likes: ${post.likes}|" class="like-count">Likes: 0</span>
             <span th:text="|Dislikes: ${post.dislikes}|" class="dislike-count">Dislikes: 0</span>
-
-            <button class="btn like" type="button" th:attr="data-post-id=${post.id}">Like</button>
+            <button class="btn like"    type="button" th:attr="data-post-id=${post.id}">Like</button>
             <button class="btn dislike" type="button" th:attr="data-post-id=${post.id}">Dislike</button>
-            <a class="btn edit" th:href="@{/posts/{id}/edit(id=${post.id})}">Edit</a>
-            <a class="btn delete" th:href="@{/posts/{id}/delete(id=${post.id})}">Delete</a>
+            <a class="btn edit"   th:href="@{posts/{id}/edit(id=${post.id})}">Edit</a>
+            <a class="btn delete" th:href="@{posts/{id}/delete(id=${post.id})}">Delete</a>
         </div>
 
         <div class="comment-list" th:if="${not #lists.isEmpty(post.comments)}">
@@ -127,11 +219,25 @@
             </div>
         </div>
     </div>
-
+-->
+    <!-- Empty state -->
     <div th:if="${#lists.isEmpty(posts)}" class="card">
         <p>No posts yet. Be the first to create one!</p>
-        <a class="btn signup" th:href="@{posts/create}">Create Post</a>
     </div>
+
+    <!-- Pagination -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{posts(page=${currentPage - 1})}">← Back</a>
+        <span class="disabled" th:unless="${currentPage > 0}">← Back</span>
+
+        <span class="current" th:text="|Page ${currentPage + 1} of ${totalPages}|"></span>
+
+        <a th:if="${currentPage + 1 < totalPages}"
+           th:href="@{posts(page=${currentPage + 1})}">Next →</a>
+        <span class="disabled" th:unless="${currentPage + 1 < totalPages}">Next →</span>
+    </div>
+
 </div>
 </body>
 </html>

@@ -7,18 +7,14 @@ import cantstopthesignal.security.createJWT
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import io.ktor.http.Cookie
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
-import io.ktor.server.auth.UserIdPrincipal
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.principal
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.thymeleaf.ThymeleafContent
-import kotlin.io.encoding.Base64
 
 fun Application.configureLoginRoutes() {
     routing {
@@ -41,11 +37,14 @@ fun Application.configureLoginRoutes() {
                 ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
             )
 
-            if(!verifyCredentials(username,password)) {
+            if (!verifyCredentials(username, password)) {
                 val model = buildMap {
-                    put(ThymeLeafMapKeys.ERROR.value, "Invalid credentials, make sure your user and password are correct.")
+                    put(
+                        ThymeLeafMapKeys.ERROR.value,
+                        "Invalid credentials, make sure your user and password are correct."
+                    )
                 }
-                call.respond(
+                return@post call.respond(
                     ThymeleafContent("login", model)
                 )
             }
@@ -60,15 +59,13 @@ fun Application.configureLoginRoutes() {
                 ),
             ))
             call.response.cookies.append(
-                Cookie(name = "jwt", value = token, httpOnly = true, secure= true, path = "/"),
+                Cookie(name = "jwt", value = token, httpOnly = true, secure = true, path = "/"),
             )
-            call.respond(
-                ThymeleafContent("posts_feed", mapOf())
-            )
+            call.respondRedirect("/feed")
+
 
         }
     }
-
 
 
 }

@@ -29,6 +29,7 @@ object ProfileData : Table(name = "ProfileData") {
     val publicKey = text("public_key").nullable().default(null)
     val profilePhoto: Column<ExposedBlob?> = blob("profile_photo").nullable().default(null)
     val autoEncrypt: Column<Boolean> = bool("auth_encrypt").default(false)
+    val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
 
     override val primaryKey = PrimaryKey(id)
 }

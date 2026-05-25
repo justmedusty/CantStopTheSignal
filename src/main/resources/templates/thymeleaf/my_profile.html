@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 { margin: 0; }
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 0.5rem 0.875rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-sm {
+            padding: 0.3rem 0.65rem;
+            font-size: 0.8rem;
+        }
+
+        /* ── Icon buttons ── */
+        .btn-icon {
+            position: relative;
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-icon:hover { background: #cbd5e1; }
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.5);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.4); }
+            50%       { box-shadow: 0 0 0 2px #dc2626, 0 0 16px 6px rgba(220,38,38,0.7); }
+        }
+        .badge {
+            position: absolute;
+            top: -6px; right: -6px;
+            background: #dc2626;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Profile header ── */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+        .profile-header-info { flex: 1; }
+        .profile-header-info h2 {
+            margin: 0 0 0.2rem 0;
+            font-size: 1.5rem;
+            color: #1e293b;
+        }
+        .profile-header-info .joined {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* ── Section rows ── */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .field-row:last-child { border-bottom: none; }
+        .field-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            min-width: 120px;
+            padding-top: 0.1rem;
+        }
+        .field-value {
+            flex: 1;
+            color: #1e293b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .field-value.empty {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* ── PGP key block ── */
+        .pgp-block {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #334155;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 160px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        /* ── Password row ── */
+        .password-dots {
+            letter-spacing: 0.2em;
+            color: #334155;
+            font-size: 1.1rem;
+        }
+
+        /* ── Stats row ── */
+        .stats-row {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <h1>My Profile</h1>
+        <div class="topbar-actions">
+            <a class="btn-icon"
+               th:href="@{notifications}"
+               th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
+                🔔
+                <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+            </a>
+            <a class="btn-icon"
+               th:href="@{messages}"
+               th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
+                ✉️
+                <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
+            </a>
+            <a class="btn btn-primary" th:href="@{feed}">← Home Feed</a>
+        </div>
+    </div>
+
+    <!-- Profile header card -->
+    <div class="card">
+        <div class="profile-header">
+            <div class="profile-header-info">
+                <h2 th:text="${profile_data.username}">username</h2>
+                <span class="joined" th:text="|Member since ${profile_data.createdAt}|">Member since today</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats card -->
+    <!--
+    <div class="card">
+        <div class="section-title">Activity</div>
+        <div class="stats-row">
+            <div class="stat">
+                <span class="stat-value" th:text="${profile.postCount}">0</span>
+                <span class="stat-label">Posts</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" th:text="${profile.commentCount}">0</span>
+                <span class="stat-label">Comments</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" th:text="${profile.likesReceived}">0</span>
+                <span class="stat-label">Likes received</span>
+            </div>
+        </div>
+    </div>
+-->
+    <!-- Account details card -->
+    <div class="card">
+        <div class="section-title">Account</div>
+
+        <!-- Username -->
+        <div class="field-row">
+            <span class="field-label">Username</span>
+            <span class="field-value" th:text="${profile_data.username}">username</span>
+            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/username}">✏ Edit</a>
+        </div>
+
+        <!-- Password -->
+        <div class="field-row">
+            <span class="field-label">Password</span>
+            <span class="field-value password-dots">••••••••</span>
+            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/password}">✏ Edit</a>
+        </div>
+    </div>
+
+    <!-- Bio card -->
+    <div class="card">
+        <div class="section-title">About</div>
+
+        <div class="field-row">
+            <span class="field-label">Biography</span>
+            <span class="field-value"
+                  th:if="${not #strings.isEmpty(profile_data.bio)}"
+                  th:text="${profile_data.bio}">Bio goes here.</span>
+            <span class="field-value empty"
+                  th:if="${#strings.isEmpty(profile_data.bio)}">No biography set.</span>
+            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/bio}">✏ Edit</a>
+        </div>
+    </div>
+
+    <!-- PGP card — always shown, key block only if present -->
+    <div class="card">
+        <div class="section-title">Security</div>
+
+        <div class="field-row">
+            <span class="field-label">PGP Public Key</span>
+            <div class="field-value">
+                <div class="pgp-block"
+                     th:if="${not #strings.isEmpty(profile_data.publicKey)}"
+                     th:text="${profile_data.publicKey}">
+                </div>
+                <span class="empty"
+                      th:if="${#strings.isEmpty(profile_data.publicKey)}">No PGP key set.</span>
+            </div>
+            <a class="btn btn-secondary btn-sm"
+               th:href="@{profile/edit/pgp}"
+               th:text="${#strings.isEmpty(profile_data.publicKey)} ? '+ Add' : '✏ Edit'">✏ Edit</a>
+        </div>
+
+        <!-- Remove key link — only shown if a key exists -->
+        <div class="field-row" th:if="${not #strings.isEmpty(profile_data.publicKey)}">
+            <span class="field-label"></span>
+            <span class="field-value empty" style="font-size:0.85rem;">
+                Remove your PGP key if you no longer need encrypted messaging.
+            </span>
+            <a class="btn btn-danger btn-sm" th:href="@{profile/edit/pgp/remove}">✕ Remove</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

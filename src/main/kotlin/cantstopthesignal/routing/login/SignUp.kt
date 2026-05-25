@@ -1,17 +1,10 @@
-package cantstopthesignal.routing
+package cantstopthesignal.routing.login
 
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
-import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.userNameAlreadyExists
-import cantstopthesignal.database.users.verifyCredentials
-import cantstopthesignal.security.JWTConfig
-import cantstopthesignal.security.createJWT
-import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import io.ktor.http.Cookie
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.respond
@@ -43,7 +36,7 @@ fun Application.configureSignupRoutes() {
 
             val pgp_publicKey = params["pgp"]
 
-            if (pgp_publicKey != null && !isValidOpenPGPPublicKey(pgp_publicKey)) {
+            if (!pgp_publicKey.isNullOrEmpty() && !isValidOpenPGPPublicKey(pgp_publicKey)) {
                 call.respond(
                     ThymeleafContent(
                         "signup", mapOf(
