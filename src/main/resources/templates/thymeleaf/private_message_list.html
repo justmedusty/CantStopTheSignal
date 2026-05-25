@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Messages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 { margin: 0; }
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.5rem 0.875rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-secondary:hover { background: #475569; }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .message-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #fff;
+            text-decoration: none;
+        }
+        .message-item.unread {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+        .message-main {
+            flex: 1;
+            min-width: 0;
+        }
+        .message-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .message-preview {
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .message-meta {
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .badge {
+            background: #dc2626;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 0.15rem 0.5rem;
+            line-height: 1.2;
+        }
+        .message-actions {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .empty-state {
+            color: #64748b;
+            font-style: italic;
+            padding: 1rem 0;
+        }
+        .sender {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="topbar">
+        <h1>Private Messages</h1>
+        <div class="topbar-actions">
+            <a class="btn btn-secondary" th:href="@{feed}">← Home Feed</a>
+            <a class="btn btn-primary" th:href="@{messages/new}">+ New Message</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">Inbox</div>
+
+        <div class="message-list" th:if="${messages != null and !#lists.isEmpty(messages)}">
+            <a class="message-item"
+               th:each="m : ${messages}"
+               th:href="@{/messages/{id}(id=${m.id})}"
+               th:classappend="${!m.read} ? 'unread' : ''">
+
+                <div class="message-main">
+                    <div class="message-title">
+                        <span class="sender" th:text="${m.senderUsername}">sender</span>
+                        <span class="badge" th:if="${!m.read}">Unread</span>
+                    </div>
+                    <div class="message-preview" th:text="${m.preview}">Message preview...</div>
+                    <div class="message-meta" th:text="${m.createdAt}">today</div>
+                </div>
+
+                <div class="message-actions">
+                    <span class="btn btn-secondary" th:if="${m.read}">Read</span>
+                    <span class="btn btn-primary" th:if="${!m.read}">Open</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="empty-state" th:if="${messages == null or #lists.isEmpty(messages)}">
+            No private messages yet.
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

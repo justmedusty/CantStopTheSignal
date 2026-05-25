@@ -17,6 +17,8 @@ ktor:
       - cantstopthesignal.routing.posts.PostsRoutingKt.configurePostRouting
       - cantstopthesignal.config.DatabaseKt.configureDatabase
       - cantstopthesignal.routing.profile.MyProfileRoutingKt.configureProfileRoutes
+      - cantstopthesignal.routing.profile.NotificationsRoutingKt.configureNotificationRoutes
+
 
 
 

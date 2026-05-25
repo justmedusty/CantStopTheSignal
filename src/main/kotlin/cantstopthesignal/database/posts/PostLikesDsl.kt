@@ -4,6 +4,8 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
+import com.freedom.cantstopthesignal.enums.Notif
+import insertNotificationWithinTransaction
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -49,6 +51,7 @@ fun likePost(likedById: Long, postId: Long): Boolean {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
+            insertNotificationWithinTransaction(postId,likedById,Notif.POST.value)
             true
         }
     } catch (e: Exception) {

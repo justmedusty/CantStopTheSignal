@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { margin: 0; }
+    .topbar-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.5rem 0.875rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-secondary:hover { background: #475569; }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    .notification-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .notification-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .notification-item.unread {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .notification-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .notification-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.25rem;
+    }
+    .notification-text {
+      color: #475569;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .notification-meta {
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .notification-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .badge {
+      background: #dc2626;
+      color: white;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.15rem 0.5rem;
+      line-height: 1.2;
+    }
+    .empty-state {
+      color: #64748b;
+      font-style: italic;
+      padding: 1rem 0;
+    }
+    .notif-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .notif-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topbar">
+    <h1>Notifications</h1>
+    <div class="topbar-actions">
+      <a class="btn btn-secondary" th:href="@{feed}">← Home Feed</a>
+      <a class="btn btn-primary" th:href="@{notifications/mark-all-read}">Mark all read</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Recent activity</div>
+
+    <div class="notification-list" th:if="${notifications != null and !#lists.isEmpty(notifications)}">
+      <div class="notification-item" th:each="n : ${notifications}" th:classappend="${!n.read} ? 'unread' : ''">
+        <div class="notification-main">
+          <div class="notification-title">
+            <span th:text="${n.type}">Like</span>
+            <span class="badge" th:if="${!n.read}">New</span>
+          </div>
+          <div class="notification-text">
+            <span th:text="${n.message}">Someone liked your post.</span>
+            <span th:if="${n.postTitle != null}">
+                            on
+                            <a class="notif-link" th:href="@{post/{id}(id=${n.postId})}" th:text="${n.postTitle}">your post</a>
+                        </span>
+          </div>
+          <div class="notification-meta" th:text="${n.createdAt}">just now</div>
+        </div>
+        <div class="notification-actions">
+          <a class="btn btn-secondary" th:if="${!n.read}" th:href="@{notifications/read/{id}(id=${n.id})}">Mark read</a>
+          <a class="btn btn-primary" th:href="@{post/{id}(id=${n.postId})}" th:if="${n.postId != null}">View</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" th:if="${notifications == null or #lists.isEmpty(notifications)}">
+      No notifications yet.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

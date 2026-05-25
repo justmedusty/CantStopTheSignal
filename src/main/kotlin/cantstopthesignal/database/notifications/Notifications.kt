@@ -32,10 +32,25 @@ fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
 
 }
 
+fun insertNotificationWithinTransaction(id: Long, user: Long, notifType: Long): Boolean {
+    return try {
+            Notifications.insert {
+                it[eventId] = id
+                it[userId] = user
+                it[type] = notifType
+            }
+            true
+    } catch (e: Exception) {
+        logger.error { e.message }
+        false
+    }
+
+}
+
 fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notification>? {
     return try {
         transaction {
-            Notifications.select(Notifications.userId eq userId).limit(limit.toInt()).offset((page - 1) * limit).map {
+            Notifications.select(Notifications.userId eq userId).limit(limit.toInt()).offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
                 Notification(
                     it[Notifications.id],
                     it[Notifications.read],

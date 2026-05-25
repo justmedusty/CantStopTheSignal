@@ -3,6 +3,8 @@ package cantstopthesignal.database.comments
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
+import com.freedom.cantstopthesignal.enums.Notif
+import insertNotificationWithinTransaction
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -46,6 +48,7 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
                 it[CommentLikes.commentId] = commentId
                 it[CommentLikes.likedById] = likedById
             }
+            insertNotificationWithinTransaction(commentId,likedById,Notif.COMMENT.value)
             true
         }
     } catch (e: Exception) {
