@@ -8,6 +8,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun insertNewCommentEdit(commentsId: Long, userId: Long): Boolean{
     return try {
@@ -15,7 +16,7 @@ fun insertNewCommentEdit(commentsId: Long, userId: Long): Boolean{
             CommentEdits.insert {
                 it[commentId] = commentsId
                 it[posterId] = userId
-                it[lastEdited] = LocalDateTime.now()
+                it[lastEdited] = LocalDateTime.now(ZoneOffset.UTC)
             }
             true
         }

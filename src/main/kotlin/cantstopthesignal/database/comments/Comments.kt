@@ -17,6 +17,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlin.text.get
 
 data class Comment(
@@ -45,7 +46,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 it[Comments.commenterId] = commenterId
                 it[Comments.isReply] = isReply
                 it[Comments.parentCommentId] = parentCommentId
-                it[timeStamp] = LocalDateTime.now()
+                it[timeStamp] = LocalDateTime.now(ZoneOffset.UTC)
             } get Comments.id
 
         }

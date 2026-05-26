@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 data class Message(
@@ -59,7 +60,7 @@ fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
                     it[message] = messageString
                 }
 
-                it[timeSent] = LocalDateTime.now()
+                it[timeSent] = LocalDateTime.now(ZoneOffset.UTC)
             } get Messages.id
 
 

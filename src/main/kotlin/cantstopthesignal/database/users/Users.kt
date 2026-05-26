@@ -145,12 +145,12 @@ fun createUser(user: User): Boolean {
  * @param userName
  * @return
  */
-fun getUserId(userName: String): Long {
+fun getUserId(userName: String): Long? {
     return try {
         transaction {
             Users
                 .selectAll()
-                .where { Users.userName eq userName }.singleOrNull()?.get(Users.id)!!
+                .where { Users.userName eq userName }.singleOrNull()?.get(Users.id)
         }
     } catch (e: Exception) {
         logger.error { "Error getting userID $e" }

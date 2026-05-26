@@ -5,6 +5,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentEdits
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMemberships
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMessages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Groups
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
@@ -61,7 +62,8 @@ fun Application.configureDatabase() {
             MessageNotifications,
             Messages,
             GroupMessages,
-            Groups
+            Groups,
+            GroupMemberships
         )
     }
 }

@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 data class AdminLog(
@@ -30,7 +31,7 @@ fun insertAdminLogEntry(user: Long,doneBy: Long,reasonString: String, addedBool:
     return try {
         transaction {
             AdminLogs.insert {
-                it[timestamp] = LocalDateTime.now()
+                it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
                 it[userId] = user
                 it[doneById] = doneBy
                 it[added] = addedBool

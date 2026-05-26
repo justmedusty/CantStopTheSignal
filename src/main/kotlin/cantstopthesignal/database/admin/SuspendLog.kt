@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 data class SuspendLogEntry(
@@ -25,7 +26,7 @@ fun insertSuspendEntry(userId: Long, isSuspend: Boolean, reasonString: String, s
     return try {
         transaction {
             SuspendLog.insert {
-                it[timestamp] = LocalDateTime.now()
+                it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
                 it[adminId] = userId
                 it[suspendedUserId] = suspendedUser
                 it[suspend] = isSuspend

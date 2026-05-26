@@ -10,13 +10,14 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun insertNewPostEdit(post: Long, poster: Long): Boolean {
     return try {
         transaction {
             PostEdits.insert {
                 it[postId] = post
-                it[lastEdited] = LocalDateTime.now()
+                it[lastEdited] = LocalDateTime.now(ZoneOffset.UTC)
             }
             true
 

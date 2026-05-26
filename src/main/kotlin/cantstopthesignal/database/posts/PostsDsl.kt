@@ -30,6 +30,7 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 data class Post(
@@ -64,7 +65,7 @@ fun insertAndGetId(poster: Long, postTopic: String): Long {
             Posts.insert {
                 it[posterId] = poster
                 it[topic] = postTopic
-                it[timestamp] = LocalDateTime.now()
+                it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
             } get Posts.id
         }
     } catch (e: Exception) {

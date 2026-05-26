@@ -54,6 +54,12 @@ object Groups : Table(name = "Groups") {
     override val primaryKey = PrimaryKey(id)
 }
 
+object GroupMemberships : Table(name = "GroupMemberships") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val groupId: Column<Long> = long("group_id").references(Groups.id)
+    val memberId: Column<Long> = long("member_id").references(Users.id)
+}
+
 object GroupMessages : Table(name = "GroupMessages") {
     val id: Column<Long> = long("id").autoIncrement()
     val senderId: Column<Long> = long("sender_id").references(Users.id)
