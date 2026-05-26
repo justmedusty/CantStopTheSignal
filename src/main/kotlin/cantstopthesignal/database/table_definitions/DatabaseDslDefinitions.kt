@@ -1,5 +1,6 @@
 package com.freedom.cantstopthesignal.database.dsl.table_definitions
 
+import com.freedom.cantstopthesignal.siteConfig
 import org.jetbrains.exposed.v1.javatime.datetime
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
@@ -38,6 +39,25 @@ object Messages : Table(name = "Messages") {
     val id: Column<Long> = long("id").autoIncrement()
     val senderId: Column<Long> = long("sender_id").references(Users.id)
     val receiverId: Column<Long> = long("receiver_id").references(Users.id)
+    val message: Column<String> = text("message")
+    val timeSent: Column<LocalDateTime> = datetime("time_sent").defaultExpression(CurrentDateTime)
+
+    override val primaryKey = PrimaryKey(id)
+}
+object Groups : Table(name = "Groups") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val name: Column<String> = varchar("name", 100)
+    val createdBy: Column<Long> = long("created_by").references(Users.id)
+    val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
+    val forceEncryption: Column<Boolean> = bool("force_encryption").default(siteConfig?.forceEncryptionGroupDefault ?: false)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object GroupMessages : Table(name = "GroupMessages") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val senderId: Column<Long> = long("sender_id").references(Users.id)
+    val groupId: Column<Long> = long("receiver_id").references(Users.id)
     val message: Column<String> = text("message")
     val timeSent: Column<LocalDateTime> = datetime("time_sent").defaultExpression(CurrentDateTime)
 

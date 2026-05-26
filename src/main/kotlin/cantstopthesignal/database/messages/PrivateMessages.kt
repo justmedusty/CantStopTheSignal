@@ -23,8 +23,8 @@ import java.time.LocalDateTime
 
 data class Message(
     val id: Long,
-    val senderUserName: String,
-    val receiverUserName: String,
+    val senderId: Long,
+    val receiverId: Long,
     val message: String,
     val timeSent: LocalDateTime
 )
@@ -60,7 +60,7 @@ fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
                 }
 
                 it[timeSent] = LocalDateTime.now()
-            }get Messages.id
+            } get Messages.id
 
 
         }
@@ -72,36 +72,30 @@ fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
 }
 
 fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: Int): List<Message>? {
-    try {
-        val offsetVal = ((page - 1) * limit).toLong()
 
-        // Get sender and receiver usernames
-        val senderUserNameString = getUserName(requestedId)
-        val receiverUserNameString = getUserName(requesterId)
-
-        return if (senderUserNameString != null && receiverUserNameString != null) {
+    val offsetVal = ((page - 1) * limit).toLong()
 
 
-            transaction {
-                Messages.selectAll().where{ (receiverId eq requesterId) and (senderId eq requestedId) }
-                    .limit(limit).offset(offsetVal).map {
-                        Message(
-                            id = it[Messages.id],
-                            senderUserName = senderUserNameString,
-                            receiverUserName = receiverUserNameString,
-                            message = it[message],
-                            timeSent = it[timeSent]
-                        )
-                    }
-            }
-        } else {
-            null
+    return try {
+
+        transaction {
+            Messages.selectAll().where { (receiverId eq requesterId) and (senderId eq requestedId) }
+                .limit(limit).offset(offsetVal).map {
+                    Message(
+                        id = it[Messages.id],
+                        senderId = requestedId,
+                        receiverId = requesterId,
+                        message = it[message],
+                        timeSent = it[timeSent]
+                    )
+                }
         }
     } catch (e: Exception) {
         logger.error { e.message }
         return null //return null on error , not empty list, because empty list can mean more than just error, null can only mean error
     }
 }
+
 
 fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
     val offsetVal = ((page - 1) * limit).toLong()
@@ -111,13 +105,11 @@ fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
             transaction {
 
                 Messages.selectAll().where { (receiverId eq userId) }.limit(limit).offset(offsetVal).map {
-                    val senderId = it[senderId]
-                    val senderUserNameString = getUserName(senderId) ?: "Unknown"
 
                     Message(
                         id = it[Messages.id],
-                        senderUserName = senderUserNameString,
-                        receiverUserName = receiverUserNameString,
+                        senderId = it[senderId],
+                        receiverId = it[receiverId],
                         message = it[message],
                         timeSent = it[timeSent]
                     )

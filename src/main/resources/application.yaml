@@ -35,4 +35,5 @@ site:
   issuer: "cantstopthesignal.i2p"
   baseUrl: "http://cantstopthesignal.i2p"
   token_lifetime_minutes: "15"
+  force_encryption_group_default: "false" # Should groupchat be encrypted by force? This will disallow members of the group without a public key uploaded to read messages until they upload a key
 

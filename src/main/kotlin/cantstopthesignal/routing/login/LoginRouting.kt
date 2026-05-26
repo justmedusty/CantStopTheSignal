@@ -80,7 +80,7 @@ fun Application.configureLoginRoutes() {
                     siteConfig?.issuer ?: "someoneisbadanddidntsetthis",
                     System.getenv("JWT_SECRET"),
                     getUserId(username),
-                    (siteConfig?.token_lifetime_minutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
+                    (siteConfig?.tokenLifetimeMinutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
                 ),
             ))
             call.response.cookies.append(

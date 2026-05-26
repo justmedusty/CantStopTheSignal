@@ -42,12 +42,12 @@ data class User(
  */
 fun userNameAlreadyExists(userName: String): Boolean {
     return try {
-    transaction {
-        Users
-            .selectAll()
-            .where { Users.userName eq userName }
-            .count() > 0
-    }
+        transaction {
+            Users
+                .selectAll()
+                .where { Users.userName eq userName }
+                .count() > 0
+        }
     } catch (e: Exception) {
         logger.error { "Error checking username $e" }
         true
@@ -115,7 +115,7 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
  *
  * @param user
  */ // Functions to perform CRUD operations on Users table
-fun createUser(user: User) : Boolean {
+fun createUser(user: User): Boolean {
     try {
         transaction {
             if (userAndPasswordValidation(user.userName, "") && userAndPasswordValidation("", user.passwordHash)) {
@@ -179,6 +179,22 @@ fun getUserName(id: Long): String? {
         null
     }
 }
+
+fun getUserNameWithinTransaction(id: Long): String? {
+
+    return try {
+
+        Users
+            .selectAll()
+            .where { Users.id eq id }.singleOrNull()?.get(Users.userName)
+
+
+    } catch (e: Exception) {
+        logger.error { "Error grabbing username $e" }
+        null
+    }
+}
+
 
 /**
  * Update user credentials

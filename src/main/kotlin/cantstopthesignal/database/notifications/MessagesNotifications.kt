@@ -24,3 +24,4 @@ fun insertMessageNotification(message: Long, user: Long): Boolean {
     }
 
 }
+

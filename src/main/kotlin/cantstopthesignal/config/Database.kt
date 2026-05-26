@@ -5,6 +5,8 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentEdits
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMessages
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Groups
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
@@ -57,7 +59,9 @@ fun Application.configureDatabase() {
             AdminLogs,
             SuspendLog,
             MessageNotifications,
-            Messages
+            Messages,
+            GroupMessages,
+            Groups
         )
     }
 }
