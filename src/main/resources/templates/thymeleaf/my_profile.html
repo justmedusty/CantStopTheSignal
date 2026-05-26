@@ -216,7 +216,8 @@
 </head>
 <body>
 <div class="container">
-
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
     <!-- Top bar -->
     <div class="topbar">
         <h1>My Profile</h1>

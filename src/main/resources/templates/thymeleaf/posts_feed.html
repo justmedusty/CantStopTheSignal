@@ -202,6 +202,26 @@
         .pagination a:hover { background: #1d4ed8; }
         .pagination .current { background: #e2e8f0; color: #64748b; cursor: default; }
         .pagination .disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .success {
+            background: #18b40f;
+            color: #ffffff;
+            border: 1px solid #18b40f;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -232,6 +252,8 @@
             <a class="btn btn-primary" th:href="@{logout}">Logout</a>
         </div>
     </div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
 
     <!-- Post list -->
     <div class="card" th:each="post : ${posts}">

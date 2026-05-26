@@ -20,11 +20,6 @@ fun Application.configureProfileRoutes() {
         authenticate("jwt") {
             get("/profile") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                if(userId == null) {
-                    call.respond(
-                        ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "Session expired or invalid, please log in again."))
-                    )
-                }
                 val profile: ProfileDataEntry? = getProfileDataEntry(userId!!)
 
                 val model = buildMap {

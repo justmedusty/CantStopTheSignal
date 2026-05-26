@@ -97,6 +97,27 @@
             font-size: 0.8rem;
             color: #94a3b8;
             margin-top: 0.35rem;
+
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .success {
+            background: #18b40f;
+            color: #ffffff;
+            border: 1px solid #18b40f;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: left;
         }
     </style>
 </head>
@@ -107,7 +128,8 @@
         <h1>Create Post</h1>
         <a class="btn btn-secondary" th:href="@{../feed}">← Home Feed</a>
     </div>
-
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
     <div class="card">
         <div class="section-title">New post</div>
 
@@ -118,7 +140,7 @@
                 <div class="helper">Keep it short and clear.</div>
             </div>
             <div class="form-group">
-                <label for="title">Title</label>
+                <label for="title">Topic</label>
                 <input id="topic" type="text" name="topic" maxlength="120" placeholder="Enter a topic" required>
                 <div class="helper">Keep it short and simple, check what popular topic names are to make finding this post easier.</div>
             </div>
