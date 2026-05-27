@@ -48,6 +48,7 @@ data class Post(
     val dislikedByMe: Boolean,
     val lastedEdited: String?,
     val commentCount: Long,
+    val myPost: Boolean, //this can be used to toggle the edit and delete buttons
 )
 
 fun createPost(userId: Long, content: String, topic: String, title: String): Boolean {
@@ -119,7 +120,13 @@ fun deletePost(userId: Long, postId: Long): Boolean {
     }
 }
 
-fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, order: String?): List<Post>? {
+fun fetchPostsByTopic(
+    postTopic: String,
+    page: Int,
+    limit: Int,
+    userId: Long,
+    order: String?
+): List<Post>? {
     try {
         var orderByCount: Expression<Long>? = null
         var sortOrder: SortOrder = SortOrder.DESC
@@ -155,7 +162,7 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId) ?: ""
-                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
+                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
 
                 Post(
                     postId,
@@ -169,7 +176,8 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
                     isPostLikedByMe,
                     isPostDislikedByMe,
                     lastEdited.toString(),
-                    commentCount
+                    commentCount,
+                    userId == it[Posts.posterId]
 
                 )
             }
@@ -180,7 +188,7 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
     }
 }
 
-fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
+fun fetchPostsFromUser(callerId : Long,page: Int, limit: Int, userId: Long): List<Post>? {
     return try {
         transaction {
             (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).select(
@@ -200,7 +208,7 @@ fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
                     val isPostLikedByMe = isPostLikedByUser(postId, userId)
                     val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                     val lastEdited = checkLastPostEdit(postId)
-                    val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
+                    val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                     Post(
                         postId,
                         username,
@@ -213,7 +221,8 @@ fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
                         isPostLikedByMe,
                         isPostDislikedByMe,
                         lastEdited.toString(),
-                        commentCount
+                        commentCount,
+                        it[Posts.posterId] == callerId
 
                     )
                 }
@@ -239,7 +248,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                     val username = getUserName(posterUsername) ?: "Could not get username"
                     val lastEdited = checkLastPostEdit(postId)
                     val dislikedByMe = !liked
-                    val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
+                    val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                     Post(
                         postId,
                         username,
@@ -252,7 +261,8 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         liked,
                         dislikedByMe,
                         lastEdited.toString(),
-                        commentCount
+                        commentCount,
+                        it[Posts.posterId] == userId
 
                     )
                 }
@@ -297,7 +307,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId)
-                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
+                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
 
                 Post(
                     postId,
@@ -311,7 +321,8 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     isPostLikedByMe,
                     isPostDislikedByMe,
                     lastEdited.toString(),
-                    commentCount
+                    commentCount,
+                    it[Posts.posterId] == userId
                 )
             }
         }
@@ -340,7 +351,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 val isLikedByMe = userId != null && isPostLikedByUser(postId, userId)
                 val isDislikedByMe = userId != null && isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId)
-                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
+                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
 
                 Post(
                     postId,
@@ -354,7 +365,9 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     isLikedByMe,
                     isDislikedByMe,
                     lastEdited.toString(),
-                    commentCount
+                    commentCount,
+                    row[Posts.id] == userId
+
 
                 )
             }

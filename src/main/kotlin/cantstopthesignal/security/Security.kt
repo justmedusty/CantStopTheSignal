@@ -38,7 +38,7 @@ fun Application.configureSecurity() {
             }
 
             challenge { _, _ ->
-              call.respondRedirect("/logout")
+              call.respondRedirect("/index")
             }
         }
     }

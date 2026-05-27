@@ -87,7 +87,7 @@ fun Application.configurePostCreationRouting() {
                 }
 
                 call.respond(
-                    ThymeleafContent("posts_feed", model)
+                    ThymeleafContent("create_post", model)
                 )
             }
 
