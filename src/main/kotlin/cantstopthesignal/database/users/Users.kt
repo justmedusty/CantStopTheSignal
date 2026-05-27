@@ -77,16 +77,22 @@ fun updateLastLogin(userId: Long): Boolean {
  */
 fun verifyCredentials(userName: String, password: String): Boolean {
     return try {
+        var success = false
         transaction {
             val user = Users
                 .selectAll()
                 .where { Users.userName eq userName }.singleOrNull()
             val userpassword = user?.get(Users.passwordHash).toString()
-            if (user != null && BCrypt.checkpw(password, userpassword) && updateLastLogin(getUserIdWithinTransaction(userName)!! /* This can be asserted not null because user != null at this point*/))
-                true
+            if (user != null && BCrypt.checkpw(password, userpassword) && updateLastLogin(
+                    getUserIdWithinTransaction(
+                        userName
+                    )!!
+                )   /* This can be asserted not null because user != null at this point*/) {
+                success = true
             }
+        }
 
-        false
+        success
     } catch (e: Exception) {
         logger.error { "Error verifying credentials $e" }
         return false

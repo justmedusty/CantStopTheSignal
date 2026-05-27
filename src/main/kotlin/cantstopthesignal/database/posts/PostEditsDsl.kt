@@ -35,9 +35,9 @@ fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: Str
             return false
         }
         return try {
-            if(updatePostContents(newTitle, newPostContents, postId)){
-                insertNewPostEdit(postId,userId)
-            }else{
+            if (updatePostContents(newTitle, newPostContents, postId)) {
+                insertNewPostEdit(postId, userId)
+            } else {
                 false
             }
         } catch (e: Exception) {
@@ -50,14 +50,14 @@ fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: Str
 
 fun checkLastPostEdit(postId: Long): LocalDateTime? {
     return try {
-        transaction {
-            val latestEdit = PostEdits.select(PostEdits.postId eq postId)
-                .orderBy(PostEdits.lastEdited, SortOrder.DESC)
-                .limit(1)
-                .singleOrNull()
 
-            latestEdit?.getOrNull(PostEdits.lastEdited)
-        }
+        val latestEdit = PostEdits.select(PostEdits.postId eq postId)
+            .orderBy(PostEdits.lastEdited, SortOrder.DESC)
+            .limit(1)
+            .singleOrNull()
+
+        latestEdit?.getOrNull(PostEdits.lastEdited)
+
     } catch (e: Exception) {
         logger.error { e.message }
         null

@@ -20,7 +20,7 @@ import kotlin.text.toIntOrNull
 fun Application.configurePostCreationRouting() {
     routing {
         authenticate("jwt") {
-            get("/post/create") {
+            get("/posts/create") {
                 val model = buildMap {
                     put(
                         ThymeLeafMapKeys.SERVER_CONFIG.value,
@@ -32,7 +32,7 @@ fun Application.configurePostCreationRouting() {
                 )
             }
 
-            post("/post/create") {
+            post("/posts/create") {
 
 
                 val params = call.receiveParameters()

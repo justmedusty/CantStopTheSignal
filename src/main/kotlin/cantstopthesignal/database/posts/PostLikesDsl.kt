@@ -28,9 +28,8 @@ fun getLikesForPost(postId: Long): Long {
 }
 fun isPostLikedByUser(postId: Long, userId: Long): Boolean {
     return try {
-        transaction {
+
             PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId)).count() > 0
-        }
     } catch (e: Exception) {
         logger.error { e.message }
         false

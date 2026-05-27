@@ -1,4 +1,5 @@
 package cantstopthesignal.database.posts
+
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
@@ -24,9 +25,7 @@ fun getDislikesForPost(postId: Long): Long {
 
 fun isPostDislikedByUser(postId: Long, userId: Long): Boolean {
     return try {
-        transaction {
-            PostDislikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId)).count() > 0
-        }
+        PostDislikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId)).count() > 0
     } catch (e: Exception) {
         logger.error { e.message }
         false
@@ -34,14 +33,15 @@ fun isPostDislikedByUser(postId: Long, userId: Long): Boolean {
 
 
 }
+
 fun dislikePost(likedById: Long, postId: Long): Boolean {
 
     return try {
 
         transaction {
 
-            if(isPostLikedByUser(postId, likedById)){
-                unlikePost(likedById,postId)
+            if (isPostLikedByUser(postId, likedById)) {
+                unlikePost(likedById, postId)
             }
             PostDislikes.insert {
                 it[PostDislikes.postId] = postId
@@ -58,7 +58,7 @@ fun dislikePost(likedById: Long, postId: Long): Boolean {
 fun isRequesterPostDislikeOwner(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            val match = PostLikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) )
+            val match = PostLikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId))
             match.count() > 0
         }
     } catch (e: Exception) {
@@ -70,7 +70,8 @@ fun isRequesterPostDislikeOwner(userId: Long, postId: Long): Boolean {
 fun unDislikePost(userId: Long, postId: Long): Boolean {
     try {
         return transaction {
-            val success = PostDislikes.deleteWhere { (PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) }
+            val success =
+                PostDislikes.deleteWhere { (PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) }
             success > 0
         }
     } catch (e: Exception) {

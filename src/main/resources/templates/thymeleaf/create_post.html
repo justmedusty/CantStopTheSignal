@@ -126,14 +126,14 @@
 
     <div class="topbar">
         <h1>Create Post</h1>
-        <a class="btn btn-secondary" th:href="@{../feed}">← Home Feed</a>
+        <a class="btn btn-secondary" href="/feed">← Home Feed</a>
     </div>
     <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
     <div class="card">
         <div class="section-title">New post</div>
 
-        <form th:action="@{create}" method="post">
+        <form action="/posts/create" method="post">
             <div class="form-group">
                 <label for="title">Title</label>
                 <input id="title" type="text" name="title" maxlength="120" placeholder="Enter a title" required>
@@ -153,7 +153,7 @@
 
             <div class="actions">
                 <button class="btn btn-primary" type="submit">Publish Post</button>
-                <a class="btn btn-secondary" th:href="@{../feed}">Cancel</a>
+                <a class="btn btn-secondary" href="/feed">Cancel</a>
             </div>
         </form>
     </div>

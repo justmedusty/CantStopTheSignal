@@ -75,3 +75,55 @@ fun updatePostContents(newTitle: String?, newContent: String?, postId: Long): Bo
     }
     return false
 }
+
+
+fun updatePostContentsWithinTransaction(newTitle: String?, newContent: String?, postId: Long): Boolean {
+    if (newTitle == null && newContent == null) {
+        return false
+    }
+    if (newTitle != null && newContent != null) {
+        try {
+
+            PostContents.update({ PostContents.id eq postId }) {
+                it[title] = newTitle
+                it[content] = newContent
+            }
+
+            return true
+
+        } catch (e: Exception) {
+            logger.error { e.message }
+            return false
+        }
+    } else if (newTitle != null) {
+        return try {
+
+            PostContents.update({ PostContents.id eq postId }) {
+                it[title] = newTitle
+            }
+
+            true
+
+        } catch (e: Exception) {
+            logger.error { e.message }
+            false
+        }
+
+    } else if (newContent != null) {
+        return try {
+
+            PostContents.update({ PostContents.id eq postId }) {
+                it[content] = newContent
+            }
+            
+            true
+
+        } catch (e: Exception) {
+            logger.error { e.message }
+            false
+        }
+
+
+    }
+    return false
+}

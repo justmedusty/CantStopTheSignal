@@ -223,13 +223,13 @@
         <h1>My Profile</h1>
         <div class="topbar-actions">
             <a class="btn-icon"
-               th:href="@{notifications}"
+              href="notifications.html"
                th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
                 🔔
                 <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
             </a>
             <a class="btn-icon"
-               th:href="@{messages}"
+               href="messages"
                th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
                 ✉️
                 <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
@@ -277,14 +277,14 @@
         <div class="field-row">
             <span class="field-label">Username</span>
             <span class="field-value" th:text="${profile_data.username}">username</span>
-            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/username}">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm" href="profile/edit/username">✏ Edit</a>
         </div>
 
         <!-- Password -->
         <div class="field-row">
             <span class="field-label">Password</span>
             <span class="field-value password-dots">••••••••</span>
-            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/password}">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm"  href="profile/edit/password">✏ Edit</a>
         </div>
     </div>
 
@@ -299,7 +299,7 @@
                   th:text="${profile_data.bio}">Bio goes here.</span>
             <span class="field-value empty"
                   th:if="${#strings.isEmpty(profile_data.bio)}">No biography set.</span>
-            <a class="btn btn-secondary btn-sm" th:href="@{profile/edit/bio}">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm"  href="profile/edit/bio">✏ Edit</a>
         </div>
     </div>
 
@@ -318,7 +318,7 @@
                       th:if="${#strings.isEmpty(profile_data.publicKey)}">No PGP key set.</span>
             </div>
             <a class="btn btn-secondary btn-sm"
-               th:href="@{profile/edit/pgp}"
+               href="profile/edit/pgp"
                th:text="${#strings.isEmpty(profile_data.publicKey)} ? '+ Add' : '✏ Edit'">✏ Edit</a>
         </div>
 
@@ -328,7 +328,7 @@
             <span class="field-value empty" style="font-size:0.85rem;">
                 Remove your PGP key if you no longer need encrypted messaging.
             </span>
-            <a class="btn btn-danger btn-sm" th:href="@{profile/edit/pgp/remove}">✕ Remove</a>
+            <a class="btn btn-danger btn-sm"  href="profile/edit/pgp/remove">Remove Key</a>
         </div>
     </div>
 

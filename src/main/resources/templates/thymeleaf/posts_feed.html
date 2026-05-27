@@ -234,7 +234,7 @@
 
             <!-- Notifications: glows red when there are unread notifications -->
             <a class="btn-icon"
-               th:href="@{notifications}"
+               href="/notifications"
                th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
                 🔔
                 <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
@@ -242,14 +242,14 @@
 
             <!-- Messages: glows red when there are unread messages -->
             <a class="btn-icon"
-               th:href="@{messages}"
+               href="/messages"
                th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
                 ✉️
                 <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
             </a>
-            <a class="btn btn-primary" th:href="@{profile}">My Profile</a>
-            <a class="btn btn-primary" th:href="@{post/create}">Create Post</a>
-            <a class="btn btn-primary" th:href="@{logout}">Logout</a>
+            <a class="btn btn-primary" href="profile">My Profile</a>
+            <a class="btn btn-primary" href="/posts/create">Create Post</a>
+            <a class="btn btn-primary" href="logout">Logout</a>
         </div>
     </div>
     <div class="error" th:if="${error}" th:text="${error}"></div>
@@ -260,8 +260,8 @@
         <div class="post-header">
             <h2 class="post-title" th:text="${post.title}">Sample Post Title</h2>
             <p class="post-meta">
-                by <span th:text="${post.author}">Unknown Author</span>
-                • <span th:text="${post.createdAt}">Today</span>
+                by <span th:text="${post.posterUserName}">Unknown Author</span>
+                • <span th:text="${post.timeStamp}">Today</span>
             </p>
         </div>
 
@@ -270,14 +270,16 @@
         </div>
 
         <div class="post-actions">
-            <span th:text="|Likes: ${post.likes}|" class="like-count">Likes: 0</span>
-            <span th:text="|Dislikes: ${post.dislikes}|" class="dislike-count">Dislikes: 0</span>
+            <span th:text="|Likes: ${post.likeCount}|" class="like-count">Likes: 0</span>
+            <span th:text="|Dislikes: ${post.dislikeCount}|" class="dislike-count">Dislikes: 0</span>
+            <span th:text="|Comments: ${post.likeCount}|" class="like-count">Likes: 0</span>
+            <span th:text="|Dislikes: ${post.commentCount}|" class="dislike-count">Dislikes: 0</span>
             <button class="btn like"    type="button" th:attr="data-post-id=${post.id}">Like</button>
             <button class="btn dislike" type="button" th:attr="data-post-id=${post.id}">Dislike</button>
             <a class="btn edit"   th:href="@{posts/{id}/edit(id=${post.id})}">Edit</a>
             <a class="btn delete" th:href="@{posts/{id}/delete(id=${post.id})}">Delete</a>
         </div>
-
+<!-- Comment this out for now
         <div class="comment-list" th:if="${not #lists.isEmpty(post.comments)}">
             <p><strong>Comments</strong></p>
             <div class="comment" th:each="comment : ${post.comments}">
@@ -285,6 +287,7 @@
                 <p class="comment-content" th:text="${comment.content}">Comment text here.</p>
             </div>
         </div>
+        -->
     </div>
 
 

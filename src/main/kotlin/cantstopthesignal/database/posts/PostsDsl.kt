@@ -7,8 +7,10 @@ import cantstopthesignal.database.posts.getLikesForPost
 import cantstopthesignal.database.posts.isPostDislikedByUser
 import cantstopthesignal.database.posts.isPostLikedByUser
 import cantstopthesignal.database.users.getUserName
+import cantstopthesignal.database.users.getUserNameWithinTransaction
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostContents
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostEdits
@@ -44,7 +46,8 @@ data class Post(
     val dislikeCount: Long,
     val likedByMe: Boolean,
     val dislikedByMe: Boolean,
-    val lastedEdited: String?
+    val lastedEdited: String?,
+    val commentCount: Long,
 )
 
 fun createPost(userId: Long, content: String, topic: String, title: String): Boolean {
@@ -148,10 +151,11 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]
-                val username = getUserName(posterUsername) ?: "Could not get username"
+                val username = getUserNameWithinTransaction(posterUsername) ?: "Could not get username"
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
-                val lastEdited = checkLastPostEdit(postId)
+                val lastEdited = checkLastPostEdit(postId) ?: ""
+                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
 
                 Post(
                     postId,
@@ -164,7 +168,9 @@ fun fetchPostsByTopic(postTopic: String, page: Int, limit: Int, userId: Long, or
                     getDislikesForPost(postId),
                     isPostLikedByMe,
                     isPostDislikedByMe,
-                    lastEdited.toString()
+                    lastEdited.toString(),
+                    commentCount
+
                 )
             }
         }
@@ -194,6 +200,7 @@ fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
                     val isPostLikedByMe = isPostLikedByUser(postId, userId)
                     val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                     val lastEdited = checkLastPostEdit(postId)
+                    val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
                     Post(
                         postId,
                         username,
@@ -205,7 +212,8 @@ fun fetchPostsFromUser(page: Int, limit: Int, userId: Long): List<Post>? {
                         it[PostDislikes.postId.count()],
                         isPostLikedByMe,
                         isPostDislikedByMe,
-                        lastEdited.toString()
+                        lastEdited.toString(),
+                        commentCount
 
                     )
                 }
@@ -231,6 +239,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                     val username = getUserName(posterUsername) ?: "Could not get username"
                     val lastEdited = checkLastPostEdit(postId)
                     val dislikedByMe = !liked
+                    val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
                     Post(
                         postId,
                         username,
@@ -242,7 +251,9 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         getDislikesForPost(postId),
                         liked,
                         dislikedByMe,
-                        lastEdited.toString()
+                        lastEdited.toString(),
+                        commentCount
+
                     )
                 }
         }
@@ -282,10 +293,11 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]
-                val username = getUserName(posterUsername) ?: "Could not get username"
+                val username = getUserNameWithinTransaction(posterUsername) ?: "Could not get username"
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId)
+                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
 
                 Post(
                     postId,
@@ -298,7 +310,8 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     getDislikesForPost(postId),
                     isPostLikedByMe,
                     isPostDislikedByMe,
-                    lastEdited.toString()
+                    lastEdited.toString(),
+                    commentCount
                 )
             }
         }
@@ -327,6 +340,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 val isLikedByMe = userId != null && isPostLikedByUser(postId, userId)
                 val isDislikedByMe = userId != null && isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId)
+                val commentCount = Comments.selectAll().where{Comments.postId eq postId}.count()
 
                 Post(
                     postId,
@@ -339,7 +353,9 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     getDislikesForPost(postId),
                     isLikedByMe,
                     isDislikedByMe,
-                    lastEdited.toString()
+                    lastEdited.toString(),
+                    commentCount
+
                 )
             }
 

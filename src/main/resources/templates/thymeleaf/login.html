@@ -77,7 +77,7 @@
     <h1>Login</h1>
     <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
-    <form th:action="@{login}" method="post">
+    <form action="login" method="post">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required />
@@ -89,7 +89,7 @@
         <button type="submit">Login</button>
     </form>
     <br>
-    <a th:href="@{index}" class="btn btn-secondary">Back</a>
+    <a href="index" class="btn btn-secondary">Back</a>
 </div>
 </body>
 </html>
