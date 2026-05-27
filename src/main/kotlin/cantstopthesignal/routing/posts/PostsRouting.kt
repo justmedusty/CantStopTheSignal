@@ -55,7 +55,7 @@ fun Application.configurePostRouting() {
             get("/posts/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull() ?: throw BadRequestException("Invalid or missing id")
                 call.respond(
-                    ThymeleafContent("login", mapOf<String, Any>())
+                    ThymeleafContent("post", mapOf<String, Any>())
                 )
             }
 

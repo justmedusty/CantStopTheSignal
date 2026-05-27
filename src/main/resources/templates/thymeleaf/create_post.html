@@ -10,10 +10,12 @@
             margin: 0;
             padding: 2rem 1rem;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
         }
+
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -22,14 +24,19 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
-        .topbar h1 { margin: 0; }
+
+        .topbar h1 {
+            margin: 0;
+        }
+
         .card {
             background: white;
             padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
             margin-bottom: 1.5rem;
         }
+
         .section-title {
             font-size: 0.75rem;
             font-weight: 700;
@@ -38,9 +45,11 @@
             color: #94a3b8;
             margin-bottom: 1rem;
         }
+
         .form-group {
             margin-bottom: 1rem;
         }
+
         label {
             display: block;
             font-size: 0.85rem;
@@ -48,6 +57,7 @@
             color: #64748b;
             margin-bottom: 0.45rem;
         }
+
         input[type="text"],
         textarea {
             width: 100%;
@@ -60,23 +70,27 @@
             color: #1e293b;
             background: white;
         }
+
         textarea {
             min-height: 220px;
             resize: vertical;
             line-height: 1.5;
         }
+
         input[type="text"]:focus,
         textarea:focus {
             outline: none;
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
+
         .actions {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
             margin-top: 1.25rem;
         }
+
         .btn {
             padding: 0.5rem 0.875rem;
             border-radius: 6px;
@@ -89,16 +103,32 @@
             align-items: center;
             gap: 0.4rem;
         }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-secondary { background: #64748b; color: white; }
-        .btn-secondary:hover { background: #475569; }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
         .helper {
             font-size: 0.8rem;
             color: #94a3b8;
             margin-top: 0.35rem;
 
         }
+
         .error {
             background: #fee2e2;
             color: #991b1b;
@@ -109,6 +139,7 @@
             font-size: 0.9rem;
             text-align: left;
         }
+
         .success {
             background: #18b40f;
             color: #ffffff;
@@ -136,18 +167,23 @@
         <form action="/posts/create" method="post">
             <div class="form-group">
                 <label for="title">Title</label>
-                <input id="title" type="text" name="title" maxlength="120" placeholder="Enter a title" required>
+                <input id="title" type="text" name="title" minlength="4" maxlength="300" placeholder="Enter a title"
+                       required>
                 <div class="helper">Keep it short and clear.</div>
             </div>
             <div class="form-group">
-                <label for="title">Topic</label>
-                <input id="topic" type="text" name="topic" maxlength="120" placeholder="Enter a topic" required>
-                <div class="helper">Keep it short and simple, check what popular topic names are to make finding this post easier.</div>
+                <label for="topic">Topic</label>
+                <input id="topic" type="text" name="topic" minlength="2" maxlength="100" placeholder="Enter a topic"
+                       required>
+                <div class="helper">Keep it short and simple, check what popular topic names are to make finding this
+                    post easier.
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="content">Content</label>
-                <textarea id="content" name="content" placeholder="Write your post here..." required></textarea>
+                <textarea id="content" name="content" minlength="5" maxlength="20000"
+                          placeholder="Write your post here..." required></textarea>
                 <div class="helper">You can write a longer message, update, or thought here.</div>
             </div>
 
