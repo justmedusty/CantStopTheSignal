@@ -20,6 +20,7 @@ data class ProfileDataEntry(
     val profilePhoto: ByteArray?,
     val autoEncrypt: Boolean,
     val createdAt: LocalDateTime,
+    val lastLogin: LocalDateTime?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -160,7 +161,9 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     publicKey = it[ProfileData.publicKey] ?: "No public key for this user",
                     profilePhoto = it[ProfileData.profilePhoto]?.bytes,
                     autoEncrypt = it[ProfileData.autoEncrypt],
-                    createdAt = it[ProfileData.createdAt]
+                    createdAt = it[ProfileData.createdAt],
+                    lastLogin = it[ProfileData.lastLogin],
+
                 )
             }
         }

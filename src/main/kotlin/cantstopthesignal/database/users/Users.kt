@@ -14,6 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.mindrot.jbcrypt.BCrypt
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 
 /**
@@ -54,6 +56,17 @@ fun userNameAlreadyExists(userName: String): Boolean {
     }
 }
 
+fun updateLastLogin(userId: Long): Boolean {
+    return try {
+        ProfileData.update({ ProfileData.userId eq userId }) {
+            it[lastLogin] = LocalDateTime.now(ZoneOffset.UTC)
+        }
+        true
+    } catch (e: Exception) {
+        logger.error { e.message }
+        false
+    }
+}
 
 /**
  * Verify credentials
@@ -69,8 +82,11 @@ fun verifyCredentials(userName: String, password: String): Boolean {
                 .selectAll()
                 .where { Users.userName eq userName }.singleOrNull()
             val userpassword = user?.get(Users.passwordHash).toString()
-            user != null && BCrypt.checkpw(password, userpassword)
-        }
+            if (user != null && BCrypt.checkpw(password, userpassword) && updateLastLogin(getUserIdWithinTransaction(userName)!! /* This can be asserted not null because user != null at this point*/))
+                true
+            }
+
+        false
     } catch (e: Exception) {
         logger.error { "Error verifying credentials $e" }
         return false
@@ -152,6 +168,19 @@ fun getUserId(userName: String): Long? {
                 .selectAll()
                 .where { Users.userName eq userName }.singleOrNull()?.get(Users.id)
         }
+    } catch (e: Exception) {
+        logger.error { "Error getting userID $e" }
+        -1
+    }
+}
+
+fun getUserIdWithinTransaction(userName: String): Long? {
+    return try {
+
+        Users
+            .selectAll()
+            .where { Users.userName eq userName }.singleOrNull()?.get(Users.id)
+
     } catch (e: Exception) {
         logger.error { "Error getting userID $e" }
         -1

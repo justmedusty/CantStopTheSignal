@@ -8,6 +8,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMemberships
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMessages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Groups
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
@@ -17,6 +18,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostEdits
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.SiteWidePermissions
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.SuspendLog
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import io.ktor.server.application.Application
@@ -63,7 +65,9 @@ fun Application.configureDatabase() {
             Messages,
             GroupMessages,
             Groups,
-            GroupMemberships
+            GroupMemberships,
+            SiteWidePermissions,
+            InviteCodes // We'll create the table even if its not used by the person using this software
         )
     }
 }

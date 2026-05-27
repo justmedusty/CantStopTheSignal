@@ -31,9 +31,11 @@ site:
   no_encrypt_warning_group: "Someone in this group does not have a public key uploaded! The chat cannot be encrypted! Do not share personal information until all members have PGP keys uploaded!"
   no_encrypt_warning_individual: "The person you are messaging does not have a public key uploaded! The chat cannot be encrypted! Do not share personal information until all members have PGP keys uploaded!"
   encryption_explanation: "You should upload a PGP key for private messages, but you do not have to. It will make your communication much more private and secure, otherwise the messages with live plaintext on a server. If there is no identifiable information then it is not a huge deal, however it is always best to encrypt."
+  pgp_warning: "Your PGP key will have a name email attached, if this is for totally anonymous use, you should make sure the key you share has a pseudonym and a fake or anonymous email handle."
   audience: "cantstopthesignal"
   issuer: "cantstopthesignal.i2p"
   baseUrl: "http://cantstopthesignal.i2p"
   token_lifetime_minutes: "15"
+  invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums
   force_encryption_group_default: "false" # Should groupchat be encrypted by force? This will disallow members of the group without a public key uploaded to read messages until they upload a key
 

@@ -244,6 +244,7 @@
             <div class="profile-header-info">
                 <h2 th:text="${profile_data.username}">username</h2>
                 <span class="joined" th:text="|Member since ${profile_data.createdAt}|">Member since today</span>
+                <span class="last-login" th:text="| Last logged in: ${profile_data.lastLogin}|">Unknown last login</span>
             </div>
         </div>
     </div>

@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import org.jetbrains.exposed.v1.javatime.CurrentDateTime
 import java.time.LocalDateTime
 
+
 /****************************************************************************************************************************************************************
  * This file contains ALL the DSL table definitions, I prefer this project to have the DSL in one place to make it easier to add or check things
  ****************************************************************************************************************************************************************/
@@ -31,6 +32,7 @@ object ProfileData : Table(name = "ProfileData") {
     val profilePhoto: Column<ExposedBlob?> = blob("profile_photo").nullable().default(null)
     val autoEncrypt: Column<Boolean> = bool("auth_encrypt").default(false)
     val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
+    val lastLogin: Column<LocalDateTime?> = datetime("last_login").nullable().default(null)
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -217,4 +219,17 @@ object SuspendLog : Table(name = "SuspendLog") {
     val reason: Column<String> = text("reason")
 
     override val primaryKey = PrimaryKey(id)
+}
+//my idea for creating this table is something that can be done by admins dynamically to create an entry that essentially turns off account creation,
+// this can be useful if someone wants to suddenly make their forum private or if they are being bombarded by signups that they do not want
+object SiteWidePermissions : Table(name = "SiteWidePermissions") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val timestamp: Column<LocalDateTime> = datetime("timestamp")
+    val eventId: Column<Long> = long("event_id").uniqueIndex() //this will be used for nuclear options in case you get swarmed or something, but it can be used to include other stuff too
+}
+
+//If the user chooses to make their forum invite only, this will be where the one-time-use codes are stored
+object InviteCodes : Table(name = "InviteCodes") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val inviteCode: Column<String> = text("invite_code").uniqueIndex() //this will be used for nuclear options in case you get swarmed or something, but it can be used to include other stuff too
 }
