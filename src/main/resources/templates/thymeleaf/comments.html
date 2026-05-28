@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comment Thread</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #f0ede8;
+            --surface:       #faf9f7;
+            --border:        #e2ddd6;
+            --text-primary:  #1c1a17;
+            --text-secondary:#6b6560;
+            --accent:        #2d5be3;
+            --accent-soft:   #e8edfb;
+            --danger:        #c93030;
+            --danger-soft:   #fbeaea;
+            --muted:         #8c877f;
+            --thread-line:   #d8d2c9;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        /* ── Back Nav ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            transition: background 0.15s;
+        }
+        .back-link:hover { background: var(--border); }
+
+        /* ── Section Label ── */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+
+        /* ── Post Card (collapsed summary) ── */
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .post-body {
+            padding: 1.5rem 1.75rem 1.25rem;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-title {
+            font-family: 'Lora', serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .post-topic {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .post-meta {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+        .post-meta span { font-weight: 600; color: var(--text-secondary); }
+
+        .post-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #3a3730;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-edited {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        /* Collapsed toggle */
+        .post-content-wrapper {
+            position: relative;
+        }
+        .post-content-wrapper.collapsed .post-content {
+            max-height: 4.8em; /* ~3 lines */
+            overflow: hidden;
+        }
+        .post-content-wrapper.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2.5rem;
+            background: linear-gradient(transparent, var(--surface));
+            pointer-events: none;
+        }
+        .toggle-post-btn {
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 0.35rem 0;
+            display: block;
+            margin-top: 0.35rem;
+        }
+        .toggle-post-btn:hover { text-decoration: underline; }
+
+        /* Reaction bar (read-only summary on this page) */
+        .post-reaction-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: #f7f5f1;
+        }
+
+        .reaction-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1.5px solid #c6d4f7;
+        }
+        .reaction-pill.dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+
+        /* ── Thread Card ── */
+        .thread-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* ── Focal Comment (the comment whose replies we're viewing) ── */
+        .focal-comment {
+            padding: 1.5rem 1.75rem 1.25rem;
+            border-bottom: 2px solid var(--border);
+            background: #f5f3ee;
+            position: relative;
+        }
+
+        /* Subtle left accent bar */
+        .focal-comment::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 3px 0 0 3px;
+        }
+
+        .focal-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 0.6rem;
+        }
+
+        .focal-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .comment-author {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-author.me::after {
+            content: 'you';
+            display: inline-block;
+            margin-left: 0.35rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #e6f0e6;
+            color: #2d7a2d;
+            padding: 0.1rem 0.4rem;
+            border-radius: 20px;
+            vertical-align: middle;
+        }
+
+        .comment-time {
+            font-size: 0.77rem;
+            color: var(--muted);
+        }
+
+        .comment-edited {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .focal-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #3a3730;
+            margin-bottom: 0.75rem;
+        }
+
+        .focal-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        /* ── Replies List ── */
+        .replies-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.75rem 0.75rem;
+        }
+
+        .replies-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+
+        .reply-count-badge {
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: var(--border);
+            color: var(--text-secondary);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .replies-list {
+            padding: 0 1.75rem;
+        }
+
+        /* ── Individual Reply ── */
+        .reply-item {
+            padding: 1rem 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+            padding-left: 1.25rem;
+        }
+
+        /* Thread connector line */
+        .reply-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--thread-line);
+            border-radius: 2px;
+        }
+
+        .reply-item:last-child::before {
+            bottom: 50%;
+        }
+
+        /* Horizontal connector */
+        .reply-item::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.6rem;
+            width: 0.75rem;
+            height: 2px;
+            background: var(--thread-line);
+        }
+
+        .reply-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .reply-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #3a3730;
+            margin-bottom: 0.5rem;
+        }
+
+        .reply-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        /* ── Shared Button Styles ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-like {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #c6d4f7;
+        }
+        .btn-like.active, .btn-like:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+        .btn-dislike.active, .btn-dislike:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .btn-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-muted:hover { background: var(--border); }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+        .btn-danger-outline:hover { background: var(--danger-soft); }
+
+        .btn-tiny {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+            background: transparent;
+            color: var(--muted);
+            border-color: var(--border);
+        }
+        .btn-tiny:hover { background: var(--border); color: var(--text-secondary); }
+
+        .btn-tiny.liked {
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+        }
+        .btn-tiny.disliked {
+            color: var(--danger);
+            background: var(--danger-soft);
+            border-color: #f3c6c6;
+        }
+
+        /* "View replies" button — navigates deeper into the chain */
+        .btn-replies {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #c6d4f7;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .btn-replies:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 1.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.15s;
+        }
+        .page-btn:hover:not(.disabled) { background: var(--border); }
+        .page-btn.disabled { opacity: 0.38; pointer-events: none; }
+
+        .page-info {
+            font-size: 0.8rem;
+            color: var(--muted);
+            padding: 0 0.25rem;
+        }
+
+        /* ── Empty state ── */
+        .empty-replies {
+            padding: 1.5rem 0;
+            font-size: 0.875rem;
+            color: var(--muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ── Back navigation ── -->
+    <a class="back-link" th:href="@{/posts}">&#8592; Back to Posts</a>
+
+    <!-- ═══════════════════════════════════════════
+         Post Summary (always visible at top)
+    ═══════════════════════════════════════════ -->
+    <p class="section-label">Post</p>
+
+    <div class="post-card" th:if="${post != null}">
+        <div class="post-body">
+            <div class="post-header">
+                <h2 class="post-title" th:text="${post.title}">Post Title</h2>
+                <span class="post-topic" th:text="${post.topic}">Topic</span>
+            </div>
+
+            <p class="post-meta">
+                by <span th:text="${post.posterUserName}">username</span>
+                &nbsp;·&nbsp;
+                <span th:text="${post.timeStamp}">timestamp</span>
+            </p>
+
+            <!-- Collapsible post body -->
+            <div class="post-content-wrapper collapsed" id="postContentWrapper">
+                <div class="post-content" th:text="${post.content}">Post content goes here.</div>
+            </div>
+            <button class="toggle-post-btn" id="togglePostBtn" onclick="togglePost()">Show more</button>
+
+            <p class="post-edited"
+               th:if="${post.lastedEdited != null}"
+               th:text="|Edited ${post.lastedEdited}|">Edited …</p>
+        </div>
+
+        <!-- Read-only reaction summary -->
+        <div class="post-reaction-bar">
+            <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
+            <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════
+         Thread Card
+    ═══════════════════════════════════════════ -->
+    <p class="section-label">Thread</p>
+
+    <div class="thread-card">
+
+        <!-- ─── Focal Comment ─── -->
+        <!--
+            Model expectation:
+              - `focalComment`  : the comment whose replies this page shows
+              - `replies`       : a Page<CommentDto> of direct replies to focalComment
+        -->
+        <div class="focal-comment" th:if="${focalComment != null}">
+            <p class="focal-label">Viewing replies to</p>
+
+            <div class="focal-top">
+                <span class="comment-author"
+                      th:classappend="${focalComment.myComment} ? 'me'"
+                      th:text="${focalComment.commenterUsername}">username</span>
+                <span class="comment-time" th:text="${focalComment.timeStamp}">timestamp</span>
+                <span class="comment-edited"
+                      th:if="${focalComment.lastEdited != null}"
+                      th:text="| edited ${focalComment.lastEdited}|">· edited …</span>
+            </div>
+
+            <p class="focal-content" th:text="${focalComment.content}">Focal comment text.</p>
+
+            <!-- Actions on the focal comment itself -->
+            <div class="focal-actions">
+                <!-- Like -->
+                <button type="button"
+                        class="btn btn-like"
+                        th:classappend="${focalComment.isCommentLikedByMe} ? 'active'"
+                        th:attr="data-comment-id=${focalComment.id}">
+                    &#9650; <span th:text="${focalComment.commentLikes}">0</span>
+                </button>
+
+                <!-- Dislike -->
+                <button type="button"
+                        class="btn btn-dislike"
+                        th:classappend="${focalComment.isCommentDislikedByMe} ? 'active'"
+                        th:attr="data-comment-id=${focalComment.id}">
+                    &#9660; <span th:text="${focalComment.commentDislikes}">0</span>
+                </button>
+
+                <!-- Edit / Delete (owner only) -->
+                <th:block th:if="${focalComment.myComment}">
+                    <a class="btn btn-muted"
+                       th:href="@{/comments/{id}/edit(id=${focalComment.id})}">Edit</a>
+                    <a class="btn btn-danger-outline"
+                       th:href="@{/comments/{id}/delete(id=${focalComment.id})}">Delete</a>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- ─── Replies ─── -->
+        <div class="replies-header">
+            <span class="replies-title">Replies</span>
+            <span class="reply-count-badge"
+                  th:text="${replies != null ? replies.totalElements : 0}">0</span>
+        </div>
+
+        <div class="replies-list">
+
+            <th:block th:if="${replies != null and not #lists.isEmpty(replies.content)}">
+
+                <div class="reply-item"
+                     th:each="reply : ${replies.content}">
+
+                    <div class="reply-top">
+                        <span class="comment-author"
+                              th:classappend="${reply.myComment} ? 'me'"
+                              th:text="${reply.commenterUsername}">username</span>
+                        <span class="comment-time" th:text="${reply.timeStamp}">timestamp</span>
+                        <span class="comment-edited"
+                              th:if="${reply.lastEdited != null}"
+                              th:text="| edited ${reply.lastEdited}|">· edited …</span>
+                    </div>
+
+                    <p class="reply-content" th:text="${reply.content}">Reply text.</p>
+
+                    <div class="reply-actions">
+                        <!-- Like -->
+                        <button type="button"
+                                class="btn-tiny"
+                                th:classappend="${reply.isCommentLikedByMe} ? 'liked'"
+                                th:attr="data-comment-id=${reply.id}">
+                            &#9650; <span th:text="${reply.commentLikes}">0</span>
+                        </button>
+
+                        <!-- Dislike -->
+                        <button type="button"
+                                class="btn-tiny"
+                                th:classappend="${reply.isCommentDislikedByMe} ? 'disliked'"
+                                th:attr="data-comment-id=${reply.id}">
+                            &#9660; <span th:text="${reply.commentDislikes}">0</span>
+                        </button>
+
+                        <!--
+                            If this reply itself has replies, link to the same
+                            /comments/{id}/replies route — this is what makes the chain
+                            infinitely deep without a separate template.
+                        -->
+                        <a th:if="${reply.hasReplies}"
+                           class="btn-replies"
+                           th:href="@{/comments/{id}/replies(id=${reply.id})}">
+                            &#8618; Replies
+                        </a>
+
+                        <!-- Edit / Delete (owner only) -->
+                        <th:block th:if="${reply.myComment}">
+                            <a class="btn-tiny"
+                               th:href="@{/comments/{id}/edit(id=${reply.id})}">Edit</a>
+                            <a class="btn-tiny"
+                               style="color: var(--danger); border-color: #f3c6c6;"
+                               th:href="@{/comments/{id}/delete(id=${reply.id})}">Delete</a>
+                        </th:block>
+                    </div>
+                </div>
+
+            </th:block>
+
+            <!-- Empty state -->
+            <div class="empty-replies"
+                 th:if="${replies == null or #lists.isEmpty(replies.content)}">
+                No replies yet.
+            </div>
+
+        </div><!-- /replies-list -->
+
+        <!-- ─── Pagination ─── -->
+        <div class="pagination"
+             th:if="${replies != null and replies.totalPages > 1}">
+
+            <a class="page-btn"
+               th:classappend="${replies.first} ? 'disabled'"
+               th:href="@{/comments/{id}/replies(id=${focalComment.id}, page=${replies.number - 1})}">
+                &#8592; Prev
+            </a>
+
+            <span class="page-info"
+                  th:text="|Page ${replies.number + 1} of ${replies.totalPages}|">
+                Page 1 of 1
+            </span>
+
+            <a class="page-btn"
+               th:classappend="${replies.last} ? 'disabled'"
+               th:href="@{/comments/{id}/replies(id=${focalComment.id}, page=${replies.number + 1})}">
+                Next &#8594;
+            </a>
+
+        </div>
+
+    </div><!-- /thread-card -->
+
+</div><!-- /container -->
+
+<script>
+    function togglePost() {
+        const wrapper = document.getElementById('postContentWrapper');
+        const btn     = document.getElementById('togglePostBtn');
+        const collapsed = wrapper.classList.toggle('collapsed');
+        btn.textContent = collapsed ? 'Show more' : 'Show less';
+    }
+
+    // Auto-expand if post content is short enough to not need truncation
+    window.addEventListener('DOMContentLoaded', () => {
+        const content = document.querySelector('.post-content');
+        const wrapper = document.getElementById('postContentWrapper');
+        const btn     = document.getElementById('togglePostBtn');
+        if (content && content.scrollHeight <= content.clientHeight + 4) {
+            wrapper.classList.remove('collapsed');
+            btn.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
