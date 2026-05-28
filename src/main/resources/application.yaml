@@ -19,6 +19,7 @@ ktor:
       - cantstopthesignal.routing.profile.MyProfileRoutingKt.configureProfileRoutes
       - cantstopthesignal.routing.profile.NotificationsRoutingKt.configureNotificationRoutes
       - cantstopthesignal.routing.posts.PostCreationRoutingKt.configurePostCreationRouting
+      - cantstopthesignal.routing.messages.PrivateMessagesRoutingKt.configureMessageRouting
 
 
 

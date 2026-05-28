@@ -1,9 +1,6 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.cryptography.encryptMessage
-import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserNameWithinTransaction
-import cantstopthesignal.database.users.hasAutoEncryptionEnabled
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMemberships
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.GroupMessages
@@ -38,6 +35,23 @@ data class GroupMessage(
     val groupId: Long,
     val message: String,
     val timeSent: LocalDateTime,
+)
+
+//This is the high level object
+data class GroupMessages(
+    val messages: String,
+    val sentBy: String,
+    val sentDate: LocalDateTime,
+    val groupId: Long,
+)
+
+//This is the high level object
+data class GroupChat(
+    val id: Long,
+    val name: String,
+    val createdAt: LocalDateTime,
+    val createdBy: String,
+    val forceEncryption: Boolean,
 )
 
 

@@ -29,6 +29,13 @@ data class Message(
     val message: String,
     val timeSent: LocalDateTime
 )
+//This is the high level object
+data class Messages(
+    val id: Long,
+    val sender: String,
+    val message: String,
+    val timeSent: LocalDateTime,
+)
 
 fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
 

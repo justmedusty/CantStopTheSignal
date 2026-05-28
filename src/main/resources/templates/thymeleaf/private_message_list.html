@@ -4,16 +4,35 @@
     <meta charset="UTF-8">
     <title>Messages</title>
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #f0ede8;
+            --surface:       #faf9f7;
+            --border:        #e2ddd6;
+            --text-primary:  #1c1a17;
+            --text-secondary:#6b6560;
+            --accent:        #2d5be3;
+            --accent-soft:   #e8edfb;
+            --danger:        #c93030;
+            --danger-soft:   #fbeaea;
+            --muted:         #8c877f;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
             margin: 0;
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+
+        .container { max-width: 760px; margin: 0 auto; }
+
+        /* ── Top bar ── */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -22,151 +41,355 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
-        .topbar h1 { margin: 0; }
-        .topbar-actions {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .btn {
-            padding: 0.5rem 0.875rem;
-            border-radius: 6px;
-            text-decoration: none;
+        .topbar h1 {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
             font-weight: 600;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        /* ── Buttons ── */
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
         }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-secondary { background: #64748b; color: white; }
-        .btn-secondary:hover { background: #475569; }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary  { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.88; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* ── Card ── */
         .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
             margin-bottom: 1.5rem;
         }
+
         .section-title {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.72rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #94a3b8;
-            margin-bottom: 1rem;
-        }
-        .message-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        .message-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            background: #fff;
-            text-decoration: none;
-        }
-        .message-item.unread {
-            background: #eff6ff;
-            border-color: #bfdbfe;
-        }
-        .message-main {
-            flex: 1;
-            min-width: 0;
-        }
-        .message-title {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            padding: 1rem 1.75rem 0.75rem;
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+            justify-content: space-between;
         }
-        .message-preview {
-            color: #475569;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            word-break: break-word;
-        }
-        .message-meta {
-            margin-top: 0.4rem;
-            font-size: 0.8rem;
-            color: #94a3b8;
-        }
-        .badge {
-            background: #dc2626;
-            color: white;
-            font-size: 0.72rem;
-            font-weight: 700;
-            border-radius: 999px;
-            padding: 0.15rem 0.5rem;
-            line-height: 1.2;
-        }
-        .message-actions {
+
+        /* ── Conversation row ── */
+        /*
+            Model expects a unified list of `ConversationSummaryDto` with fields:
+              - id            : Long        (DM: Messages.id / Group: GroupChat.id)
+              - type          : String      ("DM" or "GROUP")
+              - displayName   : String      (DM: sender username / Group: GroupChat.name)
+              - lastMessage   : String      (most recent message text, truncated server-side)
+              - lastSentBy    : String      (username of last sender)
+              - lastSentAt    : String      (formatted timestamp)
+              - unread        : Boolean
+              - forceEncryption : Boolean   (GROUP only, false for DMs)
+        */
+        .conv-row {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.12s;
+            cursor: pointer;
+        }
+        .conv-row:last-child { border-bottom: none; }
+        .conv-row:hover { background: #f5f2ed; }
+
+        .conv-row.unread { background: var(--accent-soft); }
+        .conv-row.unread:hover { background: #dce5fa; }
+
+        /* Avatar circle */
+        .conv-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .conv-avatar.dm    { background: var(--accent); }
+        .conv-avatar.group { background: #5a4fcf; }
+
+        /* Main text block */
+        .conv-body { flex: 1; min-width: 0; }
+
+        .conv-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
             gap: 0.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .conv-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conv-time {
+            font-size: 0.75rem;
+            color: var(--muted);
+            white-space: nowrap;
             flex-shrink: 0;
         }
-        .empty-state {
-            color: #64748b;
-            font-style: italic;
-            padding: 1rem 0;
+
+        .conv-preview {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .sender {
-            color: #2563eb;
+        .conv-preview .sender-prefix {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Right-side indicators */
+        .conv-indicators {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.35rem;
+            flex-shrink: 0;
+        }
+
+        .unread-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .type-pill {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.15rem 0.45rem;
+            border-radius: 20px;
+        }
+        .type-pill.dm {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #c6d4f7;
+        }
+        .type-pill.group {
+            background: #ede9fb;
+            color: #5a4fcf;
+            border: 1px solid #cdc5f5;
+        }
+
+        /* Lock icon for force-encrypted groups */
+        .enc-icon {
+            font-size: 0.75rem;
+            color: var(--muted);
+            title: "Encryption enforced";
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            padding: 2rem 1.75rem;
+            font-size: 0.875rem;
+            color: var(--muted);
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 1.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.15s;
+        }
+        .page-btn:hover:not(.disabled) { background: var(--border); }
+        .page-btn.disabled { opacity: 0.38; pointer-events: none; }
+
+        .page-info {
+            font-size: 0.8rem;
+            color: var(--muted);
+            padding: 0 0.25rem;
         }
     </style>
 </head>
 <body>
 <div class="container">
 
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
+
+    <!-- Top bar -->
     <div class="topbar">
-        <h1>Private Messages</h1>
+        <h1>Messages</h1>
         <div class="topbar-actions">
-            <a class="btn btn-secondary" th:href="@{feed}">← Home Feed</a>
-            <a class="btn btn-primary" th:href="@{messages/new}">+ New Message</a>
+            <a class="btn btn-secondary" href="/feed">← Home Feed</a>
+            <a class="btn btn-primary"   href="/messages/new">+ New Message</a>
         </div>
     </div>
 
     <div class="card">
-        <div class="section-title">Inbox</div>
+        <div class="section-title">
+            <span>Inbox</span>
+            <span th:if="${conversations != null}"
+                  style="font-size:0.75rem; font-weight:600; background:var(--border);
+                         color:var(--text-secondary); padding:0.15rem 0.5rem;
+                         border-radius:20px;"
+                  th:text="${conversations.totalElements}">0</span>
+        </div>
 
-        <div class="message-list" th:if="${messages != null and !#lists.isEmpty(messages)}">
-            <a class="message-item"
-               th:each="m : ${messages}"
-               th:href="@{/messages/{id}(id=${m.id})}"
-               th:classappend="${!m.read} ? 'unread' : ''">
+        <!-- Conversation list -->
+        <th:block th:if="${conversations != null and not #lists.isEmpty(conversations.content)}">
 
-                <div class="message-main">
-                    <div class="message-title">
-                        <span class="sender" th:text="${m.senderUsername}">sender</span>
-                        <span class="badge" th:if="${!m.read}">Unread</span>
+            <!--
+                Link destination:
+                  DM    → /messages/dm/{id}
+                  GROUP → /messages/group/{id}
+            -->
+            <a class="conv-row"
+               th:each="c : ${conversations.content}"
+               th:classappend="${c.unread} ? 'unread'"
+               th:href="${c.type == 'GROUP'}
+                         ? @{/messages/group/{id}(id=${c.id})}
+                         : @{/messages/dm/{id}(id=${c.id})}">
+
+                <!-- Avatar: first letter of name -->
+                <div class="conv-avatar"
+                     th:classappend="${c.type == 'GROUP'} ? 'group' : 'dm'"
+                     th:text="${#strings.substring(c.displayName, 0, 1)}">U</div>
+
+                <!-- Body -->
+                <div class="conv-body">
+                    <div class="conv-header">
+                        <span class="conv-name">
+                            <span th:text="${c.displayName}">Name</span>
+                            <span class="enc-icon" th:if="${c.forceEncryption}">🔒</span>
+                        </span>
+                        <span class="conv-time" th:text="${c.lastSentAt}">now</span>
                     </div>
-                    <div class="message-preview" th:text="${m.preview}">Message preview...</div>
-                    <div class="message-meta" th:text="${m.createdAt}">today</div>
+                    <div class="conv-preview">
+                        <span class="sender-prefix"
+                              th:text="${c.type == 'GROUP'} ? ${c.lastSentBy + ': '} : ''"></span><span th:text="${c.lastMessage}">No messages yet.</span>
+                    </div>
                 </div>
 
-                <div class="message-actions">
-                    <span class="btn btn-secondary" th:if="${m.read}">Read</span>
-                    <span class="btn btn-primary" th:if="${!m.read}">Open</span>
+                <!-- Indicators -->
+                <div class="conv-indicators">
+                    <span class="type-pill"
+                          th:classappend="${c.type == 'GROUP'} ? 'group' : 'dm'"
+                          th:text="${c.type == 'GROUP'} ? 'Group' : 'DM'">DM</span>
+                    <span class="unread-dot" th:if="${c.unread}"></span>
                 </div>
+
+            </a>
+
+        </th:block>
+
+        <!-- Empty state -->
+        <div class="empty-state"
+             th:if="${conversations == null or #lists.isEmpty(conversations.content)}">
+            No messages yet.
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination"
+             th:if="${conversations != null and conversations.totalPages > 1}">
+            <a class="page-btn"
+               th:classappend="${conversations.first} ? 'disabled'"
+               th:href="@{/messages(page=${conversations.number - 1})}">
+                &#8592; Prev
+            </a>
+            <span class="page-info"
+                  th:text="|Page ${conversations.number + 1} of ${conversations.totalPages}|">
+                Page 1 of 1
+            </span>
+            <a class="page-btn"
+               th:classappend="${conversations.last} ? 'disabled'"
+               th:href="@{/messages(page=${conversations.number + 1})}">
+                Next &#8594;
             </a>
         </div>
 
-        <div class="empty-state" th:if="${messages == null or #lists.isEmpty(messages)}">
-            No private messages yet.
-        </div>
     </div>
 
 </div>
