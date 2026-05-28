@@ -3,135 +3,549 @@
 <head>
     <meta charset="UTF-8">
     <title>Posts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            margin: 0;
-            padding: 2rem 1rem;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:          #f0ede8;
+            --surface:     #faf9f7;
+            --border:      #e2ddd6;
+            --text-primary:#1c1a17;
+            --text-secondary:#6b6560;
+            --accent:      #2d5be3;
+            --accent-soft: #e8edfb;
+            --danger:      #c93030;
+            --danger-soft: #fbeaea;
+            --muted:       #8c877f;
+            --radius:      10px;
+            --shadow:      0 2px 12px rgba(0,0,0,0.07);
         }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
+        }
+
         .container {
-            max-width: 800px;
+            max-width: 760px;
             margin: 0 auto;
         }
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            margin-bottom: 1.5rem;
+
+        h1 {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
         }
+
+        /* ── Post Card ── */
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .post-body {
+            padding: 1.5rem 1.75rem 1.25rem;
+        }
+
         .post-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .post-title {
+            font-family: 'Lora', serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .post-topic {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .post-meta {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .post-meta span { font-weight: 600; color: var(--text-secondary); }
+
+        .post-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #3a3730;
+            margin-bottom: 1.25rem;
+        }
+
+        .post-edited {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ── Reaction Bar ── */
+        .reaction-bar {
+            display: flex;
             align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: #f7f5f1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-like {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #c6d4f7;
+        }
+        .btn-like.active, .btn-like:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+        .btn-dislike.active, .btn-dislike:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .btn-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-muted:hover { background: var(--border); }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+        .btn-danger-outline:hover { background: var(--danger-soft); }
+
+        .reaction-spacer { flex: 1; }
+
+        /* ── Comments Section ── */
+        .comments-section {
+            border-top: 1px solid var(--border);
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.75rem 0.75rem;
+        }
+
+        .comments-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+        }
+
+        .comment-count-badge {
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: var(--border);
+            color: var(--text-secondary);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .comment-list {
+            padding: 0 1.75rem;
+        }
+
+        .comment-item {
+            padding: 0.875rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .comment-item:first-child {
+            border-top: none;
+        }
+
+        .comment-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .comment-author {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-author.me::after {
+            content: 'you';
+            display: inline-block;
+            margin-left: 0.35rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #e6f0e6;
+            color: #2d7a2d;
+            padding: 0.1rem 0.4rem;
+            border-radius: 20px;
+            vertical-align: middle;
+        }
+
+        .comment-time {
+            font-size: 0.77rem;
+            color: var(--muted);
+        }
+
+        .comment-edited {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .comment-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #3a3730;
             margin-bottom: 0.5rem;
         }
-        .post-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-            color: #1e293b;
-        }
-        .post-meta {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 0;
-        }
-        .post-content {
-            margin: 1rem 0;
-            color: #334155;
-            line-height: 1.5;
-        }
-        .post-actions {
+
+        .comment-actions {
             display: flex;
-            gap: 0.75rem;
             align-items: center;
-            font-size: 0.9rem;
+            gap: 0.4rem;
+            flex-wrap: wrap;
         }
-        .btn {
-            padding: 0.5rem 0.875rem;
-            border-radius: 6px;
-            text-decoration: none;
+
+        .btn-tiny {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.75rem;
             font-weight: 600;
-            border: none;
+            border: 1px solid transparent;
             cursor: pointer;
+            text-decoration: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.15s;
+            background: transparent;
+            color: var(--muted);
+            border-color: var(--border);
+        }
+        .btn-tiny:hover { background: var(--border); color: var(--text-secondary); }
+
+        .btn-tiny.liked {
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+        }
+        .btn-tiny.disliked {
+            color: var(--danger);
+            background: var(--danger-soft);
+            border-color: #f3c6c6;
+        }
+
+        .btn-replies {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #c6d4f7;
+            cursor: pointer;
+        }
+        .btn-replies:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 1.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            text-decoration: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.15s;
+        }
+        .page-btn:hover:not(.disabled) { background: var(--border); }
+        .page-btn.disabled {
+            opacity: 0.38;
+            pointer-events: none;
+        }
+
+        .page-info {
+            font-size: 0.8rem;
+            color: var(--muted);
+            padding: 0 0.25rem;
+        }
+
+        /* ── Empty / No-posts ── */
+        .empty-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .empty-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            padding: 0.55rem 1.25rem;
             font-size: 0.875rem;
         }
-        .like {
-            background: #2563eb;
-            color: white;
-        }
-        .dislike {
-            background: #dc2626;
-            color: white;
-        }
-        .edit, .delete {
-            background: #64748b;
-            color: white;
-        }
-        .comment-list {
-            margin-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 1rem;
-        }
-        .comment {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
-            color: #334155;
-        }
-        .comment:last-child {
-            border-bottom: none;
-        }
-        .comment-author {
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .comment-content {
-            margin-top: 0.25rem;
-        }
+        .btn-primary:hover { opacity: 0.88; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Posts</h1>
-    <div class="card" th:each="post : ${posts}">
-        <div class="post-header">
-            <h2 class="post-title" th:text="${post.title}">Sample Post Title</h2>
-            <p class="post-meta">
-                by <span th:text="${post.author}">Unknown Author</span>
-                • <span th:text="${post.createdAt}">Today</span>
-            </p>
-        </div>
 
-        <div class="post-content" th:text="${post.content}">
-            This is the content of the post.
-        </div>
+    <!-- ═══════════════════════════════════════════
+         Post loop
+    ═══════════════════════════════════════════ -->
+    <div class="post-card" th:each="post : ${posts}">
 
-        <div class="post-actions">
-            <span th:text="|Likes: ${post.likes}|" class="like-count">Likes: 0</span>
-            <span th:text="|Dislikes: ${post.dislikes}|" class="dislike-count">Dislikes: 0</span>
-
-            <button class="btn like" type="button" th:attr="data-post-id=${post.id}">Like</button>
-            <button class="btn dislike" type="button" th:attr="data-post-id=${post.id}">Dislike</button>
-            <a class="btn edit" th:href="@{/posts/{id}/edit(id=${post.id})}">Edit</a>
-            <a class="btn delete" th:href="@{/posts/{id}/delete(id=${post.id})}">Delete</a>
-        </div>
-
-        <div class="comment-list" th:if="${not #lists.isEmpty(post.comments)}">
-            <p><strong>Comments</strong></p>
-            <div class="comment" th:each="comment : ${post.comments}">
-                <span class="comment-author" th:text="${comment.author}">Comment Author</span>
-                <p class="comment-content" th:text="${comment.content}">Comment text here.</p>
+        <!-- Post Body -->
+        <div class="post-body">
+            <div class="post-header">
+                <h2 class="post-title" th:text="${post.title}">Post Title</h2>
+                <span class="post-topic" th:text="${post.topic}">Topic</span>
             </div>
+
+            <p class="post-meta">
+                by <span th:text="${post.posterUserName}">username</span>
+                &nbsp;·&nbsp;
+                <span th:text="${post.timeStamp}">timestamp</span>
+            </p>
+
+            <div class="post-content" th:text="${post.content}">Post content goes here.</div>
+
+            <p class="post-edited"
+               th:if="${post.lastedEdited != null}"
+               th:text="|Edited ${post.lastedEdited}|">Edited …</p>
         </div>
+
+        <!-- Reaction Bar -->
+        <div class="reaction-bar">
+            <!-- Like -->
+            <button type="button"
+                    class="btn btn-like"
+                    th:classappend="${post.likedByMe} ? 'active'"
+                    th:attr="data-post-id=${post.id}">
+                &#9650; <span th:text="${post.likeCount}">0</span>
+            </button>
+
+            <!-- Dislike -->
+            <button type="button"
+                    class="btn btn-dislike"
+                    th:classappend="${post.dislikedByMe} ? 'active'"
+                    th:attr="data-post-id=${post.id}">
+                &#9660; <span th:text="${post.dislikeCount}">0</span>
+            </button>
+
+            <div class="reaction-spacer"></div>
+
+            <!-- Edit / Delete (only for post owner) -->
+            <th:block th:if="${post.myPost}">
+                <a class="btn btn-muted" th:href="@{/posts/{id}/edit(id=${post.id})}">Edit</a>
+                <a class="btn btn-danger-outline" th:href="@{/posts/{id}/delete(id=${post.id})}">Delete</a>
+            </th:block>
+        </div>
+
+        <!-- ─── Comments Section ─── -->
+        <div class="comments-section">
+
+            <div class="comments-header">
+                <span class="comments-title">Comments</span>
+                <span class="comment-count-badge" th:text="${post.commentCount}">0</span>
+            </div>
+
+            <!-- Comment list (top-level / non-replies only) -->
+            <div class="comment-list"
+                 th:with="postComments=${commentsByPost != null ? commentsByPost[post.id] : null}">
+
+                <th:block th:if="${postComments != null and not #lists.isEmpty(postComments.content)}">
+
+                    <div class="comment-item"
+                         th:each="comment : ${postComments.content}"
+                         th:if="${not comment.isReply}">
+
+                        <!-- Comment header -->
+                        <div class="comment-top">
+                            <span class="comment-author"
+                                  th:classappend="${comment.myComment} ? 'me'"
+                                  th:text="${comment.commenterUsername}">username</span>
+                            <span class="comment-time" th:text="${comment.timeStamp}">timestamp</span>
+                            <span class="comment-edited"
+                                  th:if="${comment.lastEdited != null}"
+                                  th:text="| edited ${comment.lastEdited}|">· edited …</span>
+                        </div>
+
+                        <!-- Comment text -->
+                        <p class="comment-content" th:text="${comment.content}">Comment text.</p>
+
+                        <!-- Comment actions -->
+                        <div class="comment-actions">
+
+                            <!-- Like -->
+                            <button type="button"
+                                    class="btn-tiny"
+                                    th:classappend="${comment.isCommentLikedByMe} ? 'liked'"
+                                    th:attr="data-comment-id=${comment.id}">
+                                &#9650; <span th:text="${comment.commentLikes}">0</span>
+                            </button>
+
+                            <!-- Dislike -->
+                            <button type="button"
+                                    class="btn-tiny"
+                                    th:classappend="${comment.isCommentDislikedByMe} ? 'disliked'"
+                                    th:attr="data-comment-id=${comment.id}">
+                                &#9660; <span th:text="${comment.commentDislikes}">0</span>
+                            </button>
+
+                            <!-- Show Replies (only when replies exist) -->
+                            <a th:if="${comment.hasReplies}"
+                               class="btn-replies"
+                               th:href="@{/comments/{id}/replies(id=${comment.id})}">
+                                &#8618; Replies
+                            </a>
+
+                            <!-- Edit / Delete (only for comment owner) -->
+                            <th:block th:if="${comment.myComment}">
+                                <a class="btn-tiny"
+                                   th:href="@{/comments/{id}/edit(id=${comment.id})}">Edit</a>
+                                <a class="btn-tiny"
+                                   style="color: var(--danger); border-color: #f3c6c6;"
+                                   th:href="@{/comments/{id}/delete(id=${comment.id})}">Delete</a>
+                            </th:block>
+
+                        </div>
+                    </div>
+
+                </th:block>
+
+                <!-- Empty state -->
+                <div th:if="${postComments == null or #lists.isEmpty(postComments.content)}"
+                     style="padding: 1rem 0; font-size: 0.875rem; color: var(--muted);">
+                    No comments yet.
+                </div>
+
+            </div><!-- /comment-list -->
+
+            <!-- ─── Pagination ─── -->
+            <div class="pagination"
+                 th:with="page=${commentsByPost != null ? commentsByPost[post.id] : null}"
+                 th:if="${page != null and page.totalPages > 1}">
+
+                <!-- Previous -->
+                <a class="page-btn"
+                   th:classappend="${page.first} ? 'disabled'"
+                   th:href="@{/posts(page=${page.number - 1}, postId=${post.id})}">
+                    &#8592; Prev
+                </a>
+
+                <span class="page-info"
+                      th:text="|Page ${page.number + 1} of ${page.totalPages}|">Page 1 of 1</span>
+
+                <!-- Next -->
+                <a class="page-btn"
+                   th:classappend="${page.last} ? 'disabled'"
+                   th:href="@{/posts(page=${page.number + 1}, postId=${post.id})}">
+                    Next &#8594;
+                </a>
+
+            </div>
+
+        </div><!-- /comments-section -->
+
+    </div><!-- /post-card -->
+
+    <!-- ─── Empty state ─── -->
+    <div th:if="${#lists.isEmpty(posts)}" class="empty-card">
+        <p>No posts yet. Be the first to create one!</p>
+        <a class="btn btn-primary" href="/posts/create">Create Post</a>
     </div>
 
-    <div th:if="${#lists.isEmpty(posts)}" class="card">
-        <p>No posts yet. Be the first to create one!</p>
-        <a class="btn signup" href="/posts/create">Create Post</a>
-    </div>
-</div>
+</div><!-- /container -->
 </body>
 </html>

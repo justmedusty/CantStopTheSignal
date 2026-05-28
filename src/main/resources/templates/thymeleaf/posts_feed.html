@@ -3,11 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>My Feed</title>
-    <div class="site_banner">
-    <h1 th:text="${server_config.name}"></h1>
-    <h2 th:text="${server_config.topic}"></h2>
-    <h3 th:text="${server_config.motd}"></h3>
-    </div>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,66 +10,29 @@
             margin: 0;
             padding: 2rem 1rem;
         }
+
+        /* ── Site Banner ── */
         .site_banner {
             max-width: 720px;
-            margin: 3rem auto;
+            margin: 0 auto 2rem;
             padding: 2rem 2.5rem;
             text-align: center;
-
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #ffffff;
             border-radius: 16px;
-            box-shadow:
-                    0 10px 30px rgba(0, 0, 0, 0.25),
-                    0 1px 3px rgba(0, 0, 0, 0.15);
-
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
+        .site_banner h1 { margin: 0 0 0.6rem; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+        .site_banner h2 { margin: 0 0 0.8rem; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; opacity: 0.95; }
+        .site_banner h3 { margin: 0; font-size: 1rem; font-weight: 400; line-height: 1.5; opacity: 0.9; }
 
-        .site_banner h1 {
-            margin: 0 0 0.6rem;
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-        }
-
-        .site_banner h2 {
-            margin: 0 0 0.8rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            line-height: 1.3;
-            opacity: 0.95;
-        }
-
-        .site_banner h3 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .container { max-width: 800px; margin: 0 auto; }
 
         /* ── Top bar ── */
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
         .topbar h1 { margin: 0; }
-        .topbar-actions {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-        }
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
 
         /* ── Buttons ── */
         .btn {
@@ -91,11 +49,8 @@
         }
         .btn-primary  { background: #2563eb; color: white; }
         .btn-primary:hover  { background: #1d4ed8; }
-        .like    { background: #2563eb; color: white; }
-        .dislike { background: #dc2626; color: white; }
-        .edit, .delete { background: #64748b; color: white; }
 
-        /* ── Icon buttons (notifications / messages) ── */
+        /* ── Icon buttons ── */
         .btn-icon {
             position: relative;
             background: #e2e8f0;
@@ -110,8 +65,6 @@
             align-items: center;
         }
         .btn-icon:hover { background: #cbd5e1; }
-
-        /* glowing red badge */
         .btn-icon.has-alert {
             box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.5);
             animation: glow-pulse 1.5s ease-in-out infinite;
@@ -120,96 +73,105 @@
             0%, 100% { box-shadow: 0 0 0 2px #dc2626, 0 0 8px 2px rgba(220,38,38,0.4); }
             50%       { box-shadow: 0 0 0 2px #dc2626, 0 0 16px 6px rgba(220,38,38,0.7); }
         }
-
         .badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #dc2626;
-            color: white;
-            font-size: 0.65rem;
-            font-weight: 700;
-            border-radius: 999px;
-            padding: 1px 5px;
-            min-width: 16px;
-            text-align: center;
-            line-height: 1.4;
+            position: absolute; top: -6px; right: -6px;
+            background: #dc2626; color: white;
+            font-size: 0.65rem; font-weight: 700;
+            border-radius: 999px; padding: 1px 5px;
+            min-width: 16px; text-align: center; line-height: 1.4;
         }
 
         /* ── Cards ── */
         .card {
             background: white;
-            padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.08);
             margin-bottom: 1.5rem;
+            overflow: hidden;
         }
+
+        .card-body { padding: 1.5rem 1.5rem 1rem; }
+
         .post-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 0.5rem;
+            gap: 1rem;
         }
-        .post-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 0;
-            color: #1e293b;
+        .post-title { font-size: 1.35rem; font-weight: 700; margin: 0; color: #1e293b; line-height: 1.3; }
+        .post-meta { font-size: 0.875rem; color: #64748b; margin: 0; white-space: nowrap; }
+
+        /* ── Truncated content ── */
+        .post-content-wrap { position: relative; margin: 0.875rem 0 0; }
+
+        .post-content {
+            color: #334155;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            max-height: calc(1.6em * 6); /* line-height × number of lines */
+            overflow: hidden;
         }
-        .post-meta { font-size: 0.9rem; color: #64748b; margin: 0; }
-        .post-content { margin: 1rem 0; color: #334155; line-height: 1.5; }
+
+        /* fade-out overlay when truncated */
+        .post-content-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3rem;
+            background: linear-gradient(to bottom, transparent, white);
+            pointer-events: none;
+        }
+
+        /* ── Action bar ── */
         .post-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 1rem;
-            padding-top: 0.75rem;
+            padding: 0.875rem 1.5rem;
             border-top: 1px solid #e2e8f0;
+            background: #f8fafc;
             flex-wrap: wrap;
             gap: 0.5rem;
         }
-        .post-actions-left {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .post-actions-right {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .post-actions-left  { display: flex; gap: 0.5rem; align-items: center; }
+        .post-actions-right { display: flex; gap: 0.5rem; align-items: center; }
+
         .btn.like    { background: #2563eb; color: white; }
         .btn.dislike { background: #dc2626; color: white; }
         .btn.like.active    { background: #1d4ed8; box-shadow: 0 0 0 2px #93c5fd; }
         .btn.dislike.active { background: #b91c1c; box-shadow: 0 0 0 2px #fca5a5; }
+
         .comment-count {
-            color: #64748b;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
+            color: #64748b; font-size: 0.875rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.3rem;
             padding: 0.5rem 0.6rem;
         }
+
         .btn.edit   { background: #f1f5f9; color: #475569; }
         .btn.delete { background: #fff1f2; color: #e11d48; }
         .btn.edit:hover   { background: #e2e8f0; }
         .btn.delete:hover { background: #ffe4e6; }
 
-        /* ── Comments ── */
-        .comment-list {
-            margin-top: 1rem;
+        /* ── "Read more" / "View post" button ── */
+        .btn-read-more {
+            display: block;
+            width: 100%;
+            padding: 0.65rem 1.5rem;
+            background: transparent;
+            border: none;
             border-top: 1px solid #e2e8f0;
-            padding-top: 1rem;
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            transition: background 0.15s;
+            letter-spacing: 0.01em;
         }
-        .comment {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.9rem;
-            color: #334155;
-        }
-        .comment:last-child { border-bottom: none; }
-        .comment-author { font-weight: 600; color: #1e293b; }
-        .comment-content { margin-top: 0.25rem; }
+        .btn-read-more:hover { background: #eff6ff; color: #1d4ed8; }
 
         /* ── Pagination ── */
         .pagination {
@@ -229,31 +191,31 @@
         }
         .pagination a { background: #2563eb; color: white; }
         .pagination a:hover { background: #1d4ed8; }
-        .pagination .current { background: #e2e8f0; color: #64748b; cursor: default; }
+        .pagination .current  { background: #e2e8f0; color: #64748b; cursor: default; }
         .pagination .disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
+
+        /* ── Flash messages ── */
         .error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
+            background: #fee2e2; color: #991b1b;
+            border: 1px solid #fca5a5; border-radius: 8px;
+            padding: 0.6rem 1rem; margin-bottom: 1rem; font-size: 0.9rem;
         }
         .success {
-            background: #18b40f;
-            color: #ffffff;
-            border: 1px solid #18b40f;
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
+            background: #18b40f; color: #ffffff;
+            border: 1px solid #18b40f; border-radius: 8px;
+            padding: 0.6rem 1rem; margin-bottom: 1rem; font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+
+<!-- Site Banner (lives in <body>, not <head>) -->
+<div class="site_banner">
+    <h1 th:text="${server_config.name}">Server Name</h1>
+    <h2 th:text="${server_config.topic}">Server Topic</h2>
+    <h3 th:text="${server_config.motd}">Message of the Day</h3>
+</div>
+
 <div class="container">
 
     <!-- Top bar -->
@@ -261,7 +223,6 @@
         <h1>Posts</h1>
         <div class="topbar-actions">
 
-            <!-- Notifications: glows red when there are unread notifications -->
             <a class="btn-icon"
                href="/notifications"
                th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
@@ -269,83 +230,91 @@
                 <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
             </a>
 
-            <!-- Messages: glows red when there are unread messages -->
             <a class="btn-icon"
                href="/messages"
                th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
                 ✉️
                 <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
             </a>
-            <a class="btn btn-primary" href="profile">My Profile</a>
+
+            <a class="btn btn-primary" href="/profile">My Profile</a>
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
-            <a class="btn btn-primary" href="logout">Logout</a>
+            <a class="btn btn-primary" href="/logout">Logout</a>
         </div>
     </div>
-    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
 
     <!-- Post list -->
     <div class="card" th:each="post : ${posts}">
-        <div class="post-header">
-            <h2 class="post-title" th:text="${post.title}">Sample Post Title</h2>
-            <p class="post-meta">
-                by <span th:text="${post.posterUserName}">Unknown Author</span>
-                • <span th:text="${post.timeStamp}">Today</span>
-            </p>
+        <div class="card-body">
+
+            <!-- Header -->
+            <div class="post-header">
+                <h2 class="post-title" th:text="${post.title}">Post Title</h2>
+                <p class="post-meta">
+                    by <strong th:text="${post.posterUserName}">author</strong>
+                    &nbsp;·&nbsp;
+                    <span th:text="${post.timeStamp}">timestamp</span>
+                </p>
+            </div>
+
+            <!-- Truncated content (≈500 chars via CSS line-clamp) -->
+            <div class="post-content-wrap">
+                <div class="post-content" th:text="${post.content}">Post content preview…</div>
+            </div>
+
         </div>
 
-        <div class="post-content" th:text="${post.content}">
-            This is the content of the post.
-        </div>
-
-
+        <!-- Reaction / action bar -->
         <div class="post-actions">
             <div class="post-actions-left">
-                <button class="btn like"    type="button" th:attr="data-post-id=${post.id}"
+                <button class="btn like" type="button"
+                        th:attr="data-post-id=${post.id}"
                         th:classappend="${post.likedByMe} ? ' active' : ''">
                     👍 <span th:text="${post.likeCount}">0</span>
                 </button>
-                <button class="btn dislike" type="button" th:attr="data-post-id=${post.id}"
+                <button class="btn dislike" type="button"
+                        th:attr="data-post-id=${post.id}"
                         th:classappend="${post.dislikedByMe} ? ' active' : ''">
                     👎 <span th:text="${post.dislikeCount}">0</span>
                 </button>
                 <span class="comment-count">
-            💬 <span th:text="${post.commentCount}">0</span>
-        </span>
+                    💬 <span th:text="${post.commentCount}">0</span>
+                </span>
             </div>
 
             <div class="post-actions-right" th:if="${post.myPost}">
-                <a class="btn edit"   th:attr="href='/posts/edit/' + ${post.id}">✏️ Edit</a>
-                <a class="btn delete" th:attr="href='/posts/delete/' + ${post.id}">🗑️ Delete</a>
+                <a class="btn edit"  th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
+                <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
             </div>
         </div>
-<!-- Comment this out for now
-        <div class="comment-list" th:if="${not #lists.isEmpty(post.comments)}">
-            <p><strong>Comments</strong></p>
-            <div class="comment" th:each="comment : ${post.comments}">
-                <span class="comment-author" th:text="${comment.author}">Comment Author</span>
-                <p class="comment-content" th:text="${comment.content}">Comment text here.</p>
-            </div>
-        </div>
-        -->
-    </div>
 
+        <!-- Read more / view comments — both go to the same post detail page -->
+        <a class="btn-read-more" th:href="|/posts/${post.id}|">
+            Read more &amp; view comments →
+        </a>
+    </div>
 
     <!-- Empty state -->
     <div th:if="${#lists.isEmpty(posts)}" class="card">
-        <p>No posts yet. Be the first to create one!</p>
+        <div class="card-body" style="text-align:center; padding: 2.5rem;">
+            <p style="color:#64748b; margin-bottom:1rem;">No posts yet. Be the first to create one!</p>
+            <a class="btn btn-primary" href="/posts/create">Create Post</a>
+        </div>
     </div>
 
     <!-- Pagination -->
     <div class="pagination" th:if="${totalPages > 1}">
         <a th:if="${currentPage > 0}"
-           th:href="@{posts(page=${currentPage - 1})}">← Back</a>
+           th:href="@{/posts(page=${currentPage - 1})}">← Back</a>
         <span class="disabled" th:unless="${currentPage > 0}">← Back</span>
 
         <span class="current" th:text="|Page ${currentPage + 1} of ${totalPages}|"></span>
 
         <a th:if="${currentPage + 1 < totalPages}"
-           th:href="@{posts(page=${currentPage + 1})}">Next →</a>
+           th:href="@{/posts(page=${currentPage + 1})}">Next →</a>
         <span class="disabled" th:unless="${currentPage + 1 < totalPages}">Next →</span>
     </div>
 

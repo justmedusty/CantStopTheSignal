@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-fun insertNewCommentEdit(commentsId: Long, userId: Long): Boolean{
+fun insertNewCommentEdit(commentsId: Long, userId: Long): Boolean {
     return try {
         val transaction = transaction {
             CommentEdits.insert {
@@ -21,22 +21,38 @@ fun insertNewCommentEdit(commentsId: Long, userId: Long): Boolean{
             true
         }
         transaction
-    }catch (e:Exception){
+    } catch (e: Exception) {
         logger.error { e.message }
         false
     }
 }
 
-fun getLastCommentEdit(commentId: Long) : LocalDateTime?{
+fun getLastCommentEdit(commentId: Long): LocalDateTime? {
     return try {
         transaction {
-            val result = CommentEdits.select(CommentEdits.commentId eq commentId )
+            val result = CommentEdits.select(CommentEdits.commentId eq commentId)
                 .orderBy(CommentEdits.lastEdited, SortOrder.DESC)
                 .limit(1)
                 .firstOrNull()
 
             result?.get(CommentEdits.lastEdited)
         }
+    } catch (e: Exception) {
+        logger.error { e.message }
+        null
+    }
+}
+
+fun getLastCommentEditWithinTransaction(commentId: Long): LocalDateTime? {
+    return try {
+
+        val result = CommentEdits.select(CommentEdits.commentId eq commentId)
+            .orderBy(CommentEdits.lastEdited, SortOrder.DESC)
+            .limit(1)
+            .firstOrNull()
+
+        result?.get(CommentEdits.lastEdited)
+
     } catch (e: Exception) {
         logger.error { e.message }
         null

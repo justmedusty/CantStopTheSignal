@@ -22,6 +22,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     ERROR("error"),
     POSTS("posts"),
     COMMENTS("comments"),
+    COMMENT_REPLIES("comment_replies"),
     PROFILE_DATA("profile_data"),
     MESSAGE_NOTIFICATIONS("message_notifications"),
     OTHER_NOTIFICATIONS("other_notifications"),

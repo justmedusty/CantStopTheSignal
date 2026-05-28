@@ -17,10 +17,34 @@ fun isCommentDisLikedByUser(commentId: Long, likedById: Long?): Boolean {
         return false
     } else {
         try {
-                val alreadyLiked = CommentDislikes.select (
+            transaction {
+
+
+                val alreadyLiked = CommentDislikes.select(
                     (CommentDislikes.commentId eq commentId) and (CommentDislikes.dislikedById eq likedById)
-                    )
+                )
                 alreadyLiked.count() > 0
+            }
+        } catch (e: Exception) {
+            logger.error { e.message }
+            true
+        }
+    }
+
+}
+
+fun isCommentDisLikedByUserWithinTransaction(commentId: Long, likedById: Long?): Boolean {
+    return if (likedById == null) {
+        return false
+    } else {
+        try {
+
+
+            val alreadyLiked = CommentDislikes.select(
+                (CommentDislikes.commentId eq commentId) and (CommentDislikes.dislikedById eq likedById)
+            )
+            alreadyLiked.count() > 0
+
         } catch (e: Exception) {
             logger.error { e.message }
             true
@@ -31,9 +55,9 @@ fun isCommentDisLikedByUser(commentId: Long, likedById: Long?): Boolean {
 
 fun getLikesForComment(commentId: Long): Long {
     return try {
-            CommentLikes.select (
-                (CommentLikes.commentId eq commentId)
-            ).count()
+        CommentLikes.select(
+            (CommentLikes.commentId eq commentId)
+        ).count()
     } catch (e: Exception) {
         logger.error { e.message }
         -1
@@ -48,14 +72,14 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
                 it[CommentLikes.commentId] = commentId
                 it[CommentLikes.likedById] = likedById
             }
-            insertNotificationWithinTransaction(commentId,likedById,Notif.COMMENT.value)
+            insertNotificationWithinTransaction(commentId, likedById, Notif.COMMENT.value)
             true
         }
     } catch (e: Exception) {
         logger.error { e.message }
         false
     }
-    if(!unDislikeComment(likedById, commentId)) return false
+    if (!unDislikeComment(likedById, commentId)) return false
     return try {
         transaction {
             CommentLikes.insert {
@@ -72,9 +96,9 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
 
 fun isRequesterLikeOwner(userId: Long, commentId: Long): Boolean {
     return try {
-            val match =
-                CommentLikes.select((CommentLikes.commentId eq commentId) and (CommentLikes.likedById eq userId))
-            match.count() > 0
+        val match =
+            CommentLikes.select((CommentLikes.commentId eq commentId) and (CommentLikes.likedById eq userId))
+        match.count() > 0
     } catch (e: Exception) {
         logger.error { "Error checking who is comment poster" }
         false
@@ -83,8 +107,23 @@ fun isRequesterLikeOwner(userId: Long, commentId: Long): Boolean {
 
 fun unlikeComment(requesterId: Long, commentId: Long): Boolean {
     return try {
-            val success = CommentLikes.deleteWhere { (likedById eq requesterId) and (CommentLikes.commentId eq commentId) }
+        transaction {
+
+
+            val success =
+                CommentLikes.deleteWhere { (likedById eq requesterId) and (CommentLikes.commentId eq commentId) }
             success > 0
+        }
+    } catch (e: Exception) {
+        logger.error { e.message }
+        false
+    }
+}
+
+fun unlikeCommentWithinTransaction(requesterId: Long, commentId: Long): Boolean {
+    return try {
+        val success = CommentLikes.deleteWhere { (likedById eq requesterId) and (CommentLikes.commentId eq commentId) }
+        success > 0
     } catch (e: Exception) {
         logger.error { e.message }
         false
