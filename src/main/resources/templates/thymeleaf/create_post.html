@@ -3,19 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Post</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #f0ede8;
+            --surface:       #faf9f7;
+            --border:        #e2ddd6;
+            --text-primary:  #1c1a17;
+            --text-secondary:#6b6560;
+            --accent:        #2d5be3;
+            --accent-soft:   #e8edfb;
+            --danger:        #c93030;
+            --danger-soft:   #fbeaea;
+            --muted:         #8c877f;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
             margin: 0;
-            padding: 2rem 1rem;
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+        .container { max-width: 760px; margin: 0 auto; }
 
+        /* ── Top bar ── */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -24,132 +42,137 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
-
         .topbar h1 {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
             margin: 0;
         }
 
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* ── Card ── */
         .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            margin-bottom: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
         }
 
         .section-title {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.72rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #94a3b8;
-            margin-bottom: 1rem;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            padding: 1rem 1.75rem 0.75rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .card-body { padding: 1.5rem 1.75rem; }
+
+        /* ── Form ── */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group:last-of-type { margin-bottom: 0; }
 
         label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            color: #64748b;
-            margin-bottom: 0.45rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
         }
 
         input[type="text"],
         textarea {
             width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 0.8rem 0.9rem;
-            font-size: 0.95rem;
-            font-family: Arial, sans-serif;
-            color: #1e293b;
-            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-primary);
+            background: #fff;
+            transition: border-color 0.15s;
+            outline: none;
         }
 
         textarea {
             min-height: 220px;
             resize: vertical;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         input[type="text"]:focus,
         textarea:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(45,91,227,0.1);
         }
 
+        .helper {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 0.35rem;
+            line-height: 1.5;
+        }
+
+        /* ── Actions ── */
         .actions {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
-            margin-top: 1.25rem;
+            padding: 1rem 1.75rem 1.25rem;
+            border-top: 1px solid var(--border);
+            background: #f7f5f1;
         }
 
+        /* ── Buttons ── */
         .btn {
-            padding: 0.5rem 0.875rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            font-size: 0.875rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
         }
+        .btn:active { transform: scale(0.97); }
 
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.88; }
 
         .btn-secondary {
-            background: #64748b;
-            color: white;
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
         }
-
-        .btn-secondary:hover {
-            background: #475569;
-        }
-
-        .helper {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-top: 0.35rem;
-
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-
-        .success {
-            background: #18b40f;
-            color: #ffffff;
-            border: 1px solid #18b40f;
-            border-radius: 8px;
-            padding: 0.6rem 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
-        }
+        .btn-secondary:hover { background: var(--border); }
     </style>
 </head>
 <body>
@@ -159,32 +182,35 @@
         <h1>Create Post</h1>
         <a class="btn btn-secondary" href="/feed">← Home Feed</a>
     </div>
-    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+
     <div class="card">
-        <div class="section-title">New post</div>
+        <div class="section-title">New Post</div>
 
         <form action="/posts/create" method="post">
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input id="title" type="text" name="title" minlength="4" maxlength="300" placeholder="Enter a title"
-                       required>
-                <div class="helper">Keep it short and clear.</div>
-            </div>
-            <div class="form-group">
-                <label for="topic">Topic</label>
-                <input id="topic" type="text" name="topic" minlength="2" maxlength="100" placeholder="Enter a topic"
-                       required>
-                <div class="helper">Keep it short and simple, check what popular topic names are to make finding this
-                    post easier.
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input id="title" type="text" name="title" minlength="4" maxlength="300"
+                           placeholder="Enter a title" required>
+                    <p class="helper">Keep it short and clear.</p>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="content">Content</label>
-                <textarea id="content" name="content" minlength="5" maxlength="20000"
-                          placeholder="Write your post here..." required></textarea>
-                <div class="helper">You can write a longer message, update, or thought here.</div>
+                <div class="form-group">
+                    <label for="topic">Topic</label>
+                    <input id="topic" type="text" name="topic" minlength="2" maxlength="100"
+                           placeholder="Enter a topic" required>
+                    <p class="helper">Keep it short and simple — check popular topic names to make this post easier to find.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" minlength="5" maxlength="20000"
+                              placeholder="Write your post here..." required></textarea>
+                    <p class="helper">You can write a longer message, update, or thought here.</p>
+                </div>
             </div>
 
             <div class="actions">

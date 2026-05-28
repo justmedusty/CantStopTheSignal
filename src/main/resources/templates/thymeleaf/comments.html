@@ -706,25 +706,5 @@
     </div><!-- /thread-card -->
 
 </div><!-- /container -->
-
-<script>
-    function togglePost() {
-        const wrapper = document.getElementById('postContentWrapper');
-        const btn     = document.getElementById('togglePostBtn');
-        const collapsed = wrapper.classList.toggle('collapsed');
-        btn.textContent = collapsed ? 'Show more' : 'Show less';
-    }
-
-    // Auto-expand if post content is short enough to not need truncation
-    window.addEventListener('DOMContentLoaded', () => {
-        const content = document.querySelector('.post-content');
-        const wrapper = document.getElementById('postContentWrapper');
-        const btn     = document.getElementById('togglePostBtn');
-        if (content && content.scrollHeight <= content.clientHeight + 4) {
-            wrapper.classList.remove('collapsed');
-            btn.style.display = 'none';
-        }
-    });
-</script>
 </body>
 </html>

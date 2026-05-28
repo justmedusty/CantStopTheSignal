@@ -3,80 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #f0ede8;
+            --surface:       #faf9f7;
+            --border:        #e2ddd6;
+            --text-primary:  #1c1a17;
+            --text-secondary:#6b6560;
+            --accent:        #2d5be3;
+            --accent-soft:   #e8edfb;
+            --danger:        #c93030;
+            --danger-soft:   #fbeaea;
+            --muted:         #8c877f;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'DM Sans', sans-serif;
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
             align-items: center;
             justify-content: center;
-            background: #f5f7fb;
-            margin: 0;
+            background: var(--bg);
+            padding: 2rem 1rem;
+            color: var(--text-primary);
         }
+
         .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            min-width: 300px;
-            text-align: center;
+            background: var(--surface);
+            padding: 2rem 2.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 360px;
         }
-        .card h1 { margin-top: 0; }
+
+        .card h1 {
+            font-family: 'Lora', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        /* ── Form ── */
         .form-group {
             margin-bottom: 1rem;
-            text-align: left;
         }
+
         label {
             display: block;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-            color: #444;
+            margin-bottom: 0.35rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
+
         input[type="text"],
         input[type="password"] {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
+            padding: 0.5rem 0.75rem;
+            border: 1.5px solid var(--border);
             border-radius: 6px;
-            box-sizing: border-box;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            background: #fff;
+            transition: border-color 0.15s;
+            outline: none;
         }
-        button {
-            padding: 0.6rem 1.2rem;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--accent);
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 1.25rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
             font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
         }
-        button:hover { background: #1d4ed8; }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-submit {
+            width: 100%;
+            margin-top: 0.5rem;
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-submit:hover { opacity: 0.88; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+
+        .card-footer {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* ── Flash messages ── */
         .error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-            border-radius: 8px;
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
+            font-size: 0.875rem;
         }
         .success {
-            background: #18b40f;
-            color: #ffffff;
-            border: 1px solid #18b40f;
-            border-radius: 8px;
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-align: left;
+            font-size: 0.875rem;
         }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>Login</h1>
-    <div class="error" th:if="${error}" th:text="${error}"></div>
+
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+
     <form action="login" method="post">
         <div class="form-group">
             <label for="username">Username</label>
@@ -86,10 +161,12 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" required />
         </div>
-        <button type="submit">Login</button>
+        <button class="btn btn-submit" type="submit">Login</button>
     </form>
-    <br>
-    <a href="index" class="btn btn-secondary">Back</a>
+
+    <div class="card-footer">
+        <a class="btn btn-secondary" href="index">Back</a>
+    </div>
 </div>
 </body>
 </html>
