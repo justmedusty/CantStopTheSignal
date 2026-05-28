@@ -24,7 +24,6 @@ fun Application.configureMessageRouting() {
 
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching posts.")
                 }
                 call.respond(
                     ThymeleafContent("private_message_list", model)
