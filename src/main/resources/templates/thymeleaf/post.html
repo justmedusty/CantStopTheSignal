@@ -499,6 +499,25 @@
             text-align: center;
             line-height: 1.4;
         }
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
@@ -528,6 +547,9 @@
             <a class="btn btn-primary" href="/logout">Logout</a>
         </div>
     </div>
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
+
 
     <!-- ═══════════════════════════════════════════
          Post loop
@@ -591,7 +613,7 @@
 
             <!-- ─── Compose Box ─── -->
             <div class="compose-box">
-                <form action="/comments/post" method="post">
+                <form th:action="|/comments/post/${id}(id=${post.id}|" method="post">
                     <input type="hidden" name="postId" th:value="${post.id}" />
 
                     <textarea name="content"
@@ -602,7 +624,7 @@
                               required></textarea>
 
                     <div class="compose-footer">
-                        <button type="submit" id="post-btn" disabled>Post</button>
+                        <button type="submit" id="post-btn">Post</button>
                     </div>
                 </form>
             </div>
@@ -611,10 +633,10 @@
             <div class="comment-list"
                  th:with="postComments=${commentsByPost != null ? commentsByPost[post.id] : null}">
 
-                <th:block th:if="${postComments != null and not #lists.isEmpty(postComments.content)}">
+                <th:block th:if="${comments != null and not #lists.isEmpty(comments)}">
 
                     <div class="comment-item"
-                         th:each="comment : ${postComments.content}"
+                         th:each="comment : ${comments}"
                          th:if="${not comment.isReply}">
 
                         <!-- Comment header -->
@@ -650,12 +672,6 @@
                                 &#9660; <span th:text="${comment.commentDislikes}">0</span>
                             </button>
 
-                            <!-- Show Replies (only when replies exist) -->
-                            <a th:if="${comment.hasReplies}"
-                               class="btn-replies"
-                               th:href="@|/comments/@{id}/replies(id=${comment.id})|">
-                                &#8618; Replies
-                            </a>
 
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">

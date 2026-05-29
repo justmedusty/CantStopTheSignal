@@ -190,7 +190,7 @@ fun fetchPostsByTopic(
     }
 }
 
-fun fetchPostsFromUser(callerId : Long,page: Int, limit: Int, userId: Long): List<Post>? {
+fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): List<Post>? {
     return try {
         transaction {
             (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).select(
@@ -275,14 +275,14 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
     }
 }
 
-fun fetchPostById(givenId : Long, userId: Long): List<Post>? {
+fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
 
     return try {
         transaction {
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
-                ).where(Posts.id eq givenId).map{
+                ).where(Posts.id eq givenId).map {
                     val postId = it[Posts.id]
                     val posterUsername = it[Posts.posterId]
                     val username = getUserName(posterUsername) ?: "Could not get username"
@@ -313,6 +313,7 @@ fun fetchPostById(givenId : Long, userId: Long): List<Post>? {
         null
     }
 }
+
 fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>? {
     try {
         var orderByCount: Expression<Long>? = null
@@ -422,4 +423,17 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
         null
     }
 
+}
+/*
+    Sanity check helper function to make sure people aren't trying to interact with posts that dont exist
+ */
+fun verifyPostId(id: Long): Boolean {
+    return try {
+        transaction {
+            Posts.select(Posts.id eq id).count() > 0
+        }
+    } catch (e: Exception) {
+        logger.error { e }
+        false
+    }
 }
