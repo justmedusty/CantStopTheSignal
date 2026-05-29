@@ -373,12 +373,161 @@
             padding: 0.55rem 1.25rem;
             font-size: 0.875rem;
         }
+        /* ─── Comments Section (centering) ─── */
+        .comments-section {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* ─── Compose Box ─── */
+        .compose-box {
+            max-width: 680px;
+            margin: 0 auto 20px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .compose-box form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .compose-box textarea {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+            border: none;
+            outline: none;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-family: inherit;
+            line-height: 1.6;
+            background: #ffffff;
+            color: #111827;
+            box-sizing: border-box;
+        }
+
+        .compose-box textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .compose-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .char-count {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .compose-footer button[type="submit"] {
+            padding: 5px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background: #111827;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .compose-footer button[type="submit"]:hover {
+            background: #374151;
+        }
         .btn-primary:hover { opacity: 0.88; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 {
+            margin: 0;
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .btn-icon {
+            position: relative;
+            background: var(--border);
+            color: var(--text-primary);
+            padding: 0.42rem 0.7rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.15s;
+        }
+        .btn-icon:hover { background: #d8d2c9; }
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.4);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35); }
+            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201,48,48,0.6); }
+        }
+        .badge {
+            position: absolute;
+            top: -6px; right: -6px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Posts</h1>
+    <div class="topbar">
+        <h1>Posts</h1>
+        <div class="topbar-actions">
+
+            <a class="btn-icon" href="/feed">🏠</a>
+
+            <a class="btn-icon"
+               href="/notifications"
+               th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
+                🔔
+                <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+            </a>
+
+            <a class="btn-icon"
+               href="/messages"
+               th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
+                ✉️
+                <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
+            </a>
+
+            <a class="btn btn-primary" href="/profile">My Profile</a>
+            <a class="btn btn-primary" href="/posts/create">Create Post</a>
+            <a class="btn btn-primary" href="/logout">Logout</a>
+        </div>
+    </div>
 
     <!-- ═══════════════════════════════════════════
          Post loop
@@ -427,8 +576,8 @@
 
             <!-- Edit / Delete (only for post owner) -->
             <th:block th:if="${post.myPost}">
-                <a class="btn btn-muted" th:href="@{/posts/{id}/edit(id=${post.id})}">Edit</a>
-                <a class="btn btn-danger-outline" th:href="@{/posts/{id}/delete(id=${post.id})}">Delete</a>
+                <a class="btn btn-muted" th:href="|/posts/${id}/edit(id=${post.id})|">Edit</a>
+                <a class="btn btn-danger-outline" th:href="|posts/@{id}/delete(id=${post.id})|">Delete</a>
             </th:block>
         </div>
 
@@ -438,6 +587,24 @@
             <div class="comments-header">
                 <span class="comments-title">Comments</span>
                 <span class="comment-count-badge" th:text="${post.commentCount}">0</span>
+            </div>
+
+            <!-- ─── Compose Box ─── -->
+            <div class="compose-box">
+                <form action="/comments/post" method="post">
+                    <input type="hidden" name="postId" th:value="${post.id}" />
+
+                    <textarea name="content"
+                              id="comment-input"
+                              maxlength="5000"
+                              minlength="1"
+                              placeholder="Write a comment…"
+                              required></textarea>
+
+                    <div class="compose-footer">
+                        <button type="submit" id="post-btn" disabled>Post</button>
+                    </div>
+                </form>
             </div>
 
             <!-- Comment list (top-level / non-replies only) -->
@@ -486,17 +653,17 @@
                             <!-- Show Replies (only when replies exist) -->
                             <a th:if="${comment.hasReplies}"
                                class="btn-replies"
-                               th:href="@{/comments/{id}/replies(id=${comment.id})}">
+                               th:href="@|/comments/@{id}/replies(id=${comment.id})|">
                                 &#8618; Replies
                             </a>
 
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">
                                 <a class="btn-tiny"
-                                   th:href="@{/comments/{id}/edit(id=${comment.id})}">Edit</a>
+                                   th:href="|/comments/{id}/edit(id=${comment.id})|">Edit</a>
                                 <a class="btn-tiny"
                                    style="color: var(--danger); border-color: #f3c6c6;"
-                                   th:href="@{/comments/{id}/delete(id=${comment.id})}">Delete</a>
+                                   th:href="|/comments/{id}/delete(id=${comment.id})|">Delete</a>
                             </th:block>
 
                         </div>
@@ -520,7 +687,7 @@
                 <!-- Previous -->
                 <a class="page-btn"
                    th:classappend="${page.first} ? 'disabled'"
-                   th:href="@{/posts(page=${page.number - 1}, postId=${post.id})}">
+                   th:href="|/posts(page=${page.number - 1}, postId=${post.id})|">
                     &#8592; Prev
                 </a>
 
@@ -530,7 +697,7 @@
                 <!-- Next -->
                 <a class="page-btn"
                    th:classappend="${page.last} ? 'disabled'"
-                   th:href="@{/posts(page=${page.number + 1}, postId=${post.id})}">
+                   th:href="|/posts(page=${page.number + 1}, postId=${post.id})|">
                     Next &#8594;
                 </a>
 
@@ -540,11 +707,6 @@
 
     </div><!-- /post-card -->
 
-    <!-- ─── Empty state ─── -->
-    <div th:if="${#lists.isEmpty(posts)}" class="empty-card">
-        <p>No posts yet. Be the first to create one!</p>
-        <a class="btn btn-primary" href="/posts/create">Create Post</a>
-    </div>
 
 </div><!-- /container -->
 </body>

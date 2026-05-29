@@ -1,5 +1,7 @@
 package com.freedom.cantstopthesignal.database.posts
 
+import cantstopthesignal.database.comments.isCommentDisLikedByUserWithinTransaction
+import cantstopthesignal.database.comments.isCommentLikedByUserWithinTransaction
 import cantstopthesignal.database.posts.addPostContents
 import cantstopthesignal.database.posts.checkLastPostEdit
 import cantstopthesignal.database.posts.getDislikesForPost
@@ -273,6 +275,44 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
     }
 }
 
+fun fetchPostById(givenId : Long, userId: Long): List<Post>? {
+
+    return try {
+        transaction {
+            Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
+                .leftJoin(PostLikes).select(
+                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
+                ).where(Posts.id eq givenId).map{
+                    val postId = it[Posts.id]
+                    val posterUsername = it[Posts.posterId]
+                    val username = getUserName(posterUsername) ?: "Could not get username"
+                    val lastEdited = checkLastPostEdit(postId)
+                    val dislikedByMe = isCommentDisLikedByUserWithinTransaction(postId, userId)
+                    val likedByMe = isCommentLikedByUserWithinTransaction(postId, userId)
+                    val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
+                    Post(
+                        postId,
+                        username,
+                        it[Posts.topic],
+                        it[Posts.timestamp].toString(),
+                        it[PostContents.title],
+                        it[PostContents.content],
+                        getLikesForPost(postId),
+                        getDislikesForPost(postId),
+                        likedByMe,
+                        dislikedByMe,
+                        lastEdited.toString(),
+                        commentCount,
+                        it[Posts.posterId] == userId
+
+                    )
+                }
+        }
+    } catch (e: Exception) {
+        logger.error { e.message }
+        null
+    }
+}
 fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>? {
     try {
         var orderByCount: Expression<Long>? = null
