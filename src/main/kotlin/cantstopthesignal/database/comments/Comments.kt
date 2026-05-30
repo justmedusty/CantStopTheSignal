@@ -175,7 +175,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
             val hasReplies = doesCommentHaveReplies(id)
 
 
-            Comments.select(Comments.id eq id).singleOrNull()?.let {
+            Comments.selectAll().where{Comments.id eq id}.singleOrNull()?.let {
                 val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
@@ -184,7 +184,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     it[Comments.commenterId],
                     username,
                     it[Comments.isReply],
-                    it[parentCommentId],
+                    it[Comments.parentCommentId],
                     it[Comments.timeStamp].toString(),
                     commentLikes,
                     commentDislikes,
@@ -198,6 +198,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
         }
     } catch (e: Exception) {
         logger.error { e.message }
+        e.printStackTrace()
         null
     }
 }
@@ -322,10 +323,10 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
     }
 }
 
-fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
+fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
     return try {
         transaction {
-            val parentComment = Comments.select(Comments.id eq commentId).singleOrNull()
+            val parentComment = Comments.selectAll().where{Comments.id eq commentId}.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
             val parentCommentData = parentComment?.let {
                 val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
@@ -348,7 +349,7 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 )
             }
 
-            val childComments = Comments.select(parentCommentId eq commentId)
+            val childComments = Comments.selectAll().where{(parentCommentId eq commentId)}
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
@@ -377,7 +378,7 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     )
                 }
 
-            parentCommentData?.let { listOf(it) + childComments } ?: childComments
+            parentCommentData?.let { childComments } ?: childComments
         }
     } catch (e: Exception) {
         logger.error { e.message }

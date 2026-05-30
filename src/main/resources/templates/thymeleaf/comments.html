@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <title>Comment Thread</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:            #f0ede8;
-            --surface:       #faf9f7;
-            --border:        #e2ddd6;
-            --text-primary:  #1c1a17;
-            --text-secondary:#6b6560;
-            --accent:        #2d5be3;
-            --accent-soft:   #e8edfb;
-            --danger:        #c93030;
-            --danger-soft:   #fbeaea;
-            --muted:         #8c877f;
-            --thread-line:   #d8d2c9;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+            --bg: #f0ede8;
+            --surface: #faf9f7;
+            --border: #e2ddd6;
+            --text-primary: #1c1a17;
+            --text-secondary: #6b6560;
+            --accent: #2d5be3;
+            --accent-soft: #e8edfb;
+            --danger: #c93030;
+            --danger-soft: #fbeaea;
+            --muted: #8c877f;
+            --thread-line: #d8d2c9;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
         }
 
         body {
@@ -51,7 +55,10 @@
             background: var(--surface);
             transition: background 0.15s;
         }
-        .back-link:hover { background: var(--border); }
+
+        .back-link:hover {
+            background: var(--border);
+        }
 
         /* ── Section Label ── */
         .section-label {
@@ -110,7 +117,11 @@
             color: var(--muted);
             margin-bottom: 1rem;
         }
-        .post-meta span { font-weight: 600; color: var(--text-secondary); }
+
+        .post-meta span {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
 
         .post-content {
             font-size: 0.95rem;
@@ -130,18 +141,23 @@
         .post-content-wrapper {
             position: relative;
         }
+
         .post-content-wrapper.collapsed .post-content {
             max-height: 4.8em; /* ~3 lines */
             overflow: hidden;
         }
+
         .post-content-wrapper.collapsed::after {
             content: '';
             position: absolute;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 2.5rem;
             background: linear-gradient(transparent, var(--surface));
             pointer-events: none;
         }
+
         .toggle-post-btn {
             background: none;
             border: none;
@@ -154,7 +170,10 @@
             display: block;
             margin-top: 0.35rem;
         }
-        .toggle-post-btn:hover { text-decoration: underline; }
+
+        .toggle-post-btn:hover {
+            text-decoration: underline;
+        }
 
         /* Reaction bar (read-only summary on this page) */
         .post-reaction-bar {
@@ -178,6 +197,7 @@
             color: var(--accent);
             border: 1.5px solid #c6d4f7;
         }
+
         .reaction-pill.dislike {
             background: var(--danger-soft);
             color: var(--danger);
@@ -205,7 +225,9 @@
         .focal-comment::before {
             content: '';
             position: absolute;
-            left: 0; top: 0; bottom: 0;
+            left: 0;
+            top: 0;
+            bottom: 0;
             width: 3px;
             background: var(--accent);
             border-radius: 3px 0 0 3px;
@@ -374,13 +396,17 @@
             transition: opacity 0.15s, transform 0.1s;
             line-height: 1;
         }
-        .btn:active { transform: scale(0.97); }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
 
         .btn-like {
             background: var(--accent-soft);
             color: var(--accent);
             border-color: #c6d4f7;
         }
+
         .btn-like.active, .btn-like:hover {
             background: var(--accent);
             color: #fff;
@@ -392,6 +418,7 @@
             color: var(--danger);
             border-color: #f3c6c6;
         }
+
         .btn-dislike.active, .btn-dislike:hover {
             background: var(--danger);
             color: #fff;
@@ -403,14 +430,20 @@
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-muted:hover { background: var(--border); }
+
+        .btn-muted:hover {
+            background: var(--border);
+        }
 
         .btn-danger-outline {
             background: transparent;
             color: var(--danger);
             border-color: #f3c6c6;
         }
-        .btn-danger-outline:hover { background: var(--danger-soft); }
+
+        .btn-danger-outline:hover {
+            background: var(--danger-soft);
+        }
 
         .btn-tiny {
             display: inline-flex;
@@ -429,13 +462,18 @@
             color: var(--muted);
             border-color: var(--border);
         }
-        .btn-tiny:hover { background: var(--border); color: var(--text-secondary); }
+
+        .btn-tiny:hover {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
 
         .btn-tiny.liked {
             color: var(--accent);
             background: var(--accent-soft);
             border-color: #c6d4f7;
         }
+
         .btn-tiny.disliked {
             color: var(--danger);
             background: var(--danger-soft);
@@ -459,7 +497,12 @@
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
-        .btn-replies:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .btn-replies:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
 
         /* ── Pagination ── */
         .pagination {
@@ -487,8 +530,15 @@
             font-family: 'DM Sans', sans-serif;
             transition: background 0.15s;
         }
-        .page-btn:hover:not(.disabled) { background: var(--border); }
-        .page-btn.disabled { opacity: 0.38; pointer-events: none; }
+
+        .page-btn:hover:not(.disabled) {
+            background: var(--border);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.38;
+            pointer-events: none;
+        }
 
         .page-info {
             font-size: 0.8rem;
@@ -503,14 +553,36 @@
             color: var(--muted);
             text-align: center;
         }
+
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .success {
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
     <!-- ── Back navigation ── -->
-    <a class="back-link" th:href="@{/posts}">&#8592; Back to Posts</a>
-
+    <a class="back-link" th:href="|/feed|">&#8592; Back to Posts</a>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
     <!-- ═══════════════════════════════════════════
          Post Summary (always visible at top)
     ═══════════════════════════════════════════ -->
@@ -558,48 +630,48 @@
         <!-- ─── Focal Comment ─── -->
         <!--
             Model expectation:
-              - `focalComment`  : the comment whose replies this page shows
-              - `replies`       : a Page<CommentDto> of direct replies to focalComment
+              - `focal_comment`  : the comment whose replies this page shows
+              - `replies`       : a Page<CommentDto> of direct replies to focal_comment
         -->
-        <div class="focal-comment" th:if="${focalComment != null}">
+        <div class="focal-comment" th:if="${focal_comment != null}">
             <p class="focal-label">Viewing replies to</p>
 
             <div class="focal-top">
                 <span class="comment-author"
-                      th:classappend="${focalComment.myComment} ? 'me'"
-                      th:text="${focalComment.commenterUsername}">username</span>
-                <span class="comment-time" th:text="${focalComment.timeStamp}">timestamp</span>
+                      th:classappend="${focal_comment.myComment} ? 'me'"
+                      th:text="${focal_comment.commenterUsername}">username</span>
+                <span class="comment-time" th:text="${focal_comment.timeStamp}">timestamp</span>
                 <span class="comment-edited"
-                      th:if="${focalComment.lastEdited != null}"
-                      th:text="| edited ${focalComment.lastEdited}|">· edited …</span>
+                      th:if="${focal_comment.lastEdited != null}"
+                      th:text="| edited ${focal_comment.lastEdited}|">· edited …</span>
             </div>
 
-            <p class="focal-content" th:text="${focalComment.content}">Focal comment text.</p>
+            <p class="focal-content" th:text="${focal_comment.content}">Focal comment text.</p>
 
             <!-- Actions on the focal comment itself -->
             <div class="focal-actions">
                 <!-- Like -->
                 <button type="button"
                         class="btn btn-like"
-                        th:classappend="${focalComment.isCommentLikedByMe} ? 'active'"
-                        th:attr="data-comment-id=${focalComment.id}">
-                    &#9650; <span th:text="${focalComment.commentLikes}">0</span>
+                        th:classappend="${focal_comment.isCommentLikedByMe} ? 'active'"
+                        th:attr="data-comment-id=${focal_comment.id}">
+                    &#9650; <span th:text="${focal_comment.commentLikes}">0</span>
                 </button>
 
                 <!-- Dislike -->
                 <button type="button"
                         class="btn btn-dislike"
-                        th:classappend="${focalComment.isCommentDislikedByMe} ? 'active'"
-                        th:attr="data-comment-id=${focalComment.id}">
-                    &#9660; <span th:text="${focalComment.commentDislikes}">0</span>
+                        th:classappend="${focal_comment.isCommentDislikedByMe} ? 'active'"
+                        th:attr="data-comment-id=${focal_comment.id}">
+                    &#9660; <span th:text="${focal_comment.commentDislikes}">0</span>
                 </button>
 
                 <!-- Edit / Delete (owner only) -->
-                <th:block th:if="${focalComment.myComment}">
+                <th:block th:if="${focal_comment.myComment}">
                     <a class="btn btn-muted"
-                       th:href="@{/comments/{id}/edit(id=${focalComment.id})}">Edit</a>
+                       th:href="|/comments/${id}/edit/${focal_comment.id}|">Edit</a>
                     <a class="btn btn-danger-outline"
-                       th:href="@{/comments/{id}/delete(id=${focalComment.id})}">Delete</a>
+                       th:href="|/comments/${id}/delete/${focal_comment.id})|">Delete</a>
                 </th:block>
             </div>
         </div>
@@ -608,15 +680,15 @@
         <div class="replies-header">
             <span class="replies-title">Replies</span>
             <span class="reply-count-badge"
-                  th:text="${replies != null ? replies.totalElements : 0}">0</span>
+                  th:text="${replies != null and not replies.empty ? replies.size() : 0}">0</span>
         </div>
 
         <div class="replies-list">
 
-            <th:block th:if="${replies != null and not #lists.isEmpty(replies.content)}">
+            <th:block th:if="${replies != null and not #lists.isEmpty(replies)}">
 
                 <div class="reply-item"
-                     th:each="reply : ${replies.content}">
+                     th:each="reply : ${replies}">
 
                     <div class="reply-top">
                         <span class="comment-author"
@@ -654,17 +726,17 @@
                         -->
                         <a th:if="${reply.hasReplies}"
                            class="btn-replies"
-                           th:href="@{/comments/{id}/replies(id=${reply.id})}">
+                           th:href="|/comments/${id}/replies/${reply.id}|">
                             &#8618; Replies
                         </a>
 
                         <!-- Edit / Delete (owner only) -->
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-tiny"
-                               th:href="@{/comments/{id}/edit(id=${reply.id})}">Edit</a>
+                               th:href="|/comments/${id}/edit/${reply.id}|">Edit</a>
                             <a class="btn-tiny"
                                style="color: var(--danger); border-color: #f3c6c6;"
-                               th:href="@{/comments/{id}/delete(id=${reply.id})}">Delete</a>
+                               th:href="|/comments/${id}/delete/${reply.id}|">Delete</a>
                         </th:block>
                     </div>
                 </div>
@@ -673,7 +745,7 @@
 
             <!-- Empty state -->
             <div class="empty-replies"
-                 th:if="${replies == null or #lists.isEmpty(replies.content)}">
+                 th:if="${replies == null or #lists.isEmpty(replies)}">
                 No replies yet.
             </div>
 
@@ -681,11 +753,11 @@
 
         <!-- ─── Pagination ─── -->
         <div class="pagination"
-             th:if="${replies != null and replies.totalPages > 1}">
+             th:if="${replies != null and total_pages > 1}">
 
             <a class="page-btn"
                th:classappend="${replies.first} ? 'disabled'"
-               th:href="@{/comments/{id}/replies(id=${focalComment.id}, page=${replies.number - 1})}">
+               th:href="|/comments/${id}/replies/${focal_comment.id}, page=${replies.number - 1}|">
                 &#8592; Prev
             </a>
 
@@ -696,7 +768,7 @@
 
             <a class="page-btn"
                th:classappend="${replies.last} ? 'disabled'"
-               th:href="@{/comments/{id}/replies(id=${focalComment.id}, page=${replies.number + 1})}">
+               th:href="|/comments/${id}/replies/${focal_comment.id}, page=${replies.number + 1}|">
                 Next &#8594;
             </a>
 

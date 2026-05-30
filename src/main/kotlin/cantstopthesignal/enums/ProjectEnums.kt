@@ -22,7 +22,9 @@ enum class ThymeLeafMapKeys(val value: String) {
     ERROR("error"),
     POSTS("posts"),
     COMMENTS("comments"),
-    COMMENT_REPLIES("comment_replies"),
+    /* Since I am going to have two different templates, one for top level comments and one for a focal comment with comment replies, these two are separate from the comments key above*/
+    COMMENT_BEING_REPLIED_TO("focal_comment"),
+    COMMENT_REPLIES("replies"),
     PROFILE_DATA("profile_data"),
     MESSAGE_NOTIFICATIONS("message_notifications"),
     OTHER_NOTIFICATIONS("other_notifications"),
@@ -36,6 +38,9 @@ enum class ThymeLeafMapKeys(val value: String) {
     USER_POST_HISTORY("user_post_history"),
     SUSPEND_LOGS("suspension_logs"),
     SERVER_CONFIG("server_config"), //This one will be for pluggable values to show users such as an MOTD or a different name in case someone wishes to use my code for their own forum website
+    CURRENT_PAGE("current_page"),
+    CURRENT_LIMIT("current_limit"),
+    TOTAL_PAGES("total_pages"),
 }
 enum class SortOrderValues(val value: String) {
     NEWEST("newest"),

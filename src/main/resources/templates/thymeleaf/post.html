@@ -759,7 +759,7 @@
                             <!-- View Replies (only when replies exist) -->
                             <a th:if="${comment.hasReplies}"
                                class="btn-tiny"
-                               th:href="|/comments/${comment.id}/replies|">View Replies</a>
+                               th:href="|/comments/${post.id}/replies/${comment.id}|">View Replies</a>
 
                             <!-- Reply label stays here with the other buttons -->
                             <label class="btn-tiny"
@@ -768,10 +768,10 @@
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">
                                 <a class="btn-tiny"
-                                   th:href="|/comments/{id}/edit(id=${comment.id})|">Edit</a>
+                                   th:href="|/comments/${id}/edit/${comment.id}|">Edit</a>
                                 <a class="btn-tiny"
                                    style="color: var(--danger); border-color: #f3c6c6;"
-                                   th:href="|/comments/{id}/delete(id=${comment.id})|">Delete</a>
+                                   th:href="|/comments/${id}/delete/${comment.id}|">Delete</a>
                             </th:block>
 
                         </div>
