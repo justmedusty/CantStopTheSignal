@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #f0ede8;
+            --surface:       #faf9f7;
+            --border:        #e2ddd6;
+            --text-primary:  #1c1a17;
+            --text-secondary:#6b6560;
+            --accent:        #2d5be3;
+            --accent-soft:   #e8edfb;
+            --danger:        #c93030;
+            --danger-soft:   #fbeaea;
+            --muted:         #8c877f;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 760px; margin: 0 auto; }
+
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #f3c6c6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #e6f4e6;
+            color: #2d7a2d;
+            border: 1px solid #b6d9b6;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary  { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.88; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border-color: #f3c6c6;
+        }
+        .btn-danger:hover { background: var(--danger-soft); }
+
+        .btn-sm { padding: 0.28rem 0.65rem; font-size: 0.75rem; }
+
+        /* ── Icon buttons ── */
+        .btn-icon {
+            position: relative;
+            background: var(--border);
+            color: var(--text-primary);
+            padding: 0.42rem 0.7rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.15s;
+        }
+        .btn-icon:hover { background: #d8d2c9; }
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35); }
+            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201,48,48,0.6); }
+        }
+        .badge {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--danger); color: #fff;
+            font-size: 0.65rem; font-weight: 700;
+            border-radius: 999px; padding: 1px 5px;
+            min-width: 16px; text-align: center; line-height: 1.4;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card-body { padding: 1.5rem 1.75rem; }
+
+        /* ── Profile header ── */
+        .profile-header {
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Lora', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .profile-header-info { flex: 1; }
+        .profile-header-info h2 {
+            font-family: 'Lora', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+        .profile-header-info .joined,
+        .profile-header-info .last-login {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* ── Section title ── */
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            padding: 1rem 1.75rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Field rows ── */
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.875rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .field-row:last-child { border-bottom: none; }
+
+        .field-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 120px;
+            padding-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .field-value {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .field-value.empty {
+            color: var(--muted);
+            font-style: italic;
+            font-size: 0.875rem;
+        }
+
+        /* ── PGP key block ── */
+        .pgp-block {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #3a3730;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 160px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        /* ── Password dots ── */
+        .password-dots {
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <h1>My Profile</h1>
+        <div class="topbar-actions">
+            <a class="btn-icon"
+               href="/notifications"
+               th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
+                🔔
+                <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+            </a>
+            <a class="btn-icon"
+               href="messages"
+               th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
+                ✉️
+                <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
+            </a>
+            <a class="btn btn-primary" th:href="|/feed|">← Home Feed</a>
+        </div>
+    </div>
+
+    <!-- Profile header card -->
+    <div class="card">
+        <div class="profile-header">
+            <div class="avatar" th:text="${#strings.substring(profile_data.username, 0, 1)}">U</div>
+            <div class="profile-header-info">
+                <h2 th:text="${profile_data.username}">username</h2>
+                <span class="joined"     th:text="|Member since ${profile_data.createdAt}|">Member since today</span>
+                <span class="last-login" th:text="|Last logged in: ${profile_data.lastLogin}|">Unknown last login</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account details card -->
+    <div class="card">
+        <div class="section-title">Account</div>
+
+        <div class="field-row">
+            <span class="field-label">Username</span>
+            <span class="field-value" th:text="${profile_data.username}">username</span>
+        </div>
+    </div>
+
+    <!-- Bio card -->
+    <div class="card">
+        <div class="section-title">About</div>
+
+        <div class="field-row">
+            <span class="field-label">Biography</span>
+            <span class="field-value"
+                  th:if="${not #strings.isEmpty(profile_data.bio)}"
+                  th:text="${profile_data.bio}"></span>
+            <span class="field-value empty"
+                  th:if="${#strings.isEmpty(profile_data.bio)}">No biography set.</span>
+        </div>
+    </div>
+
+    <!-- PGP / Security card -->
+    <div class="card">
+        <div class="section-title">Security</div>
+
+        <div class="field-row">
+            <span class="field-label">PGP Public Key</span>
+            <div class="field-value">
+                <div class="pgp-block"
+                     th:if="${not #strings.isEmpty(profile_data.publicKey)}"
+                     th:text="${profile_data.publicKey}"></div>
+                <span class="empty"
+                      th:if="${#strings.isEmpty(profile_data.publicKey)}">No PGP key set.</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

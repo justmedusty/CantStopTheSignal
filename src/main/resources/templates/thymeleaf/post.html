@@ -642,7 +642,7 @@
             </div>
 
             <p class="post-meta">
-                by <span th:text="${post.posterUserName}">username</span>
+                by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                 &nbsp;·&nbsp;
                 <span th:text="${post.timeStamp}">timestamp</span>
             </p>
@@ -719,12 +719,13 @@
                         <!-- Comment header -->
                         <div class="comment-top">
                 <span class="comment-author"
-                      th:classappend="${comment.myComment} ? 'me'"
-                      th:text="${comment.commenterUsername}">username</span>
+                      th:classappend="${comment.myComment} ? 'me'">
+                            <a th:href="|/profile/${comment.commenterId}|" th:text="${comment.commenterUsername}">username</a>
                             <span class="comment-time" th:text="${comment.timeStamp}">timestamp</span>
                             <span class="comment-edited"
                                   th:if="${comment.lastEdited != null}"
                                   th:text="| edited ${comment.lastEdited}|">· edited …</span>
+                    </span>
                         </div>
 
                         <!-- Comment text -->
@@ -734,7 +735,7 @@
                         <input type="checkbox"
                                class="reply-toggle"
                                th:id="'reply-toggle-' + ${comment.id}"
-                               style="display: none;" />
+                               style="display: none;"/>
 
                         <!-- Comment actions -->
                         <div class="comment-actions">
@@ -779,8 +780,8 @@
                         <div class="reply-box"
                              th:id="'reply-box-' + ${comment.id}">
                             <form th:action="|/comments/${comment.id}/reply|" method="post">
-                                <input type="hidden" name="parentCommentId" th:value="${comment.id}" />
-                                <input type="hidden" name="postId" th:value="${post.id}" />
+                                <input type="hidden" name="parentCommentId" th:value="${comment.id}"/>
+                                <input type="hidden" name="postId" th:value="${post.id}"/>
                                 <textarea name="content"
                                           rows="3"
                                           placeholder="Write a reply…"></textarea>

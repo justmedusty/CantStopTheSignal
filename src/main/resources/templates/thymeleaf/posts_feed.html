@@ -329,7 +329,7 @@
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
                 <p class="post-meta">
-                    by <strong th:text="${post.posterUserName}">author</strong>
+                    by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
                     <span th:text="${post.timeStamp}">timestamp</span>
                 </p>

@@ -41,6 +41,7 @@ import java.time.ZoneOffset
 data class Post(
     val id: Long,
     val posterUserName: String,
+    val posterId: Long,
     val topic: String,
     val timeStamp: String,
     val title: String,
@@ -53,6 +54,7 @@ data class Post(
     val commentCount: Long,
     val myPost: Boolean, //this can be used to toggle the edit and delete buttons
 )
+
 /*
     We need to do duplicate checks because if you click the browser refresh page after posting a comment or post it will send the request again
     so this can happen pretty easily. Need to check.
@@ -78,7 +80,7 @@ fun isDuplicatePost(userId: Long, content: String, topic: String, title: String)
 fun createPost(userId: Long, content: String, topic: String, title: String): Long? {
     return try {
         transaction {
-            if(isDuplicatePost(userId,content,topic,title)) {
+            if (isDuplicatePost(userId, content, topic, title)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }
             val postId = insertAndGetId(userId, topic)
@@ -195,6 +197,7 @@ fun fetchPostsByTopic(
                 Post(
                     postId,
                     username,
+                    it[Posts.posterId],
                     it[Posts.topic],
                     it[Posts.timestamp].toString(),
                     it[PostContents.title],
@@ -240,6 +243,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                     Post(
                         postId,
                         username,
+                        it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp].toString(),
                         it[PostContents.title],
@@ -280,6 +284,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                     Post(
                         postId,
                         username,
+                        it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp].toString(),
                         it[PostContents.title],
@@ -319,6 +324,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                     Post(
                         postId,
                         username,
+                        it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp].toString(),
                         it[PostContents.title],
@@ -379,6 +385,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 Post(
                     postId,
                     username,
+                    it[Posts.posterId],
                     it[Posts.topic],
                     it[Posts.timestamp].toString(),
                     it[PostContents.title],
@@ -423,6 +430,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 Post(
                     postId,
                     username,
+                    row[Posts.posterId],
                     row[Posts.topic],
                     row[Posts.timestamp].toString(),
                     row[PostContents.title],
