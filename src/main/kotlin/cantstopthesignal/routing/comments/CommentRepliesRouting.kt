@@ -2,6 +2,7 @@ package com.freedom.cantstopthesignal.routing.comments
 
 
 import cantstopthesignal.database.comments.getCommentById
+import cantstopthesignal.database.comments.getPostIdFromComment
 import cantstopthesignal.database.comments.getReplyComments
 import cantstopthesignal.database.comments.postComment
 import cantstopthesignal.log.logger
@@ -46,13 +47,19 @@ fun Application.configureCommentRepliesRouting() {
                  */
 
 
-                val postId =
-                    call.parameters["postId"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+                var postId =
+                    call.parameters["postId"]?.toLongOrNull()
                 val commentId =
                     call.parameters["commentId"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val page = call.parameters["page"]?.toIntOrNull() ?: 1
                 val limit = call.parameters["limit"]?.toIntOrNull()?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
+
+
+                if (postId == null) {
+                    postId = getPostIdFromComment(commentId) ?: return@get call.respond(HttpStatusCode.BadRequest)
+                }
+
 
 
                 if (!verifyPostId(postId)) {
@@ -78,7 +85,8 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENT_BEING_REPLIED_TO.value, root_comment)
                     put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
-                    put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
+                    put(ThymeLeafMapKeys.POSTS.value, post)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
                     /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
@@ -102,11 +110,18 @@ fun Application.configureCommentRepliesRouting() {
                     someone messing around manually, so I am okay with an obstructive 400 return. For anything that can happen from within normal use we absolutely want to make use of the
                     ThymeLeafMapKeys.ERROR.value mapping with an error message to the page they came from.
                  */
+
                 val params = call.receiveParameters()
-                val postId = params["postId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val commentId =
                     params["parentCommentId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val commentContents = params["content"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                var postId = params["postId"]?.toLongOrNull()
+
+                if (postId == null) {
+                    postId = getPostIdFromComment(commentId) ?: return@post call.respond(HttpStatusCode.BadRequest)
+                }
+
+
 
 
                 if (commentContents.isBlank() || commentContents.length > Length.MAX_COMMENT_LENGTH.value || !verifyPostId(
@@ -132,15 +147,22 @@ fun Application.configureCommentRepliesRouting() {
                         HttpStatusCode.BadRequest
                     )
 
+
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENT_BEING_REPLIED_TO.value, root_comment)
                     put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
-                    put(ThymeLeafMapKeys.SUCCESS.value, "Comment successfully posted")
+                    put(ThymeLeafMapKeys.POSTS.value, post)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, 1)
+                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, Length.MAX_COMMENT_LENGTH.value)
+                    put(ThymeLeafMapKeys.SUCCESS.value, "Posted commented successfully")
+                    /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                 }
-
-                call.respond(ThymeleafContent("comments", model))
+                call.respond(
+                    ThymeleafContent("comments", model)
+                )
 
 
             }

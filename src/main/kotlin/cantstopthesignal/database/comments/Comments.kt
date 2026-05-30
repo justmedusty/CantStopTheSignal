@@ -1,6 +1,5 @@
 package cantstopthesignal.database.comments
 
-import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.getUserNameWithinTransaction
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
@@ -8,22 +7,15 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
+import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
+import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
-import org.jetbrains.exposed.v1.core.Count
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.count
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.isNotNull
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import insertNotificationWithinTransaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlin.text.get
 
 data class Comment(
     val id: Long,
@@ -63,13 +55,25 @@ fun isDuplicateComment(content: String, commenterId: Long, postId: Long, parentC
     }
 }
 
+fun getUserIdFromCommentId(commentId: Long): Long? {
+    return try {
+        transaction {
+            Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()?.get(Comments.commenterId)
+        }
+    } catch (e: Exception) {
+        logger.error { e.message + "An error occured getting a user id from a comment id" }
+        null
+    }
+}
+
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
+    println("Posting comment $content for postId $postId with parentCommentId $parentCommentId")
     return try {
         transaction {
             if (isDuplicateComment(content, commenterId, postId, parentCommentId)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }
-            Comments.insert {
+            val ret = Comments.insert {
                 it[Comments.content] = content
                 it[Comments.postId] = postId
                 it[Comments.commenterId] = commenterId
@@ -78,8 +82,28 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 it[timeStamp] = LocalDateTime.now(ZoneOffset.UTC)
             } get Comments.id
 
+            val postOwnerId = getPostOwnerId(postId)
+            insertNotificationWithinTransaction(
+                postId,
+                null,
+                postOwnerId!! /* We will verify this at a higher layer */,
+                Notif.POST_COMMENT.value
+            )
+
+            if (isReply) {
+                val parentCommenterId =
+                    getUserIdFromCommentId(parentCommentId!! /* We will also sanitize this higher up */)
+                insertNotificationWithinTransaction(
+                    postId,
+                    parentCommentId,
+                    postOwnerId /* We will also ALSO  sanitize this higher up  */,
+                    Notif.COMMENT_REPLY.value
+                )
+            }
+            ret
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         logger.error { e.message }
         null
     }
@@ -175,7 +199,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
             val hasReplies = doesCommentHaveReplies(id)
 
 
-            Comments.selectAll().where{Comments.id eq id}.singleOrNull()?.let {
+            Comments.selectAll().where { Comments.id eq id }.singleOrNull()?.let {
                 val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
@@ -184,7 +208,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     it[Comments.commenterId],
                     username,
                     it[Comments.isReply],
-                    it[Comments.parentCommentId],
+                    it[parentCommentId],
                     it[Comments.timeStamp].toString(),
                     commentLikes,
                     commentDislikes,
@@ -326,7 +350,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
 fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
     return try {
         transaction {
-            val parentComment = Comments.selectAll().where{Comments.id eq commentId}.singleOrNull()
+            val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
             val parentCommentData = parentComment?.let {
                 val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
@@ -349,7 +373,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 )
             }
 
-            val childComments = Comments.selectAll().where{(parentCommentId eq commentId)}
+            val childComments = Comments.selectAll().where { (parentCommentId eq commentId) }
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
@@ -383,4 +407,15 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
     } catch (e: Exception) {
         logger.error { e.message }
     } as List<Comment>?
+}
+
+fun getPostIdFromComment(commentId: Long): Long? {
+    return try {
+        transaction {
+            Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()?.get(Comments.postId)
+        }
+    } catch (e: Exception) {
+        logger.error { "Error trying to get the post id! ${e}" }
+        null
+    }
 }

@@ -574,10 +574,46 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
+        .comment-author {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-author.me::after {
+            content: 'you';
+            display: inline-block;
+            margin-left: 0.35rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            background: #e6f0e6;
+            color: #2d7a2d;
+            padding: 0.1rem 0.4rem;
+            border-radius: 20px;
+            vertical-align: middle;
+        }
+
+        .reply-toggle {
+            display: none;
+        }
+
+        .reply-box {
+            display: none;
+        }
+
+        .reply-toggle:checked ~ .reply-box {
+            display: block;
+        }
+
+        .reply-toggle:checked ~ label.reply-btn {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" th:with="post=${posts != null and not #lists.isEmpty(posts) ? posts[0] : null}">
 
     <!-- ── Back navigation ── -->
     <a class="back-link" th:href="|/feed|">&#8592; Back to Posts</a>
@@ -596,16 +632,13 @@
             </div>
 
             <p class="post-meta">
-                by <span th:text="${post.posterUserName}">username</span>
+                by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                 &nbsp;·&nbsp;
                 <span th:text="${post.timeStamp}">timestamp</span>
             </p>
 
-            <!-- Collapsible post body -->
-            <div class="post-content-wrapper collapsed" id="postContentWrapper">
-                <div class="post-content" th:text="${post.content}">Post content goes here.</div>
-            </div>
-            <button class="toggle-post-btn" id="togglePostBtn" onclick="togglePost()">Show more</button>
+
+            <div class="post-content" th:text="${post.content}">Post content goes here.</div>
 
             <p class="post-edited"
                th:if="${post.lastedEdited != null}"
@@ -638,8 +671,14 @@
 
             <div class="focal-top">
                 <span class="comment-author"
-                      th:classappend="${focal_comment.myComment} ? 'me'"
-                      th:text="${focal_comment.commenterUsername}">username</span>
+                      th:classappend="${focal_comment.myComment} ? 'me'">
+                            <a th:href="|/profile/${focal_comment.commenterId}|"
+                               th:text="${focal_comment.commenterUsername}">username</a>
+                            <span class="comment-time" th:text="${focal_comment.timeStamp}">timestamp</span>
+                            <span class="comment-edited"
+                                  th:if="${focal_comment.lastEdited != null}"
+                                  th:text="| edited ${focal_comment.lastEdited}|">· edited …</span>
+                    </span>
                 <span class="comment-time" th:text="${focal_comment.timeStamp}">timestamp</span>
                 <span class="comment-edited"
                       th:if="${focal_comment.lastEdited != null}"
@@ -673,6 +712,28 @@
                     <a class="btn btn-danger-outline"
                        th:href="|/comments/${id}/delete/${focal_comment.id})|">Delete</a>
                 </th:block>
+
+
+                <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${focal_comment.id}">
+                <label class="btn-tiny reply-btn" th:for="'reply-toggle-' + ${focal_comment.id}">Reply</label>
+
+                <div class="reply-box" th:id="'reply-box-' + ${focal_comment.id}" style="margin-top: 0.75rem;">
+                    <form th:action="|/comments/${focal_comment.id}/reply|" method="post">
+                        <input type="hidden" name="parentCommentId" th:value="${focal_comment.id}"/>
+                        <input type="hidden" name="postId" th:value="${posts[0].id}">
+                        <textarea name="content" rows="3" placeholder="Write a reply…"></textarea>
+                        <div class="reply-box-actions">
+                            <button type="submit" class="btn-tiny">Post Reply</button>
+                            <label class="btn-tiny" th:for="'reply-toggle-' + ${focal_comment.id}">Cancel</label>
+                        </div>
+                    </form>
+                </div>
+
+                <th:block th:if="${focal_comment.isReply}">
+                    <a class="btn btn-muted"
+                       th:href="|/comments/${post.id}/replies/${focal_comment.parentCommentId}|">See Parent
+                        Comment</a>
+                </th:block>
             </div>
         </div>
 
@@ -680,7 +741,7 @@
         <div class="replies-header">
             <span class="replies-title">Replies</span>
             <span class="reply-count-badge"
-                  th:text="${replies != null and not replies.empty ? replies.size() : 0}">0</span>
+                  th:text="${replies != null and not #lists.isEmpty(replies) ? replies.size() : 0}">0</span>
         </div>
 
         <div class="replies-list">
@@ -738,6 +799,22 @@
                                style="color: var(--danger); border-color: #f3c6c6;"
                                th:href="|/comments/${id}/delete/${reply.id}|">Delete</a>
                         </th:block>
+
+
+                        <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${reply.id}">
+                        <label class="btn-tiny reply-btn" th:for="'reply-toggle-' + ${reply.id}">Reply</label>
+
+                        <div class="reply-box" th:id="'reply-box-' + ${reply.id}" style="margin-top: 0.75rem;">
+                            <form th:action="|/comments/${reply.id}/reply|" method="post">
+                                <input type="hidden" name="parentCommentId" th:value="${reply.id}"/>
+                                <input type="hidden" name="postId" th:value="${post.id}"/>
+                                <textarea name="content" rows="5" placeholder="Write a reply…"></textarea>
+                                <div class="reply-box-actions">
+                                    <button type="submit" class="btn-tiny">Post Reply</button>
+                                    <label class="btn-tiny" th:for="'reply-toggle-' + ${reply.id}">Cancel</label>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
 

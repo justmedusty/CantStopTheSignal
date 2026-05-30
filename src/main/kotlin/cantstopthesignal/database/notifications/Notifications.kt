@@ -10,7 +10,8 @@ import org.jetbrains.exposed.v1.jdbc.update
 data class Notification(
     val id: Long,
     val read: Boolean,
-    val eventId: Long,
+    val postId: Long?,
+    val commentId: Long?,
     val user: Long,
     val type: Long
 )
@@ -19,7 +20,7 @@ fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
     return try {
         transaction {
             Notifications.insert {
-                it[eventId] = id
+                it[Notifications.postId] = id
                 it[userId] = user
                 it[type] = notifType
             }
@@ -32,10 +33,12 @@ fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
 
 }
 
-fun insertNotificationWithinTransaction(id: Long, user: Long, notifType: Long): Boolean {
+fun insertNotificationWithinTransaction(postId: Long?,commentId: Long?, user: Long, notifType: Long): Boolean {
+    if(postId == null && commentId == null) return false
     return try {
             Notifications.insert {
-                it[eventId] = id
+                it[Notifications.postId] = postId
+                it[Notifications.commentId] = commentId
                 it[userId] = user
                 it[type] = notifType
             }
@@ -54,7 +57,8 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
                 Notification(
                     it[Notifications.id],
                     it[Notifications.read],
-                    it[Notifications.eventId],
+                    it[Notifications.postId],
+                    it[Notifications.commentId],
                     userId,
                     it[Notifications.type]
                 )

@@ -72,7 +72,7 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
                 it[CommentLikes.commentId] = commentId
                 it[CommentLikes.likedById] = likedById
             }
-            insertNotificationWithinTransaction(commentId, likedById, Notif.COMMENT.value)
+            insertNotificationWithinTransaction(null,commentId, likedById, Notif.COMMENT_LIKE.value)
             true
         }
     } catch (e: Exception) {

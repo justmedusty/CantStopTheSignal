@@ -13,8 +13,10 @@ enum class Length(val value: Long) {
 }
 
 enum class Notif(val value: Long) {
-    POST(1),
-    COMMENT(2)
+    POST_COMMENT(1),
+    COMMENT_REPLY(2),
+    COMMENT_LIKE(3),
+    POST_LIKE(4),
 }
 
 enum class ThymeLeafMapKeys(val value: String) {

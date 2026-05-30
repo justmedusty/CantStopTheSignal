@@ -51,7 +51,7 @@ fun likePost(likedById: Long, postId: Long): Boolean {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
-            insertNotificationWithinTransaction(postId,likedById,Notif.POST.value)
+            insertNotificationWithinTransaction(postId,null,likedById,Notif.POST_LIKE.value)
             true
         }
     } catch (e: Exception) {
