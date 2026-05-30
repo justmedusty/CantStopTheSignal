@@ -2,6 +2,7 @@ package cantstopthesignal.routing.posts
 
 import com.freedom.cantstopthesignal.database.posts.createPost
 import com.freedom.cantstopthesignal.enums.Length
+import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.server.application.Application
@@ -104,7 +105,20 @@ fun Application.configurePostCreationRouting() {
 
                 val success = createPost(userId!!, contents, topic, title)
 
-                if (!success) {
+                if(success == RetValues.ALREADY_EXISTS.value){
+
+                    val model = buildMap {
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "This post already exists, cannot post again"
+                        )
+                    }
+
+                    call.respond(ThymeleafContent("create_post", model))
+                }
+
+
+                if (success == null) {
 
                     val model = buildMap {
                         put(
@@ -116,20 +130,9 @@ fun Application.configurePostCreationRouting() {
                     call.respond(ThymeleafContent("create_post", model))
                 }
 
-                val model = buildMap {
-                    put(
-                        ThymeLeafMapKeys.SUCCESS.value,
-                        "Successfully created post"
-                    )
-                    put(
-                        ThymeLeafMapKeys.SERVER_CONFIG.value,
-                        siteConfig
-                    )
-                }
 
-                call.respond(
-                    ThymeleafContent("create_post", model)
-                )
+
+                call.respondRedirect("/posts/${success}")
             }
 
         }

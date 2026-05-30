@@ -43,3 +43,8 @@ enum class SortOrderValues(val value: String) {
     LIKES("likes"),
     DISLIKES("dislikes"),
 }
+
+
+enum class RetValues(val value: Long) {
+    ALREADY_EXISTS(-50)
+}

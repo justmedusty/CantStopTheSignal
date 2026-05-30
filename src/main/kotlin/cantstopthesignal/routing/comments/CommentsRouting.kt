@@ -11,6 +11,7 @@ import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.fetchPosts
 import com.freedom.cantstopthesignal.database.posts.verifyPostId
 import com.freedom.cantstopthesignal.enums.Length
+import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.enums.SortOrderValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -74,11 +75,21 @@ fun Application.configureCommentsRouting() {
 
                 val comments = getCommentsByPost(postId, Length.MAX_PAGE_LIMIT.value.toInt(),0,callingUser, SortOrderValues.NEWEST.value)
 
+                if(result == RetValues.ALREADY_EXISTS.value){
+                    val model = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(ThymeLeafMapKeys.ERROR.value, "This comment already exists, cannot post it again")
+                        put(ThymeLeafMapKeys.POSTS.value, post)
+                        put(ThymeLeafMapKeys.COMMENTS.value, comments)
+                    }
+                    call.respond(ThymeleafContent("post", model))
+                }
+
                 if(result == null){
                     val model = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "An error occurred while attempting to post your new comment")
-                        put(ThymeLeafMapKeys.POSTS.value, siteConfig)
+                        put(ThymeLeafMapKeys.POSTS.value, post)
                         put(ThymeLeafMapKeys.COMMENTS.value, comments)
                     }
                     call.respond(ThymeleafContent("post", model))

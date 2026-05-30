@@ -7,6 +7,8 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
+import com.freedom.cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.Count
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -15,6 +17,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
@@ -26,7 +29,7 @@ data class Comment(
     val content: String,
     val postId: Long,
     val commenterId: Long,
-    val commenterUsername : String,
+    val commenterUsername: String,
     val isReply: Boolean,
     val parentCommentId: Long?,
     val timeStamp: String,
@@ -39,9 +42,32 @@ data class Comment(
     val myComment: Boolean
 )
 
+/*
+    We need to do duplicate checks because if you click the browser refresh page after posting a comment or post it will send the request again
+    so this can happen pretty easily. Need to check.
+ */
+fun isDuplicateComment(content: String, commenterId: Long, postId: Long, parentCommentId: Long?): Boolean {
+    return try {
+        if (Comments.selectAll()
+                .where { (Comments.commenterId eq commenterId) and (Comments.content eq content) and (Comments.postId eq postId) and (Comments.parentCommentId eq parentCommentId) }
+                .count() != 0L
+        ) {
+            return true
+        }
+        false
+    } catch (e: Exception) {
+        logger.error { e.message + " An error occured while trying to check if a comment is a duplicate" }
+        true
+
+    }
+}
+
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
     return try {
         transaction {
+            if (isDuplicateComment(content, commenterId, postId, parentCommentId)) {
+                return@transaction RetValues.ALREADY_EXISTS.value
+            }
             Comments.insert {
                 it[Comments.content] = content
                 it[Comments.postId] = postId
@@ -62,7 +88,7 @@ fun getParentId(commentId: Long): Long? {
     return try {
         transaction {
             val comment = Comments.select(Comments.id eq commentId).singleOrNull() ?: return@transaction null
-            comment[Comments.parentCommentId]!!
+            comment[parentCommentId]!!
         }
 
     } catch (ex: Exception) {
@@ -72,7 +98,7 @@ fun getParentId(commentId: Long): Long? {
 
 fun doesCommentHaveReplies(commentId: Long): Boolean {
     return try {
-            Comments.select(Comments.parentCommentId eq commentId).count() > 0
+        Comments.select(parentCommentId eq commentId).count() > 0
 
     } catch (e: Exception) {
         logger.error { e.message }
@@ -83,8 +109,8 @@ fun doesCommentHaveReplies(commentId: Long): Boolean {
 fun getCommentOwnerId(commentId: Long): Long? {
     return try {
 
-            val result = Comments.select(Comments.id eq commentId).singleOrNull()
-            result?.get(Comments.commenterId)
+        val result = Comments.select(Comments.id eq commentId).singleOrNull()
+        result?.get(Comments.commenterId)
 
     } catch (e: Exception) {
         null
@@ -93,8 +119,8 @@ fun getCommentOwnerId(commentId: Long): Long? {
 
 fun isIdCommentPoster(userId: Long, commentId: Long): Boolean {
     return try {
-            val match = Comments.select((Comments.id eq commentId) and (Comments.commenterId eq userId))
-            match.count() > 0
+        val match = Comments.select((Comments.id eq commentId) and (Comments.commenterId eq userId))
+        match.count() > 0
     } catch (e: Exception) {
         logger.error { "Error checking who is comment poster" }
         false
@@ -146,8 +172,8 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
             val hasReplies = doesCommentHaveReplies(id)
 
 
-            Comments.select(Comments.id eq id ).singleOrNull()?.let {
-                val username : String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+            Comments.select(Comments.id eq id).singleOrNull()?.let {
+                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
                     it[Comments.content],
@@ -155,7 +181,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     it[Comments.commenterId],
                     username,
                     it[Comments.isReply],
-                    it[Comments.parentCommentId],
+                    it[parentCommentId],
                     it[Comments.timeStamp].toString(),
                     commentLikes,
                     commentDislikes,
@@ -210,7 +236,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 Comments.postId,
                 Comments.commenterId,
                 Comments.isReply,
-                Comments.parentCommentId,
+                parentCommentId,
                 Comments.timeStamp
             ).where { (Comments.postId eq postId) and (Comments.isReply eq false) }
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
@@ -228,7 +254,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], userId)
                 val isCommentDisliked: Boolean = isCommentDisLikedByUserWithinTransaction(it[Comments.id], userId)
                 val hasReplies = doesCommentHaveReplies(it[Comments.id])
-                val username : String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
 
                 Comment(
                     it[Comments.id],
@@ -237,7 +263,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     it[Comments.commenterId],
                     username,
                     it[Comments.isReply],
-                    it[Comments.parentCommentId],
+                    it[parentCommentId],
                     it[Comments.timeStamp].toString(),
                     commentLikes,
                     commentDislikes,
@@ -258,15 +284,16 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
     return try {
         transaction {
-            Comments.select( Comments.commenterId eq userId)
+            Comments.select(Comments.commenterId eq userId)
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
                     val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(it[Comments.id])
                     val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId)
-                    val isCommentDisliked: Boolean = isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                    val isCommentDisliked: Boolean =
+                        isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
                     val hasReplies = doesCommentHaveReplies(it[Comments.id])
-                    val username : String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                    val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                     Comment(
                         it[Comments.id],
                         it[Comments.content],
@@ -274,7 +301,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         it[Comments.commenterId],
                         username,
                         it[Comments.isReply],
-                        it[Comments.parentCommentId],
+                        it[parentCommentId],
                         it[Comments.timeStamp].toString(),
                         commentLikes,
                         commentDislikes,
@@ -298,7 +325,7 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
             val parentComment = Comments.select(Comments.id eq commentId).singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
             val parentCommentData = parentComment?.let {
-                val username : String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
                     it[Comments.content],
@@ -306,7 +333,7 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     it[Comments.commenterId],
                     username,
                     it[Comments.isReply],
-                    it[Comments.parentCommentId],
+                    it[parentCommentId],
                     it[Comments.timeStamp].toString(),
                     getLikesForComment(it[Comments.id]),
                     getDislikesForComment(it[Comments.id]),
@@ -318,15 +345,16 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 )
             }
 
-            val childComments = Comments.select(Comments.parentCommentId eq commentId)
+            val childComments = Comments.select(parentCommentId eq commentId)
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
                     val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(it[Comments.id])
                     val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId)
-                    val isCommentDisliked: Boolean = isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                    val isCommentDisliked: Boolean =
+                        isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
                     val hasRepliesChild = doesCommentHaveReplies(it[Comments.id])
-                    val username : String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                    val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
                     Comment(
                         it[Comments.id],
                         it[Comments.content],
@@ -334,7 +362,7 @@ fun getChildComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                         it[Comments.commenterId],
                         username,
                         it[Comments.isReply],
-                        it[Comments.parentCommentId],
+                        it[parentCommentId],
                         it[Comments.timeStamp].toString(),
                         commentLikes,
                         commentDislikes,

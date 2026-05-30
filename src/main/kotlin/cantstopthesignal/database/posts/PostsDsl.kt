@@ -18,6 +18,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostEdits
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
+import com.freedom.cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Expression
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -52,16 +53,41 @@ data class Post(
     val commentCount: Long,
     val myPost: Boolean, //this can be used to toggle the edit and delete buttons
 )
+/*
+    We need to do duplicate checks because if you click the browser refresh page after posting a comment or post it will send the request again
+    so this can happen pretty easily. Need to check.
+ */
+fun isDuplicatePost(userId: Long, content: String, topic: String, title: String): Boolean {
+    return try {
+        val post = (Posts.selectAll().where { (Posts.topic eq topic) and (Posts.posterId eq userId) }.singleOrNull())
+        val postId = post?.get(Posts.id)
+        if (postId != null && (PostContents.selectAll()
+                .where { (PostContents.postId eq postId) and (PostContents.title eq title) and (PostContents.content eq content) }
+                .count() > 0L)
+        ) {
+            return true
 
-fun createPost(userId: Long, content: String, topic: String, title: String): Boolean {
+        }
+        false
+    } catch (e: Exception) {
+        logger.error { e.message + " An error occurred trying to check if post was a duplicate" }
+        true
+    }
+}
+
+fun createPost(userId: Long, content: String, topic: String, title: String): Long? {
     return try {
         transaction {
+            if(isDuplicatePost(userId,content,topic,title)) {
+                return@transaction RetValues.ALREADY_EXISTS.value
+            }
             val postId = insertAndGetId(userId, topic)
             postId != (-1).toLong() && addPostContents(content, postId, title)
+            postId
         }
     } catch (e: Exception) {
         logger.error { e.message }
-        false
+        null
     }
 }
 
@@ -424,6 +450,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
     }
 
 }
+
 /*
     Sanity check helper function to make sure people aren't trying to interact with posts that dont exist
  */
