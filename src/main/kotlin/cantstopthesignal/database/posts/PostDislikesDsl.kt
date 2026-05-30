@@ -79,3 +79,17 @@ fun unDislikePost(userId: Long, postId: Long): Boolean {
         return false
     }
 }
+
+fun unDislikePostWithinTransaction(userId: Long, postId: Long): Boolean {
+    return try {
+
+        val success =
+            PostDislikes.deleteWhere { (PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId) }
+        success > 0
+        
+
+    } catch (e: Exception) {
+        logger.error { e.message }
+        return false
+    }
+}

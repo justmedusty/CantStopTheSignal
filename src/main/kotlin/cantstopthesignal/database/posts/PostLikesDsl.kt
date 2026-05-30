@@ -40,12 +40,13 @@ fun isPostLikedByUser(postId: Long, userId: Long): Boolean {
 
 fun likePost(likedById: Long, postId: Long): Boolean {
 
-    if(isPostDislikedByUser(postId, likedById)){
-        unDislikePost(likedById,postId)
-    }
 
     return try {
         transaction {
+            if(isPostDislikedByUser(postId, likedById)){
+                unDislikePostWithinTransaction(likedById,postId)
+            }
+
             PostLikes.insert {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
@@ -71,6 +72,18 @@ fun isRequesterPostLikeOwner(userId: Long, postId: Long): Boolean {
     }
 }
 
+fun isRequesterPostLikeOwnerWithTransaction(userId: Long, postId: Long): Boolean {
+    return try {
+        transaction {
+            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId) )
+            match.count() > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "Error checking who is comment poster" }
+        false
+    }
+}
+
 fun unlikePost(requesterId: Long, postsId: Long): Boolean {
     if (isRequesterPostLikeOwner(requesterId, postsId) || isUserAdmin(requesterId)) {
         try {
@@ -78,6 +91,18 @@ fun unlikePost(requesterId: Long, postsId: Long): Boolean {
                 val success = PostLikes.deleteWhere { (likedById eq requesterId)and(postId eq postsId) }
                 success > 0
             }
+        } catch (e: Exception) {
+            logger.error { e.message }
+            return false
+        }
+    } else return false
+}
+
+fun unlikePostWithinTransaction(requesterId: Long, postsId: Long): Boolean {
+    if (isRequesterPostLikeOwnerWithTransaction(requesterId, postsId) || isUserAdmin(requesterId)) {
+       return try {
+                val success = PostLikes.deleteWhere { (likedById eq requesterId)and(postId eq postsId) }
+                success > 0
         } catch (e: Exception) {
             logger.error { e.message }
             return false
