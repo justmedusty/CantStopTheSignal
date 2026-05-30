@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.count
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -98,7 +99,9 @@ fun getParentId(commentId: Long): Long? {
 
 fun doesCommentHaveReplies(commentId: Long): Boolean {
     return try {
-        Comments.select(parentCommentId eq commentId).count() > 0
+        val count =
+            Comments.selectAll().where { (parentCommentId eq commentId) and (parentCommentId.isNotNull()) }.count()
+        return count > 0
 
     } catch (e: Exception) {
         logger.error { e.message }

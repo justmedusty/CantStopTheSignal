@@ -5,21 +5,25 @@
     <title>Posts</title>
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:          #f0ede8;
-            --surface:     #faf9f7;
-            --border:      #e2ddd6;
-            --text-primary:#1c1a17;
-            --text-secondary:#6b6560;
-            --accent:      #2d5be3;
+            --bg: #f0ede8;
+            --surface: #faf9f7;
+            --border: #e2ddd6;
+            --text-primary: #1c1a17;
+            --text-secondary: #6b6560;
+            --accent: #2d5be3;
             --accent-soft: #e8edfb;
-            --danger:      #c93030;
+            --danger: #c93030;
             --danger-soft: #fbeaea;
-            --muted:       #8c877f;
-            --radius:      10px;
-            --shadow:      0 2px 12px rgba(0,0,0,0.07);
+            --muted: #8c877f;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
         }
 
         body {
@@ -92,7 +96,10 @@
             margin-bottom: 1rem;
         }
 
-        .post-meta span { font-weight: 600; color: var(--text-secondary); }
+        .post-meta span {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
 
         .post-content {
             font-size: 0.95rem;
@@ -133,13 +140,17 @@
             transition: opacity 0.15s, transform 0.1s;
             line-height: 1;
         }
-        .btn:active { transform: scale(0.97); }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
 
         .btn-like {
             background: var(--accent-soft);
             color: var(--accent);
             border-color: #c6d4f7;
         }
+
         .btn-like.active, .btn-like:hover {
             background: var(--accent);
             color: #fff;
@@ -151,6 +162,7 @@
             color: var(--danger);
             border-color: #f3c6c6;
         }
+
         .btn-dislike.active, .btn-dislike:hover {
             background: var(--danger);
             color: #fff;
@@ -162,16 +174,24 @@
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-muted:hover { background: var(--border); }
+
+        .btn-muted:hover {
+            background: var(--border);
+        }
 
         .btn-danger-outline {
             background: transparent;
             color: var(--danger);
             border-color: #f3c6c6;
         }
-        .btn-danger-outline:hover { background: var(--danger-soft); }
 
-        .reaction-spacer { flex: 1; }
+        .btn-danger-outline:hover {
+            background: var(--danger-soft);
+        }
+
+        .reaction-spacer {
+            flex: 1;
+        }
 
         /* ── Comments Section ── */
         .comments-section {
@@ -284,13 +304,18 @@
             color: var(--muted);
             border-color: var(--border);
         }
-        .btn-tiny:hover { background: var(--border); color: var(--text-secondary); }
+
+        .btn-tiny:hover {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
 
         .btn-tiny.liked {
             color: var(--accent);
             background: var(--accent-soft);
             border-color: #c6d4f7;
         }
+
         .btn-tiny.disliked {
             color: var(--danger);
             background: var(--danger-soft);
@@ -312,7 +337,12 @@
             border: 1px solid #c6d4f7;
             cursor: pointer;
         }
-        .btn-replies:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .btn-replies:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
 
         /* ── Pagination ── */
         .pagination {
@@ -340,7 +370,11 @@
             font-family: 'DM Sans', sans-serif;
             transition: background 0.15s;
         }
-        .page-btn:hover:not(.disabled) { background: var(--border); }
+
+        .page-btn:hover:not(.disabled) {
+            background: var(--border);
+        }
+
         .page-btn.disabled {
             opacity: 0.38;
             pointer-events: none;
@@ -373,6 +407,7 @@
             padding: 0.55rem 1.25rem;
             font-size: 0.875rem;
         }
+
         /* ─── Comments Section (centering) ─── */
         .comments-section {
             max-width: 680px;
@@ -442,7 +477,11 @@
         .compose-footer button[type="submit"]:hover {
             background: #374151;
         }
-        .btn-primary:hover { opacity: 0.88; }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+        }
+
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -451,6 +490,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+
         .topbar h1 {
             margin: 0;
             font-family: 'Lora', serif;
@@ -458,11 +498,13 @@
             font-weight: 600;
             letter-spacing: -0.02em;
         }
+
         .topbar-actions {
             display: flex;
             gap: 0.75rem;
             align-items: center;
         }
+
         .btn-icon {
             position: relative;
             background: var(--border);
@@ -477,18 +519,29 @@
             align-items: center;
             transition: background 0.15s;
         }
-        .btn-icon:hover { background: #d8d2c9; }
+
+        .btn-icon:hover {
+            background: #d8d2c9;
+        }
+
         .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.4);
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201, 48, 48, 0.4);
             animation: glow-pulse 1.5s ease-in-out infinite;
         }
+
         @keyframes glow-pulse {
-            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35); }
-            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201,48,48,0.6); }
+            0%, 100% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201, 48, 48, 0.35);
+            }
+            50% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201, 48, 48, 0.6);
+            }
         }
+
         .badge {
             position: absolute;
-            top: -6px; right: -6px;
+            top: -6px;
+            right: -6px;
             background: var(--danger);
             color: #fff;
             font-size: 0.65rem;
@@ -499,6 +552,7 @@
             text-align: center;
             line-height: 1.4;
         }
+
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -509,6 +563,7 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
         .success {
             background: #e6f4e6;
             color: #2d7a2d;
@@ -517,6 +572,29 @@
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
             font-size: 0.875rem;
+        }
+
+        /* Reply box hidden by default */
+        .reply-box {
+            display: none;
+            margin-top: 0.5rem;
+            margin-left: 2rem;
+        }
+
+        .reply-box textarea {
+            width: 100%;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .reply-box-actions {
+            margin-top: 0.35rem;
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .reply-toggle:checked ~ .reply-box {
+            display: block;
         }
     </style>
 </head>
@@ -547,7 +625,7 @@
             <a class="btn btn-primary" href="/logout">Logout</a>
         </div>
     </div>
-    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
 
 
@@ -614,7 +692,7 @@
             <!-- ─── Compose Box ─── -->
             <div class="compose-box">
                 <form th:action="|/comments/post/${id}(id=${post.id}|" method="post">
-                    <input type="hidden" name="postId" th:value="${post.id}" />
+                    <input type="hidden" name="postId" th:value="${post.id}"/>
 
                     <textarea name="content"
                               id="comment-input"
@@ -629,7 +707,6 @@
                 </form>
             </div>
 
-            <!-- Comment list (top-level / non-replies only) -->
             <div class="comment-list"
                  th:with="postComments=${commentsByPost != null ? commentsByPost[post.id] : null}">
 
@@ -641,9 +718,9 @@
 
                         <!-- Comment header -->
                         <div class="comment-top">
-                            <span class="comment-author"
-                                  th:classappend="${comment.myComment} ? 'me'"
-                                  th:text="${comment.commenterUsername}">username</span>
+                <span class="comment-author"
+                      th:classappend="${comment.myComment} ? 'me'"
+                      th:text="${comment.commenterUsername}">username</span>
                             <span class="comment-time" th:text="${comment.timeStamp}">timestamp</span>
                             <span class="comment-edited"
                                   th:if="${comment.lastEdited != null}"
@@ -652,6 +729,12 @@
 
                         <!-- Comment text -->
                         <p class="comment-content" th:text="${comment.content}">Comment text.</p>
+
+                        <!-- Checkbox OUTSIDE comment-actions so it's a sibling of reply-box -->
+                        <input type="checkbox"
+                               class="reply-toggle"
+                               th:id="'reply-toggle-' + ${comment.id}"
+                               style="display: none;" />
 
                         <!-- Comment actions -->
                         <div class="comment-actions">
@@ -672,6 +755,14 @@
                                 &#9660; <span th:text="${comment.commentDislikes}">0</span>
                             </button>
 
+                            <!-- View Replies (only when replies exist) -->
+                            <a th:if="${comment.hasReplies}"
+                               class="btn-tiny"
+                               th:href="|/comments/${comment.id}/replies|">View Replies</a>
+
+                            <!-- Reply label stays here with the other buttons -->
+                            <label class="btn-tiny"
+                                   th:for="'reply-toggle-' + ${comment.id}">Reply</label>
 
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">
@@ -683,6 +774,24 @@
                             </th:block>
 
                         </div>
+
+                        <!-- Inline reply box -->
+                        <div class="reply-box"
+                             th:id="'reply-box-' + ${comment.id}">
+                            <form th:action="|/comments/${comment.id}/reply|" method="post">
+                                <input type="hidden" name="parentCommentId" th:value="${comment.id}" />
+                                <input type="hidden" name="postId" th:value="${post.id}" />
+                                <textarea name="content"
+                                          rows="3"
+                                          placeholder="Write a reply…"></textarea>
+                                <div class="reply-box-actions">
+                                    <button type="submit" class="btn-tiny">Post Reply</button>
+                                    <label class="btn-tiny"
+                                           th:for="'reply-toggle-' + ${comment.id}">Cancel</label>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
 
                 </th:block>
