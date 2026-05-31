@@ -2,33 +2,14 @@ package com.freedom.cantstopthesignal.database.posts
 
 import cantstopthesignal.database.comments.isCommentDisLikedByUserWithinTransaction
 import cantstopthesignal.database.comments.isCommentLikedByUserWithinTransaction
-import cantstopthesignal.database.posts.addPostContents
-import cantstopthesignal.database.posts.checkLastPostEdit
-import cantstopthesignal.database.posts.getDislikesForPost
-import cantstopthesignal.database.posts.getLikesForPost
-import cantstopthesignal.database.posts.isPostDislikedByUser
-import cantstopthesignal.database.posts.isPostLikedByUser
+import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.getUserNameWithinTransaction
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostContents
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostEdits
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.enums.RetValues
-import org.jetbrains.exposed.v1.core.Column
-import org.jetbrains.exposed.v1.core.Expression
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.count
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.inList
-import org.jetbrains.exposed.v1.core.innerJoin
-import org.jetbrains.exposed.v1.core.like
-import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -110,11 +91,13 @@ fun insertAndGetId(poster: Long, postTopic: String): Long {
 
 fun getPostOwnerId(postId: Long): Long? {
     return try {
-        transaction {
-            val result = Posts.select(Posts.id eq postId).singleOrNull()
-            result?.get(Posts.posterId)
-        }
+
+        val result = Posts.selectAll().where { (Posts.id eq postId) }.singleOrNull()
+        result?.get(Posts.posterId)
+
     } catch (e: Exception) {
+        logger.error { e.message + " occurred while getting post owner id" }
+        e.printStackTrace()
         null
     }
 }

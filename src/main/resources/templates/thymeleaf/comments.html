@@ -497,6 +497,7 @@
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
+
         /* "View replies" button — navigates deeper into the chain */
         .btn-blue {
             font-size: 0.77rem;
@@ -513,6 +514,11 @@
             border: 1px solid #c6d4f7;
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
+        }
+        .btn-blue:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
         }
 
         .btn-replies:hover {
@@ -822,7 +828,7 @@
                                     <label class="btn-tiny" th:for="'reply-toggle-' + ${reply.id}">Cancel</label>
                                 </div>
                             </form>
-
+                        </div>
                         <!-- Edit / Delete (owner only) -->
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-tiny"

@@ -81,7 +81,6 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 it[Comments.parentCommentId] = parentCommentId
                 it[timeStamp] = LocalDateTime.now(ZoneOffset.UTC)
             } get Comments.id
-
             val postOwnerId = getPostOwnerId(postId)
             insertNotificationWithinTransaction(
                 postId,

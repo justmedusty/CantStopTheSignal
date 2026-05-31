@@ -343,7 +343,11 @@
             color: #fff;
             border-color: var(--accent);
         }
-
+        .btn-blue:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
         /* ── Pagination ── */
         .pagination {
             display: flex;
@@ -786,7 +790,7 @@
 
                             <!-- View Replies (only when replies exist) -->
                             <a th:if="${comment.hasReplies}"
-                               class="btn-blue"
+                               class="btn-replies"
                                th:href="|/comments/${post.id}/replies/${comment.id}|">&#8618; Replies</a>
 
                             <!-- Reply label stays here with the other buttons -->
