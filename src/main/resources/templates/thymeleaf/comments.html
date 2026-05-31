@@ -497,6 +497,23 @@
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
+        /* "View replies" button — navigates deeper into the chain */
+        .btn-blue {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #c6d4f7;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
 
         .btn-replies:hover {
             background: var(--accent);
@@ -649,6 +666,7 @@
         <div class="post-reaction-bar">
             <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
             <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
+            <a th:href="|/posts/${post.id}|">See Other Comments</a>
         </div>
     </div>
 
@@ -730,7 +748,7 @@
                 </div>
 
                 <th:block th:if="${focal_comment.isReply}">
-                    <a class="btn btn-muted"
+                    <a class="btn btn-blue"
                        th:href="|/comments/${post.id}/replies/${focal_comment.parentCommentId}|">See Parent
                         Comment</a>
                 </th:block>

@@ -504,6 +504,23 @@
             gap: 0.75rem;
             align-items: center;
         }
+        /* "View replies" button — navigates deeper into the chain */
+        .btn-replies {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #c6d4f7;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
 
         .btn-icon {
             position: relative;
@@ -574,27 +591,38 @@
             font-size: 0.875rem;
         }
 
-        /* Reply box hidden by default */
+
+        .reply-toggle {
+            display: none;
+        }
+
         .reply-box {
             display: none;
-            margin-top: 0.5rem;
-            margin-left: 2rem;
-        }
-
-        .reply-box textarea {
-            width: 100%;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-
-        .reply-box-actions {
-            margin-top: 0.35rem;
-            display: flex;
-            gap: 0.4rem;
         }
 
         .reply-toggle:checked ~ .reply-box {
             display: block;
+        }
+
+        .reply-toggle:checked ~ label.reply-btn {
+            display: none;
+        }
+        /* "View replies" button — navigates deeper into the chain */
+        .btn-blue {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #c6d4f7;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #c6d4f7;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
         }
     </style>
 </head>
@@ -758,11 +786,11 @@
 
                             <!-- View Replies (only when replies exist) -->
                             <a th:if="${comment.hasReplies}"
-                               class="btn-tiny"
-                               th:href="|/comments/${post.id}/replies/${comment.id}|">View Replies</a>
+                               class="btn-blue"
+                               th:href="|/comments/${post.id}/replies/${comment.id}|">&#8618; Replies</a>
 
                             <!-- Reply label stays here with the other buttons -->
-                            <label class="btn-tiny"
+                            <label class="btn-blue"
                                    th:for="'reply-toggle-' + ${comment.id}">Reply</label>
 
                             <!-- Edit / Delete (only for comment owner) -->
