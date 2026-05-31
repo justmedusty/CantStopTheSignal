@@ -6,12 +6,13 @@ This will be intended to be used through the I2P network and I do plan to make a
 # My Philosophy
 A great power we have, is the ability to see beyond appearances. That ability, and sharing it with others, can pave the way for change previously thought impossible. What was once a hopeless prison, with bars of steel, becomes a chrysalis for meaningful change. Free, open, uncensored communication is what allows these prison walls to shift into something more malleable. Sharing your observations, principles, and beliefs can help others to grow. The butterfly does not exit the chrysalis by taking the front door, there is no door. It escapes the chrysalis by growing to the point where it can be no longer be contained by it. With that moment giving birth to something the caterpillar could not have ever imagined. 
 
-My vision for this project, is to allow free, open communication about deception we endure, about false realities we are fed, false limits imposed upon us, false narratives carefully crafted and engineered to steer our emotion and therefore our thoughts and beliefs by extension. This, in turn, leads to real growth and awareness. And growth, will lead to the eventual rupture of the chrysalis leading to a future nobody thought was possible. The walls are showing signs of cracking. It is not over yet, but through internal transformation made more easily possible via open communication, we can change the world together. What thrives on the darkness of deception, cannot survive the blinding light of truth. 
+My vision for this project, is to allow free, open communication about deception we endure, about false realities we are fed, false limits imposed upon us, false narratives carefully crafted and engineered to steer our emotion and therefore our thoughts, beliefs, and perception by extension. This, in turn, leads to real growth and awareness. And growth, will lead to the eventual rupture of the chrysalis leading to a future nobody thought was possible. The walls are showing signs of cracking. It is not over yet, but through internal transformation made more easily possible via open communication, we can change the world together. What thrives on the darkness of deception, cannot survive the blinding light of truth. 
+
+"And I saw heaven opened, and behold, a white horse, and He who sat on it is called Faithful and True, and in righteousness He judges and wages war. His eyes are a flame of fire, and on His head are many crowns; and He has a name written on Him which no one knows except Himself."
 
 The sun will rise again, even after the darkest night.
 
-<img width="1242" height="698" alt="image" src="https://github.com/user-attachments/assets/10a73a6f-10c6-46ff-91ef-86a464b6d825" />
-<img width="670" height="370" alt="image" src="https://github.com/user-attachments/assets/6c1df254-6775-477e-868c-5ab95d124c82" />
+<img width="4444" height="2500" alt="image" src="https://github.com/user-attachments/assets/2a7715ac-b70e-4758-9d91-2496da0ff6d0" />
 
 
 ## Building & Running
