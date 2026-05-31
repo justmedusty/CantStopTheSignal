@@ -7,22 +7,25 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:            #f0ede8;
-            --surface:       #faf9f7;
-            --border:        #e2ddd6;
-            --text-primary:  #1c1a17;
-            --text-secondary:#6b6560;
-            --accent:        #2d5be3;
-            --accent-soft:   #e8edfb;
-            --danger:        #c93030;
-            --danger-soft:   #fbeaea;
-            --muted:         #8c877f;
+            --bg:            #0f1117;
+            --surface:       #181b24;
+            --surface-hover: #1e2130;
+            --border:        #272b3a;
+            --text-primary:  #e8eaf2;
+            --text-secondary:#7b82a0;
+            --accent:        #5b8af5;
+            --accent-soft:   #1e2d56;
+            --danger:        #e06060;
+            --danger-soft:   #2d1a1a;
+            --muted:         #4a5068;
             --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.07);
+            --shadow:        0 2px 12px rgba(0,0,0,0.25);
+            --font:          'DM Sans', sans-serif;
+            --font-serif:    'Lora', serif;
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             background: var(--bg);
             color: var(--text-primary);
             margin: 0;
@@ -36,16 +39,16 @@
         .error {
             background: var(--danger-soft);
             color: var(--danger);
-            border: 1px solid #f3c6c6;
+            border: 1px solid #7a2020;
             border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
         .success {
-            background: #e6f4e6;
-            color: #2d7a2d;
-            border: 1px solid #b6d9b6;
+            background: #1a2d1f;
+            color: #4ecb82;
+            border: 1px solid #207a40;
             border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
@@ -62,7 +65,7 @@
             flex-wrap: wrap;
         }
         .topbar h1 {
-            font-family: 'Lora', serif;
+            font-family: var(--font-serif);
             font-size: 2rem;
             font-weight: 600;
             letter-spacing: -0.02em;
@@ -77,7 +80,7 @@
             gap: 0.35rem;
             padding: 0.42rem 0.875rem;
             border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             font-size: 0.82rem;
             font-weight: 600;
             border: 1.5px solid transparent;
@@ -88,7 +91,7 @@
         }
         .btn:active { transform: scale(0.97); }
 
-        .btn-primary  { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
         .btn-primary:hover { opacity: 0.88; }
 
         .btn-secondary {
@@ -96,12 +99,12 @@
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-secondary:hover { background: var(--border); }
+        .btn-secondary:hover { background: var(--surface-hover); }
 
         .btn-danger {
             background: transparent;
             color: var(--danger);
-            border-color: #f3c6c6;
+            border-color: #7a2020;
         }
         .btn-danger:hover { background: var(--danger-soft); }
 
@@ -110,7 +113,7 @@
         /* ── Icon buttons ── */
         .btn-icon {
             position: relative;
-            background: var(--border);
+            background: var(--surface-hover);
             color: var(--text-primary);
             padding: 0.42rem 0.7rem;
             border-radius: 6px;
@@ -122,14 +125,14 @@
             align-items: center;
             transition: background 0.15s;
         }
-        .btn-icon:hover { background: #d8d2c9; }
+        .btn-icon:hover { background: var(--border); }
         .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35);
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35);
             animation: glow-pulse 1.5s ease-in-out infinite;
         }
         @keyframes glow-pulse {
-            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201,48,48,0.35); }
-            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201,48,48,0.6); }
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35); }
+            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224,96,96,0.6); }
         }
         .badge {
             position: absolute; top: -6px; right: -6px;
@@ -163,9 +166,9 @@
             width: 64px;
             height: 64px;
             border-radius: 50%;
-            background: var(--accent);
-            color: #fff;
-            font-family: 'Lora', serif;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-family: var(--font-serif);
             font-size: 1.75rem;
             font-weight: 600;
             display: flex;
@@ -177,7 +180,7 @@
 
         .profile-header-info { flex: 1; }
         .profile-header-info h2 {
-            font-family: 'Lora', serif;
+            font-family: var(--font-serif);
             font-size: 1.4rem;
             font-weight: 600;
             color: var(--text-primary);
@@ -243,7 +246,7 @@
             padding: 0.75rem 1rem;
             font-family: monospace;
             font-size: 0.78rem;
-            color: #3a3730;
+            color: var(--text-secondary);
             white-space: pre-wrap;
             word-break: break-all;
             max-height: 160px;

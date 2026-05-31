@@ -1,11 +1,7 @@
 package cantstopthesignal.database.messages
 
 import cantstopthesignal.cryptography.encryptMessage
-import cantstopthesignal.database.users.ProfileDataEntry
-import cantstopthesignal.database.users.getProfileDataEntry
-import cantstopthesignal.database.users.getPublicKey
-import cantstopthesignal.database.users.getUserName
-import cantstopthesignal.database.users.hasAutoEncryptionEnabled
+import cantstopthesignal.database.users.*
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
@@ -29,6 +25,7 @@ data class Message(
     val message: String,
     val timeSent: LocalDateTime
 )
+
 //This is the high level object
 data class Messages(
     val id: Long,
@@ -36,6 +33,14 @@ data class Messages(
     val message: String,
     val timeSent: LocalDateTime,
 )
+
+data class MessageConversation(
+    val id: Long,
+    val sender: String,
+    val timeOfLastMessage: LocalDateTime,
+    val pgpKey: String,
+)
+
 
 fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
 
@@ -105,7 +110,7 @@ fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: 
 }
 
 
-fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
+fun getAllMessages(userId: Long, page: Int, limit: Int): List<cantstopthesignal.database.messages.Messages>? {
     val offsetVal = ((page - 1) * limit).toLong()
     val receiverUserNameString = getUserName(userId)
     return if (receiverUserNameString != null) {
@@ -114,12 +119,13 @@ fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
 
                 Messages.selectAll().where { (receiverId eq userId) }.limit(limit).offset(offsetVal).map {
 
-                    Message(
+                    Messages(
                         id = it[Messages.id],
-                        senderId = it[senderId],
-                        receiverId = it[receiverId],
+                        sender = getUserNameWithinTransaction(it[senderId])!!,
                         message = it[message],
                         timeSent = it[timeSent]
+
+
                     )
                 }
             }
@@ -130,7 +136,21 @@ fun getAllMessages(userId: Long, page: Int, limit: Int): List<Message>? {
     } else return null
 }
 
-fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<ProfileDataEntry>? {
+fun getLastMessageTimestamp(userId: Long, receiver: Long): LocalDateTime? {
+    return try {
+        transaction {
+            Messages.selectAll().where { (receiverId eq receiver) and (senderId eq userId) }.orderBy(
+                Messages.id,
+                SortOrder.DESC
+            ).map { it[timeSent] }.first()
+        }
+    } catch (e: Exception) {
+        logger.error { e.message + "Error occurred trying to fetch the last message time for a user" }
+        null
+    }
+}
+
+fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<MessageConversation>? {
     val offsetVal = ((page - 1) * limit).toLong()
     val usersWithProfileData = mutableMapOf<Long, ProfileDataEntry>()
 
@@ -141,9 +161,7 @@ fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<Profil
                 .limit(limit).offset(offsetVal)
                 .map { it[senderId] }
 
-
             senderIdsByMostRecent.forEach { senderId ->
-
                 if (!usersWithProfileData.containsKey(senderId)) {
                     val senderProfileData = getProfileDataEntry(senderId)
                     if (senderProfileData != null) {
@@ -157,5 +175,17 @@ fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<Profil
         return null
     }
 
-    return usersWithProfileData.values.toList()
+    val messageConversations = usersWithProfileData.map { (lng, entry) ->
+        MessageConversation(
+            id = lng,
+            sender = entry.userName,
+            timeOfLastMessage = getLastMessageTimestamp(
+                getUserId(entry.userName)!!,
+                receiver = userId
+            )!!,
+            pgpKey = entry.publicKey ?: "This user does not have a PGP key uploaded",
+        )
+    }
+
+    return messageConversations
 }

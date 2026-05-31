@@ -7,22 +7,25 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:            #f0ede8;
-      --surface:       #faf9f7;
-      --border:        #e2ddd6;
-      --text-primary:  #1c1a17;
-      --text-secondary:#6b6560;
-      --accent:        #2d5be3;
-      --accent-soft:   #e8edfb;
-      --danger:        #c93030;
-      --danger-soft:   #fbeaea;
-      --muted:         #8c877f;
+      --bg:            #0f1117;
+      --surface:       #181b24;
+      --surface-hover: #1e2130;
+      --border:        #272b3a;
+      --text-primary:  #e8eaf2;
+      --text-secondary:#7b82a0;
+      --accent:        #5b8af5;
+      --accent-soft:   #1e2d56;
+      --danger:        #e06060;
+      --danger-soft:   #2d1a1a;
+      --muted:         #4a5068;
       --radius:        10px;
-      --shadow:        0 2px 12px rgba(0,0,0,0.07);
+      --shadow:        0 2px 12px rgba(0,0,0,0.25);
+      --font:          'DM Sans', sans-serif;
+      --font-serif:    'Lora', serif;
     }
 
     body {
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font);
       background: var(--bg);
       color: var(--text-primary);
       margin: 0;
@@ -42,7 +45,7 @@
       flex-wrap: wrap;
     }
     .topbar h1 {
-      font-family: 'Lora', serif;
+      font-family: var(--font-serif);
       font-size: 2rem;
       font-weight: 600;
       letter-spacing: -0.02em;
@@ -57,7 +60,7 @@
       gap: 0.35rem;
       padding: 0.42rem 0.875rem;
       border-radius: 6px;
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font);
       font-size: 0.82rem;
       font-weight: 600;
       border: 1.5px solid transparent;
@@ -68,7 +71,7 @@
     }
     .btn:active { transform: scale(0.97); }
 
-    .btn-primary  { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-primary:hover { opacity: 0.88; }
 
     .btn-secondary {
@@ -76,7 +79,7 @@
       color: var(--text-secondary);
       border-color: var(--border);
     }
-    .btn-secondary:hover { background: var(--border); }
+    .btn-secondary:hover { background: var(--surface-hover); }
 
     /* ── Card ── */
     .card {

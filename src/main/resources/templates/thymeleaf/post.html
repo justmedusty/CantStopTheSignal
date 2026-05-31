@@ -12,22 +12,25 @@
         }
 
         :root {
-            --bg: #f0ede8;
-            --surface: #faf9f7;
-            --border: #e2ddd6;
-            --text-primary: #1c1a17;
-            --text-secondary: #6b6560;
-            --accent: #2d5be3;
-            --accent-soft: #e8edfb;
-            --danger: #c93030;
-            --danger-soft: #fbeaea;
-            --muted: #8c877f;
-            --radius: 10px;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+            --bg:            #0f1117;
+            --surface:       #181b24;
+            --surface-hover: #1e2130;
+            --border:        #272b3a;
+            --text-primary:  #e8eaf2;
+            --text-secondary:#7b82a0;
+            --accent:        #5b8af5;
+            --accent-soft:   #1e2d56;
+            --danger:        #e06060;
+            --danger-soft:   #2d1a1a;
+            --muted:         #4a5068;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.25);
+            --font:          'DM Sans', sans-serif;
+            --font-serif:    'Lora', serif;
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             background: var(--bg);
             color: var(--text-primary);
             padding: 2.5rem 1rem 4rem;
@@ -40,7 +43,7 @@
         }
 
         h1 {
-            font-family: 'Lora', serif;
+            font-family: var(--font-serif);
             font-size: 2rem;
             font-weight: 600;
             margin-bottom: 2rem;
@@ -71,7 +74,7 @@
         }
 
         .post-title {
-            font-family: 'Lora', serif;
+            font-family: var(--font-serif);
             font-size: 1.35rem;
             font-weight: 600;
             color: var(--text-primary);
@@ -104,7 +107,7 @@
         .post-content {
             font-size: 0.95rem;
             line-height: 1.7;
-            color: #3a3730;
+            color: var(--text-secondary);
             margin-bottom: 1.25rem;
         }
 
@@ -122,7 +125,7 @@
             gap: 0.5rem;
             padding: 0.875rem 1.75rem;
             border-top: 1px solid var(--border);
-            background: #f7f5f1;
+            background: var(--surface-hover);
         }
 
         .btn {
@@ -131,7 +134,7 @@
             gap: 0.35rem;
             padding: 0.42rem 0.875rem;
             border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             font-size: 0.82rem;
             font-weight: 600;
             border: 1.5px solid transparent;
@@ -148,7 +151,7 @@
         .btn-like {
             background: var(--accent-soft);
             color: var(--accent);
-            border-color: #c6d4f7;
+            border-color: #2d3f7a;
         }
 
         .btn-like.active, .btn-like:hover {
@@ -160,7 +163,7 @@
         .btn-dislike {
             background: var(--danger-soft);
             color: var(--danger);
-            border-color: #f3c6c6;
+            border-color: #7a2020;
         }
 
         .btn-dislike.active, .btn-dislike:hover {
@@ -176,13 +179,13 @@
         }
 
         .btn-muted:hover {
-            background: var(--border);
+            background: var(--surface-hover);
         }
 
         .btn-danger-outline {
             background: transparent;
             color: var(--danger);
-            border-color: #f3c6c6;
+            border-color: #7a2020;
         }
 
         .btn-danger-outline:hover {
@@ -196,6 +199,9 @@
         /* ── Comments Section ── */
         .comments-section {
             border-top: 1px solid var(--border);
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
 
         .comments-header {
@@ -216,7 +222,7 @@
         .comment-count-badge {
             font-size: 0.78rem;
             font-weight: 600;
-            background: var(--border);
+            background: var(--surface-hover);
             color: var(--text-secondary);
             padding: 0.15rem 0.5rem;
             border-radius: 20px;
@@ -255,8 +261,8 @@
             margin-left: 0.35rem;
             font-size: 0.68rem;
             font-weight: 600;
-            background: #e6f0e6;
-            color: #2d7a2d;
+            background: #1a2d1f;
+            color: #4ecb82;
             padding: 0.1rem 0.4rem;
             border-radius: 20px;
             vertical-align: middle;
@@ -276,7 +282,7 @@
         .comment-content {
             font-size: 0.9rem;
             line-height: 1.6;
-            color: #3a3730;
+            color: var(--text-secondary);
             margin-bottom: 0.5rem;
         }
 
@@ -298,7 +304,7 @@
             border: 1px solid transparent;
             cursor: pointer;
             text-decoration: none;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: opacity 0.15s;
             background: transparent;
             color: var(--muted);
@@ -306,20 +312,20 @@
         }
 
         .btn-tiny:hover {
-            background: var(--border);
+            background: var(--surface-hover);
             color: var(--text-secondary);
         }
 
         .btn-tiny.liked {
             color: var(--accent);
             background: var(--accent-soft);
-            border-color: #c6d4f7;
+            border-color: #2d3f7a;
         }
 
         .btn-tiny.disliked {
             color: var(--danger);
             background: var(--danger-soft);
-            border-color: #f3c6c6;
+            border-color: #7a2020;
         }
 
         .btn-replies {
@@ -327,15 +333,16 @@
             font-weight: 600;
             color: var(--accent);
             background: var(--accent-soft);
-            border-color: #c6d4f7;
+            border-color: #2d3f7a;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
             padding: 0.28rem 0.65rem;
             border-radius: 5px;
-            border: 1px solid #c6d4f7;
+            border: 1px solid #2d3f7a;
             cursor: pointer;
+            transition: background 0.15s, color 0.15s;
         }
 
         .btn-replies:hover {
@@ -343,11 +350,30 @@
             color: #fff;
             border-color: var(--accent);
         }
+
+        .btn-blue {
+            font-size: 0.77rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: #2d3f7a;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 5px;
+            border: 1px solid #2d3f7a;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+
         .btn-blue:hover {
             background: var(--accent);
             color: #fff;
             border-color: var(--accent);
         }
+
         /* ── Pagination ── */
         .pagination {
             display: flex;
@@ -371,12 +397,12 @@
             color: var(--text-secondary);
             text-decoration: none;
             cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
+            font-family: var(--font);
             transition: background 0.15s;
         }
 
         .page-btn:hover:not(.disabled) {
-            background: var(--border);
+            background: var(--surface-hover);
         }
 
         .page-btn.disabled {
@@ -412,19 +438,16 @@
             font-size: 0.875rem;
         }
 
-        /* ─── Comments Section (centering) ─── */
-        .comments-section {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 0 1rem;
+        .btn-primary:hover {
+            opacity: 0.88;
         }
 
         /* ─── Compose Box ─── */
         .compose-box {
             max-width: 680px;
             margin: 0 auto 20px;
-            background: #ffffff;
-            border: 1px solid #d1d5db;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 10px;
             overflow: hidden;
         }
@@ -442,15 +465,15 @@
             outline: none;
             padding: 14px 16px;
             font-size: 14px;
-            font-family: inherit;
+            font-family: var(--font);
             line-height: 1.6;
-            background: #ffffff;
-            color: #111827;
+            background: var(--surface);
+            color: var(--text-primary);
             box-sizing: border-box;
         }
 
         .compose-box textarea::placeholder {
-            color: #9ca3af;
+            color: var(--muted);
         }
 
         .compose-footer {
@@ -458,13 +481,13 @@
             align-items: center;
             justify-content: space-between;
             padding: 8px 12px;
-            border-top: 1px solid #e5e7eb;
-            background: #f9fafb;
+            border-top: 1px solid var(--border);
+            background: var(--surface-hover);
         }
 
         .char-count {
             font-size: 12px;
-            color: #9ca3af;
+            color: var(--muted);
         }
 
         .compose-footer button[type="submit"] {
@@ -472,20 +495,17 @@
             font-size: 13px;
             font-weight: 500;
             border-radius: 6px;
-            border: 1px solid #d1d5db;
-            background: #111827;
-            color: #ffffff;
+            border: 1px solid var(--border);
+            background: var(--accent);
+            color: #fff;
             cursor: pointer;
         }
 
         .compose-footer button[type="submit"]:hover {
-            background: #374151;
-        }
-
-        .btn-primary:hover {
             opacity: 0.88;
         }
 
+        /* ── Top bar ── */
         .topbar {
             display: flex;
             justify-content: space-between;
@@ -497,7 +517,7 @@
 
         .topbar h1 {
             margin: 0;
-            font-family: 'Lora', serif;
+            font-family: var(--font-serif);
             font-size: 2rem;
             font-weight: 600;
             letter-spacing: -0.02em;
@@ -508,27 +528,11 @@
             gap: 0.75rem;
             align-items: center;
         }
-        /* "View replies" button — navigates deeper into the chain */
-        .btn-replies {
-            font-size: 0.77rem;
-            font-weight: 600;
-            color: var(--accent);
-            background: var(--accent-soft);
-            border-color: #c6d4f7;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.28rem 0.65rem;
-            border-radius: 5px;
-            border: 1px solid #c6d4f7;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
-        }
 
+        /* ── Icon buttons ── */
         .btn-icon {
             position: relative;
-            background: var(--border);
+            background: var(--surface-hover);
             color: var(--text-primary);
             padding: 0.42rem 0.7rem;
             border-radius: 6px;
@@ -542,21 +546,17 @@
         }
 
         .btn-icon:hover {
-            background: #d8d2c9;
+            background: var(--border);
         }
 
         .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201, 48, 48, 0.4);
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.4);
             animation: glow-pulse 1.5s ease-in-out infinite;
         }
 
         @keyframes glow-pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(201, 48, 48, 0.35);
-            }
-            50% {
-                box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(201, 48, 48, 0.6);
-            }
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35); }
+            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224,96,96,0.6); }
         }
 
         .badge {
@@ -578,7 +578,7 @@
         .error {
             background: var(--danger-soft);
             color: var(--danger);
-            border: 1px solid #f3c6c6;
+            border: 1px solid #7a2020;
             border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
@@ -586,16 +586,16 @@
         }
 
         .success {
-            background: #e6f4e6;
-            color: #2d7a2d;
-            border: 1px solid #b6d9b6;
+            background: #1a2d1f;
+            color: #4ecb82;
+            border: 1px solid #207a40;
             border-radius: var(--radius);
             padding: 0.6rem 1rem;
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
 
-
+        /* ── Reply toggle ── */
         .reply-toggle {
             display: none;
         }
@@ -610,23 +610,6 @@
 
         .reply-toggle:checked ~ label.reply-btn {
             display: none;
-        }
-        /* "View replies" button — navigates deeper into the chain */
-        .btn-blue {
-            font-size: 0.77rem;
-            font-weight: 600;
-            color: var(--accent);
-            background: var(--accent-soft);
-            border-color: #c6d4f7;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.28rem 0.65rem;
-            border-radius: 5px;
-            border: 1px solid #c6d4f7;
-            cursor: pointer;
-            transition: background 0.15s, color 0.15s;
         }
     </style>
 </head>

@@ -3,7 +3,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 
@@ -33,16 +33,16 @@ fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
 
 }
 
-fun insertNotificationWithinTransaction(postId: Long?,commentId: Long?, user: Long, notifType: Long): Boolean {
-    if(postId == null && commentId == null) return false
+fun insertNotificationWithinTransaction(postId: Long?, commentId: Long?, user: Long, notifType: Long): Boolean {
+    if (postId == null && commentId == null) return false
     return try {
-            Notifications.insert {
-                it[Notifications.postId] = postId
-                it[Notifications.commentId] = commentId
-                it[userId] = user
-                it[type] = notifType
-            }
-            true
+        Notifications.insert {
+            it[Notifications.postId] = postId
+            it[Notifications.commentId] = commentId
+            it[userId] = user
+            it[type] = notifType
+        }
+        true
     } catch (e: Exception) {
         logger.error { e.message }
         false
@@ -53,7 +53,8 @@ fun insertNotificationWithinTransaction(postId: Long?,commentId: Long?, user: Lo
 fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notification>? {
     return try {
         transaction {
-            Notifications.select(Notifications.userId eq userId).limit(limit.toInt()).offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
+            Notifications.selectAll().where { (Notifications.userId eq userId) }.limit(limit.toInt())
+                .offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
                 Notification(
                     it[Notifications.id],
                     it[Notifications.read],
@@ -71,7 +72,7 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
     }
 }
 
-fun markNotifRead(notif: Long,user: Long): Boolean {
+fun markNotifRead(notif: Long, user: Long): Boolean {
 
     return try {
         transaction {
@@ -86,7 +87,7 @@ fun markNotifRead(notif: Long,user: Long): Boolean {
     }
 }
 
-fun markNotifUnread(notif: Long,user: Long): Boolean {
+fun markNotifUnread(notif: Long, user: Long): Boolean {
 
     return try {
         transaction {

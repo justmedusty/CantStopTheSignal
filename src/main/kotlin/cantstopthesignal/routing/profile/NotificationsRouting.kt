@@ -1,18 +1,15 @@
 package cantstopthesignal.routing.profile
 
-import getAllNotifications
-
 
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.server.thymeleaf.ThymeleafContent
-import kotlin.collections.mapOf
+import com.freedom.cantstopthesignal.siteConfig
+import getAllNotifications
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 
 fun Application.configureNotificationRoutes() {
     routing {
@@ -41,6 +38,11 @@ fun Application.configureNotificationRoutes() {
                     put(
                         ThymeLeafMapKeys.OTHER_NOTIFICATIONS.value, list
                     )
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, safePage)
+                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, safeLimit)
+                    /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                 }
 
 
