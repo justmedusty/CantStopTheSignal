@@ -665,8 +665,8 @@
             <div class="post-content" th:text="${post.content}">Post content goes here.</div>
 
             <p class="post-edited"
-               th:if="${post.lastedEdited != null}"
-               th:text="|Edited ${post.lastedEdited}|">Edited …</p>
+               th:if="${post.lastEdited != null and post.lastEdited != 'null'}"
+               th:text="|Edited ${post.lastEdited}|">No Edits</p>
         </div>
 
         <!-- Reaction Bar -->
@@ -738,7 +738,7 @@
                             <a th:href="|/profile/${comment.commenterId}|" th:text="${comment.commenterUsername}">username</a>
                             <span class="comment-time" th:text="${comment.timeStamp}">timestamp</span>
                             <span class="comment-edited"
-                                  th:if="${comment.lastEdited != null}"
+                                  th:if="${comment.lastEdited != null and comment.lastEdited != 'null'}"
                                   th:text="| edited ${comment.lastEdited}|">· edited …</span>
                     </span>
                         </div>

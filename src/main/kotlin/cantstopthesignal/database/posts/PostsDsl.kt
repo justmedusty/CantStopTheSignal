@@ -31,7 +31,7 @@ data class Post(
     val dislikeCount: Long,
     val likedByMe: Boolean,
     val dislikedByMe: Boolean,
-    val lastedEdited: String?,
+    val lastEdited: String?,
     val commentCount: Long,
     val myPost: Boolean, //this can be used to toggle the edit and delete buttons
 )

@@ -11,22 +11,22 @@
         }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
-            --muted:         #4a5068;
-            --thread-line:   #272b3a;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          'DM Sans', sans-serif;
-            --font-serif:    'Lora', serif;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #4a5068;
+            --thread-line: #272b3a;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
         }
 
         body {
@@ -644,8 +644,8 @@
             <div class="post-content" th:text="${post.content}">Post content goes here.</div>
 
             <p class="post-edited"
-               th:if="${post.lastedEdited != null}"
-               th:text="|Edited ${post.lastedEdited}|">Edited …</p>
+               th:if="${post.lastEdited != null}"
+               th:text="|Edited ${post.lastEdited}|">Edited …</p>
         </div>
 
         <!-- Read-only reaction summary -->
