@@ -37,35 +37,29 @@ object ProfileData : Table(name = "ProfileData") {
     override val primaryKey = PrimaryKey(id)
 }
 
-object Messages : Table(name = "Messages") {
+object Conversations : Table(name = "Conversations") {
     val id: Column<Long> = long("id").autoIncrement()
-    val senderId: Column<Long> = long("sender_id").references(Users.id)
-    val receiverId: Column<Long> = long("receiver_id").references(Users.id)
-    val message: Column<String> = text("message")
-    val timeSent: Column<LocalDateTime> = datetime("time_sent").defaultExpression(CurrentDateTime)
-
-    override val primaryKey = PrimaryKey(id)
-}
-object Groups : Table(name = "Groups") {
-    val id: Column<Long> = long("id").autoIncrement()
-    val name: Column<String> = varchar("name", 100)
+    val isGroup: Column<Boolean> = bool("is_group").default(false)
+    val name: Column<String?> = varchar("name", 100).nullable()  // null for DMs
     val createdBy: Column<Long> = long("created_by").references(Users.id)
     val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
-    val forceEncryption: Column<Boolean> = bool("force_encryption").default(siteConfig?.forceEncryptionGroupDefault ?: false)
 
     override val primaryKey = PrimaryKey(id)
 }
 
-object GroupMemberships : Table(name = "GroupMemberships") {
-    val id: Column<Long> = long("id").autoIncrement()
-    val groupId: Column<Long> = long("group_id").references(Groups.id)
-    val memberId: Column<Long> = long("member_id").references(Users.id)
+object ConversationMembers : Table(name = "ConversationMembers") {
+    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id)
+    val userId: Column<Long> = long("user_id").references(Users.id)
+    val joinedAt: Column<LocalDateTime> = datetime("joined_at").defaultExpression(CurrentDateTime)
+
+    override val primaryKey = PrimaryKey(conversationId, userId)  // composite key
 }
 
-object GroupMessages : Table(name = "GroupMessages") {
+
+object Messages : Table(name = "Messages") {
     val id: Column<Long> = long("id").autoIncrement()
+    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id)
     val senderId: Column<Long> = long("sender_id").references(Users.id)
-    val groupId: Column<Long> = long("receiver_id").references(Users.id)
     val message: Column<String> = text("message")
     val timeSent: Column<LocalDateTime> = datetime("time_sent").defaultExpression(CurrentDateTime)
 
