@@ -42,59 +42,75 @@ fun Application.configureMessageRouting() {
 
             }
 
+            get("/messages/new") {
+
+
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                }
+
+                call.respond(
+                    ThymeleafContent("create_new_message", model)
+                )
+
+            }
+
+
+
+            post("/messages/send") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val parameters = call.receiveParameters()
+
+                val sendTo = parameters["recipient"]
+                val message = parameters["message"]
+
+                if (sendTo.isNullOrEmpty()) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(ThymeLeafMapKeys.ERROR.value, "User to send message to must be specified")
+                    }
+                    call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                val sendToId = getUserId(sendTo!!)
+
+                if (sendToId == null) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(ThymeLeafMapKeys.ERROR.value, "The user you are trying to send a message to was not found")
+                    }
+                    call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                if (message == null || message.length > Length.MAX_DM_MESSAGE_LENGTH.value || message.isBlank()) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "Your message must be no more than ${Length.MAX_DM_MESSAGE_LENGTH.value} characters and cannot only contain whitespace"
+                        )
+                    }
+                    call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                val ret = sendMessage(userId!!, sendToId!!, message!!)
+
+                if (ret == null) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(ThymeLeafMapKeys.ERROR.value, "An error occurred while trying to send your message")
+                    }
+                    call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+
+                val map = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.SUCCESS.value, "Your message was sent")
+                }
+                call.respond(ThymeleafContent("create_new_message", map))
+            }
+
         }
-
-        post("/messages") {
-            val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-            val parameters = call.receiveParameters()
-
-            val sendTo = parameters["sendTo"]
-            val message = parameters["message"]
-
-            if(sendTo.isNullOrEmpty()) {
-                val map = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.ERROR.value,"User to send message to must be specified")
-                }
-                call.respond(ThymeleafContent("create_new_message", map))
-            }
-
-            val sendToId = getUserId(sendTo!!)
-
-            if(sendToId == null) {
-                val map = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.ERROR.value,"The user you are trying to send a message to was not found")
-                }
-                call.respond(ThymeleafContent("create_new_message", map))
-            }
-
-            if (message == null || message.length > Length.MAX_DM_MESSAGE_LENGTH.value || message.isBlank()) {
-                val map = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.ERROR.value,"Your message must be no more than ${Length.MAX_DM_MESSAGE_LENGTH.value} characters and cannot only contain whitespace")
-                }
-                call.respond(ThymeleafContent("create_new_message", map))
-            }
-
-            val ret = sendMessage(userId!!,sendToId!!,message!!)
-
-            if(ret == null) {
-                val map = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.ERROR.value,"An error occurred while trying to send your message")
-                }
-                call.respond(ThymeleafContent("create_new_message", map))
-            }
-
-
-            val map = buildMap {
-                put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                put(ThymeLeafMapKeys.SUCCESS.value,"Your message was sent")
-            }
-            call.respond(ThymeleafContent("create_new_message", map))
-        }
-
-
     }
 }

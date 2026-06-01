@@ -4,26 +4,30 @@
     <meta charset="UTF-8"/>
     <title>Messages</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:              #0f1117;
-            --surface:         #181b24;
-            --surface-hover:   #1e2130;
-            --border:          #272b3a;
-            --accent:          #5b8af5;
-            --accent-dim:      #1e2d56;
-            --text:            #e8eaf2;
-            --text-secondary:  #7b82a0;
-            --group-avatar:    #2d3a5f;
-            --dm-avatar:       #1e3a2f;
-            --group-pill:      #1e2d56;
+            --bg: #0f1117;
+            --surface: #181b24;
+            --surface-hover: #1e2130;
+            --border: #272b3a;
+            --accent: #5b8af5;
+            --accent-dim: #1e2d56;
+            --text: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --group-avatar: #2d3a5f;
+            --dm-avatar: #1e3a2f;
+            --group-pill: #1e2d56;
             --group-pill-text: #7ba4f5;
-            --dm-pill:         #1a3324;
-            --dm-pill-text:    #4ecb82;
-            --enc-color:       #f5c842;
-            --radius:          10px;
-            --font:            'Segoe UI', system-ui, sans-serif;
+            --dm-pill: #1a3324;
+            --dm-pill-text: #4ecb82;
+            --enc-color: #f5c842;
+            --radius: 10px;
+            --font: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
@@ -34,12 +38,30 @@
             padding: 2rem 1rem;
         }
 
-        .container { max-width: 680px; margin: 0 auto; }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
 
         /* ── Alerts ── */
-        .alert { padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1rem; font-size: 0.875rem; }
-        .alert-error   { background: #2d1a1a; border: 1px solid #7a2020; color: #f08080; }
-        .alert-success { background: #1a2d1f; border: 1px solid #207a40; color: #80d09e; }
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-error {
+            background: #2d1a1a;
+            border: 1px solid #7a2020;
+            color: #f08080;
+        }
+
+        .alert-success {
+            background: #1a2d1f;
+            border: 1px solid #207a40;
+            color: #80d09e;
+        }
 
         /* ── Top bar ── */
         .topbar {
@@ -49,8 +71,17 @@
             margin-bottom: 1.5rem;
             gap: 1rem;
         }
-        .topbar h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
-        .topbar-actions { display: flex; gap: 0.5rem; }
+
+        .topbar h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
 
         .btn {
             display: inline-flex;
@@ -63,19 +94,42 @@
             text-decoration: none;
             transition: opacity .15s;
         }
-        .btn:hover { opacity: .85; }
-        .btn-secondary { background: var(--surface); color: var(--text-secondary); border: 1px solid var(--border); }
-        .btn-primary   { background: var(--accent); color: #fff; }
+
+        .btn:hover {
+            opacity: .85;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
 
         /* ── Card ── */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
 
         /* ══ Pure-CSS tabs via hidden radio inputs ══
            The two radios live BEFORE the card so sibling selectors can reach the panels inside. */
-        .tab-radio { display: none; }
+        .tab-radio {
+            display: none;
+        }
 
         /* Tab bar */
-        .tab-bar { display: flex; border-bottom: 1px solid var(--border); }
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
         .tab-label {
             flex: 1;
             padding: 0.85rem 1rem;
@@ -91,7 +145,11 @@
             transition: color .15s, border-color .15s, background .15s;
             user-select: none;
         }
-        .tab-label:hover { color: var(--text); background: var(--surface-hover); }
+
+        .tab-label:hover {
+            color: var(--text);
+            background: var(--surface-hover);
+        }
 
         .tab-count {
             font-size: 0.7rem;
@@ -102,7 +160,7 @@
         }
 
         /* Active tab: radio checked → style its label */
-        #tab-dm:checked    ~ .card .tab-label[for="tab-dm"],
+        #tab-dm:checked ~ .card .tab-label[for="tab-dm"],
         #tab-group:checked ~ .card .tab-label[for="tab-group"] {
             color: var(--accent);
             border-bottom-color: var(--accent);
@@ -110,10 +168,17 @@
         }
 
         /* Panels: hidden by default, shown when matching radio is checked */
-        .tab-panel { display: none; }
+        .tab-panel {
+            display: none;
+        }
 
-        #tab-dm:checked    ~ .card #panel-dm    { display: block; }
-        #tab-group:checked ~ .card #panel-group { display: block; }
+        #tab-dm:checked ~ .card #panel-dm {
+            display: block;
+        }
+
+        #tab-group:checked ~ .card #panel-group {
+            display: block;
+        }
 
         /* ── Conversation rows ── */
         .conv-row {
@@ -126,46 +191,109 @@
             border-bottom: 1px solid var(--border);
             transition: background .15s;
         }
-        .conv-row:last-child { border-bottom: none; }
-        .conv-row:hover { background: var(--surface-hover); }
+
+        .conv-row:last-child {
+            border-bottom: none;
+        }
+
+        .conv-row:hover {
+            background: var(--surface-hover);
+        }
 
         .conv-avatar {
-            width: 42px; height: 42px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1rem;
-            flex-shrink: 0; text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+            text-transform: uppercase;
         }
-        .conv-avatar.dm    { background: var(--dm-avatar);    color: #4ecb82; }
-        .conv-avatar.group { background: var(--group-avatar); color: #7ba4f5; }
 
-        .conv-body  { flex: 1; min-width: 0; }
+        .conv-avatar.dm {
+            background: var(--dm-avatar);
+            color: #4ecb82;
+        }
+
+        .conv-avatar.group {
+            background: var(--group-avatar);
+            color: #7ba4f5;
+        }
+
+        .conv-body {
+            flex: 1;
+            min-width: 0;
+        }
+
         .conv-header {
-            display: flex; align-items: baseline;
-            justify-content: space-between; gap: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.5rem;
             margin-bottom: 0.2rem;
         }
+
         .conv-name {
-            font-weight: 600; font-size: 0.9rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            display: flex; align-items: center; gap: 0.3rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
             color: var(--text);
         }
-        .enc-icon  { font-size: 0.75rem; color: var(--enc-color); }
-        .conv-time { font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
-        .conv-preview {
-            font-size: 0.8rem; color: var(--text-secondary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
+        .enc-icon {
+            font-size: 0.75rem;
+            color: var(--enc-color);
         }
 
-        .conv-indicators { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; flex-shrink: 0; }
-        .type-pill {
-            font-size: 0.68rem; font-weight: 700;
-            padding: 0.15rem 0.5rem; border-radius: 20px;
-            text-transform: uppercase; letter-spacing: 0.04em;
+        .conv-time {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .type-pill.dm    { background: var(--dm-pill);    color: var(--dm-pill-text); }
-        .type-pill.group { background: var(--group-pill); color: var(--group-pill-text); }
+
+        .conv-preview {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conv-indicators {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.35rem;
+            flex-shrink: 0;
+        }
+
+        .type-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .type-pill.dm {
+            background: var(--dm-pill);
+            color: var(--dm-pill-text);
+        }
+
+        .type-pill.group {
+            background: var(--group-pill);
+            color: var(--group-pill-text);
+        }
 
         /* ── Empty state ── */
         .empty-state {
@@ -177,25 +305,44 @@
 
         /* ── Pagination ── */
         .pagination {
-            display: flex; align-items: center; justify-content: center;
-            gap: 0.75rem; padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
             border-top: 1px solid var(--border);
         }
+
         .page-btn {
-            font-size: 0.8rem; font-weight: 600;
-            padding: 0.35rem 0.9rem; border-radius: 6px;
-            text-decoration: none; background: var(--border); color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.35rem 0.9rem;
+            border-radius: 6px;
+            text-decoration: none;
+            background: var(--border);
+            color: var(--text);
             transition: background .15s;
         }
-        .page-btn:hover:not(.disabled) { background: var(--surface-hover); }
-        .page-btn.disabled { opacity: .35; pointer-events: none; }
-        .page-info { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .page-btn:hover:not(.disabled) {
+            background: var(--surface-hover);
+        }
+
+        .page-btn.disabled {
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        .page-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
-    <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
     <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
     <!-- Top bar -->
@@ -203,7 +350,7 @@
         <h1>Messages</h1>
         <div class="topbar-actions">
             <a class="btn btn-secondary" href="/feed">← Home</a>
-            <a class="btn btn-primary"   href="/messages/new">+ New</a>
+            <a class="btn btn-primary" href="/messages/new">+ New</a>
         </div>
     </div>
 
@@ -212,8 +359,8 @@
         the panels inside. The 'checked' attribute on whichever radio matches the active tab
         should be set server-side (e.g. th:checked="${activeTab == 'dm'}").
     -->
-    <input type="radio" class="tab-radio" name="inbox-tab" id="tab-dm"    th:checked="${activeTab != 'group'}" />
-    <input type="radio" class="tab-radio" name="inbox-tab" id="tab-group" th:checked="${activeTab == 'group'}" />
+    <input type="radio" class="tab-radio" name="inbox-tab" id="tab-dm" th:checked="${activeTab != 'group'}"/>
+    <input type="radio" class="tab-radio" name="inbox-tab" id="tab-group" th:checked="${activeTab == 'group'}"/>
 
     <div class="card">
 
@@ -222,7 +369,7 @@
             <label class="tab-label" for="tab-dm">
                 Direct Messages
                 <span class="tab-count"
-                      th:text="${messages != null} ? ${messages.totalElements} : 0">0</span>
+                      th:text="${private_message_list != null} ? ${private_message_list.size()} : 0">0</span>
             </label>
             <label class="tab-label" for="tab-group">
                 Group Chats
@@ -234,21 +381,16 @@
         <!-- ══ DM Panel ══ -->
         <div id="panel-dm" class="tab-panel">
 
-            <th:block th:if="${messages != null and not #lists.isEmpty(messages.content)}">
+            <th:block th:if="${private_message_list != null and not #lists.isEmpty(private_message_list)}">
                 <a class="conv-row"
-                   th:each="m : ${messages.content}"
-                   th:href="@{/messages/dm/{id}(id=${m.id})}">
-
-                    <div class="conv-avatar dm"
-                         th:text="${#strings.substring(m.sender, 0, 1)}">U</div>
+                   th:each="conversation : ${private_message_list}">
 
                     <div class="conv-body">
                         <div class="conv-header">
-                            <span class="conv-name" th:text="${m.sender}">Sender</span>
+                            <span class="conv-name" th:text="${conversation.sender}">Sender</span>
                             <span class="conv-time"
-                                  th:text="${#temporals.format(m.timeSent, 'MMM d, HH:mm')}">now</span>
+                                  th:text="${#temporals.format(conversation.timeOfLastMessage, 'MMM d, HH:mm')}">now</span>
                         </div>
-                        <div class="conv-preview" th:text="${m.message}">No messages yet.</div>
                     </div>
 
                     <div class="conv-indicators">
@@ -258,12 +400,12 @@
             </th:block>
 
             <div class="empty-state"
-                 th:if="${messages == null or #lists.isEmpty(messages.content)}">
+                 th:if="${private_message_list == null or #lists.isEmpty(private_message_list)}">
                 No direct messages yet.
             </div>
 
             <div class="pagination"
-                 th:if="${messages != null and messages.totalPages > 1}">
+                 th:if="${messages != null and totalPages > 1}">
                 <a class="page-btn"
                    th:classappend="${messages.first} ? 'disabled'"
                    th:href="@{/messages(dmPage=${messages.number - 1})}">← Prev</a>
@@ -285,7 +427,8 @@
                    th:href="@{/messages/group/{id}(id=${g.id})}">
 
                     <div class="conv-avatar group"
-                         th:text="${#strings.substring(g.name, 0, 1)}">G</div>
+                         th:text="${#strings.substring(g.name, 0, 1)}">G
+                    </div>
 
                     <div class="conv-body">
                         <div class="conv-header">

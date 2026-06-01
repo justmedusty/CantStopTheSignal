@@ -34,6 +34,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_LOG("admin_log"),
     POST_LIKES("post_likes"),
     POST_DISLIKES("post_dislikes"),
+    PRIVATE_MESSAGE_DRAFT("draft_message"),
     PRIVATE_MESSAGE_LIST("private_message_list"),
     PRIVATE_MESSAGE_CONVERSATION("private_message_conversation"),
     USER_COMMENT_HISTORY("user_comment_history"),
