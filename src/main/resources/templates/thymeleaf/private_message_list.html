@@ -167,11 +167,6 @@
             background: var(--accent-dim);
         }
 
-        /* Panels: hidden by default, shown when matching radio is checked */
-        .tab-panel {
-            display: none;
-        }
-
         #tab-dm:checked ~ .card #panel-dm {
             display: block;
         }
@@ -418,58 +413,10 @@
 
         </div><!-- /panel-dm -->
 
-        <!-- ══ Group Panel ══ -->
-        <div id="panel-group" class="tab-panel">
 
-            <th:block th:if="${groupChats != null and not #lists.isEmpty(groupChats.content)}">
-                <a class="conv-row"
-                   th:each="g : ${groupChats.content}"
-                   th:href="@{/messages/group/{id}(id=${g.id})}">
+    </div><!-- /panel-group -->
 
-                    <div class="conv-avatar group"
-                         th:text="${#strings.substring(g.name, 0, 1)}">G
-                    </div>
-
-                    <div class="conv-body">
-                        <div class="conv-header">
-                            <span class="conv-name">
-                                <span th:text="${g.name}">Group Name</span>
-                                <span class="enc-icon" th:if="${g.forceEncryption}">🔒</span>
-                            </span>
-                            <span class="conv-time"
-                                  th:text="${#temporals.format(g.createdAt, 'MMM d, HH:mm')}">now</span>
-                        </div>
-                        <div class="conv-preview">
-                            Created by <span th:text="${g.createdBy}">someone</span>
-                        </div>
-                    </div>
-
-                    <div class="conv-indicators">
-                        <span class="type-pill group">Group</span>
-                    </div>
-                </a>
-            </th:block>
-
-            <div class="empty-state"
-                 th:if="${groupChats == null or #lists.isEmpty(groupChats.content)}">
-                No group chats yet.
-            </div>
-
-            <div class="pagination"
-                 th:if="${groupChats != null and groupChats.totalPages > 1}">
-                <a class="page-btn"
-                   th:classappend="${groupChats.first} ? 'disabled'"
-                   th:href="@{/messages(groupPage=${groupChats.number - 1})}">← Prev</a>
-                <span class="page-info"
-                      th:text="|Page ${groupChats.number + 1} of ${groupChats.totalPages}|">Page 1 of 1</span>
-                <a class="page-btn"
-                   th:classappend="${groupChats.last} ? 'disabled'"
-                   th:href="@{/messages(groupPage=${groupChats.number + 1})}">Next →</a>
-            </div>
-
-        </div><!-- /panel-group -->
-
-    </div><!-- /card -->
+</div><!-- /card -->
 </div>
 </body>
 </html>

@@ -1,15 +1,15 @@
 package cantstopthesignal.routing.messages
 
-import cantstopthesignal.database.messages.getUsersWhoHaveMessagedYou
+import cantstopthesignal.database.messages.getAllConversations
 import cantstopthesignal.database.messages.sendMessage
-import cantstopthesignal.database.users.getUserId
+import cantstopthesignal.database.messages.verifyConversationId
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.request.receiveParameters
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
@@ -26,7 +26,7 @@ fun Application.configureMessageRouting() {
                     ?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
 
-                val messageList = getUsersWhoHaveMessagedYou(userId!!, page, limit) ?: emptyList()
+                val messageList = getAllConversations(userId!!, page, limit) ?: emptyList()
 
 
                 val model = buildMap {
@@ -61,10 +61,10 @@ fun Application.configureMessageRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val parameters = call.receiveParameters()
 
-                val sendTo = parameters["recipient"]
+                val conversationId = parameters["recipient"]?.toLongOrNull()
                 val message = parameters["message"]
 
-                if (sendTo.isNullOrEmpty()) {
+                if (conversationId == null) {
                     val map = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "User to send message to must be specified")
@@ -72,15 +72,16 @@ fun Application.configureMessageRouting() {
                     call.respond(ThymeleafContent("create_new_message", map))
                 }
 
-                val sendToId = getUserId(sendTo!!)
+                val verified = verifyConversationId(conversationId!!)
 
-                if (sendToId == null) {
+                if (verified == null) {
                     val map = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "The user you are trying to send a message to was not found")
+                        put(ThymeLeafMapKeys.ERROR.value, "The group ID you passed is invalid")
                     }
                     call.respond(ThymeleafContent("create_new_message", map))
                 }
+
 
                 if (message == null || message.length > Length.MAX_DM_MESSAGE_LENGTH.value || message.isBlank()) {
                     val map = buildMap {
@@ -93,7 +94,7 @@ fun Application.configureMessageRouting() {
                     call.respond(ThymeleafContent("create_new_message", map))
                 }
 
-                val ret = sendMessage(userId!!, sendToId!!, message!!)
+                val ret = sendMessage(userId!!, conversationId!!, message!!)
 
                 if (ret == null) {
                     val map = buildMap {

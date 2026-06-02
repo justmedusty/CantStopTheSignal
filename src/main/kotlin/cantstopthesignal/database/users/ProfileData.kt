@@ -48,6 +48,12 @@ data class ProfileDataEntry(
     }
 }
 
+/*
+    I am probably not going to implement auto encrypt since it encourages users to let the server encrypt for them.
+    Users should always do it themselves, this is the most secure way to do it.
+
+ */
+
 fun hasAutoEncryptionEnabled(userId: Long): Boolean {
     return try {
         transaction {

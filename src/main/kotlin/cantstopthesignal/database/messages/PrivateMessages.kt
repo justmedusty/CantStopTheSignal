@@ -1,17 +1,20 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.database.users.*
+import cantstopthesignal.database.users.getPublicKey
+import cantstopthesignal.database.users.getUserIdWithinTransaction
+import cantstopthesignal.database.users.getUserName
+import cantstopthesignal.database.users.getUserNameWithinTransaction
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.receiverId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -122,23 +125,119 @@ fun getMembersOfConversation(conversation: Long): List<String>? {
     }
 }
 
+fun getLastMessageUsername(conversation: Long): String? {
+    return try {
+        val userId = Messages.selectAll().where { Messages.conversationId eq conversation }
+            .orderBy(Messages.id to SortOrder.DESC)
+            .first()[senderId]
+
+        getUserNameWithinTransaction(userId)
+
+    } catch (e: Exception) {
+        logger.error { e.message + " occurred while trying to get last username " }
+        null
+    }
+}
+
+fun getUsersInConversation(userId: Long, groupId: Long): List<String>? {
+
+    return try {
+        val list = ConversationMembers.selectAll()
+            .where { (ConversationMembers.conversationId eq groupId) and (ConversationMembers.userId neq userId) }.map {
+                getUserNameWithinTransaction(it[ConversationMembers.userId])
+            }
+        for (item in list) {
+            if (item == null) {
+                /* This isn't the end of the world but we should know about it if it happens , it should not happen */
+                logger.warn { "getUsersInConversation: There is a null username tied to a userId in a message conversation" }
+                return null
+            }
+        }
+        list
+    } catch (e: Exception) {
+        logger.error { e.message + " happened while trying to fetch users in conversation" }
+        null
+    } as List<String>?
+
+}
+
+
+fun getPgpKeysInConversation(userId: Long, groupId: Long): List<String>? {
+
+    return try {
+        val list = ConversationMembers.selectAll()
+            .where { (ConversationMembers.conversationId eq groupId) and (ConversationMembers.userId neq userId) }.map {
+                getPublicKey(it[ConversationMembers.userId])
+
+            }
+        val keyList: List<String> = list.filterNotNull().map { it }
+        keyList
+    } catch (e: Exception) {
+        logger.error { e.message + " happened while trying to fetch users pgp keys in conversation" }
+        null
+    }
+
+}
+
+fun verifyConversationId(id: Long): Long? {
+    return try {
+        transaction {
+            Conversations.selectAll().where { Conversations.id eq id }.limit(1).first()[Conversations.id]
+        }
+    } catch (e: Exception) {
+        logger.error { e.message + " occurred while trying to verify conversation ID" }
+        null
+    }
+}
+
 fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConversationObject>? {
     val offsetVal = ((page - 1) * limit).toLong()
     val receiverUserNameString = getUserName(userId)
     return if (receiverUserNameString != null) {
         try {
             transaction {
+                val conversationIdList: List<Long> =
+                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.map {
+                        it[ConversationMembers.conversationId]
+                    }
+                conversationIdList.map { conversationId ->
 
-                Conversations.selectAll().where { (r eq userId) }.limit(limit).offset(offsetVal).map {
+                    val lastUserWhoSentAMessage = getLastMessageUsername(conversationId)
+
+                    if (lastUserWhoSentAMessage == null) {
+                        logger.warn { "getAllConversations: lastUserWhoSentAMessage is null" }
+                        return@transaction null
+                    }
+                    val isMe = getUserIdWithinTransaction(lastUserWhoSentAMessage) == userId
+
+                    val timeOfLastMessage = getLastMessageTimestamp(userId)
+
+                    if (timeOfLastMessage == null) {
+                        logger.warn { "getAllConversations: timeOfLastMessage is null" }
+                        return@transaction null
+                    }
+
+                    val userList = getUsersInConversation(userId, conversationId)
+
+                    if (userList == null) {
+                        logger.warn { "getAllConversations: userList is null" }
+                        return@transaction null
+                    }
+
+
+                    val publicKeys = getPgpKeysInConversation(userId, conversationId)
+
+
 
                     MessageConversationObject(
-                        id = it[Messages.id],
-                        sender = getUserNameWithinTransaction(it[Conversations.])!!,
-                        message = it[message],
-                        timeSent = it[timeSent]
-
-
+                        conversationId,
+                        lastUserWhoSentAMessage,
+                        isMe,
+                        timeOfLastMessage,
+                        userList,
+                        publicKeys
                     )
+
                 }
             }
         } catch (e: Exception) {
@@ -148,14 +247,14 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
     } else return null
 }
 
-fun getLastMessageTimestamp(userId: Long, receiver: Long): LocalDateTime? {
+fun getLastMessageTimestamp(group: Long): LocalDateTime? {
     return try {
-        transaction {
-            Messages.selectAll().where { (receiverId eq receiver) and (senderId eq userId) }.orderBy(
-                Messages.id,
-                SortOrder.DESC
-            ).map { it[timeSent] }.first()
-        }
+
+        Messages.selectAll().where { (Messages.conversationId eq group) }.orderBy(
+            Messages.id,
+            SortOrder.DESC
+        ).map { it[timeSent] }.first()
+
     } catch (e: Exception) {
         logger.error { e.message + "Error occurred trying to fetch the last message time for a user" }
         null
