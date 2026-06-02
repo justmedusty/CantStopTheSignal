@@ -1,8 +1,9 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.cryptography.encryptMessage
 import cantstopthesignal.database.users.*
 import cantstopthesignal.log.logger
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.receiverId
@@ -27,35 +28,25 @@ data class Message(
 )
 
 //This is the high level object
-data class Messages(
+data class MessageObject(
     val id: Long,
     val sender: String,
+    val isMe: Boolean,
     val message: String,
     val timeSent: LocalDateTime,
 )
 
-data class MessageConversation(
+data class MessageConversationObject(
     val id: Long,
-    val sender: String,
+    val lastSender: String,
+    val isMe: Boolean,
     val timeOfLastMessage: LocalDateTime,
-    val pgpKey: String,
+    val members: List<String>,
+    val pgpKey: List<String>? //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs,
 )
 
 
-fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
-
-    val publicKey: String?
-    var encryptedMessage: ByteArray? = null
-
-    if (hasAutoEncryptionEnabled(receiver)) {
-        publicKey = getPublicKey(receiver)
-        if (publicKey != null) {
-            encryptedMessage = encryptMessage(publicKey, messageString)
-        } else {
-            encryptedMessage = null
-        }
-
-    }
+fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? {
 
     return try {
 
@@ -63,20 +54,14 @@ fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
 
             Messages.insert {
                 it[senderId] = sender
-                it[receiverId] = receiver
-
-                if (encryptedMessage != null) {
-                    //TODO remember this is here and make sure this conversion works properly
-                    it[message] = encryptedMessage.contentToString()
-                } else {
-                    it[message] = messageString
-                }
-
+                it[conversationId] = conversation
+                it[message] = messageString
                 it[timeSent] = LocalDateTime.now(ZoneOffset.UTC)
-            } get Messages.id
+            }
 
 
-        }
+        } get Messages.id
+
     } catch (e: Exception) {
         logger.error { e.message }
         null
@@ -84,7 +69,12 @@ fun sendMessage(sender: Long, receiver: Long, messageString: String): Long? {
 
 }
 
-fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: Int): List<Message>? {
+fun getMessagesFromConversation(
+    requesterId: Long,
+    conversationId: Long,
+    page: Int,
+    limit: Int
+): List<MessageObject>? {
 
     val offsetVal = ((page - 1) * limit).toLong()
 
@@ -92,16 +82,23 @@ fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: 
     return try {
 
         transaction {
-            Messages.selectAll().where { (receiverId eq requesterId) and (senderId eq requestedId) }
-                .limit(limit).offset(offsetVal).map {
-                    Message(
+            val messageList = Messages
+                .selectAll()
+                .where { Messages.conversationId eq conversationId }
+                .limit(limit)
+                .offset(offsetVal)
+                .orderBy(timeSent to SortOrder.DESC)
+                .map {
+                    MessageObject(
                         id = it[Messages.id],
-                        senderId = requestedId,
-                        receiverId = requesterId,
+                        sender = getUserNameWithinTransaction(it[senderId])!!, // This should not conceivably be null so we will force this for now
                         message = it[message],
-                        timeSent = it[timeSent]
+                        timeSent = it[timeSent],
+                        isMe = it[senderId] == requesterId
                     )
                 }
+
+            messageList
         }
     } catch (e: Exception) {
         logger.error { e.message }
@@ -109,19 +106,34 @@ fun getMessagesFromUser(requesterId: Long, requestedId: Long, page: Int, limit: 
     }
 }
 
+//This should only be called within a tx
+fun getMembersOfConversation(conversation: Long): List<String>? {
+    return try {
+        val usernameList: List<String> =
+            ConversationMembers.selectAll().where { ConversationMembers.conversationId eq conversation }.map {
+                getUserNameWithinTransaction(it[ConversationMembers.userId])!! //There should not be any null entries here we will verify that the conversation actually exists somewhere
+            }
 
-fun getAllMessages(userId: Long, page: Int, limit: Int): List<cantstopthesignal.database.messages.Messages>? {
+        usernameList
+
+    } catch (e: Exception) {
+        logger.error { e.message + " Happened trying to get members of conversation" }
+        null
+    }
+}
+
+fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConversationObject>? {
     val offsetVal = ((page - 1) * limit).toLong()
     val receiverUserNameString = getUserName(userId)
     return if (receiverUserNameString != null) {
         try {
             transaction {
 
-                Messages.selectAll().where { (receiverId eq userId) }.limit(limit).offset(offsetVal).map {
+                Conversations.selectAll().where { (r eq userId) }.limit(limit).offset(offsetVal).map {
 
-                    Messages(
+                    MessageConversationObject(
                         id = it[Messages.id],
-                        sender = getUserNameWithinTransaction(it[senderId])!!,
+                        sender = getUserNameWithinTransaction(it[Conversations.])!!,
                         message = it[message],
                         timeSent = it[timeSent]
 
@@ -150,42 +162,3 @@ fun getLastMessageTimestamp(userId: Long, receiver: Long): LocalDateTime? {
     }
 }
 
-fun getUsersWhoHaveMessagedYou(userId: Long, page: Int, limit: Int): List<MessageConversation>? {
-    val offsetVal = ((page - 1) * limit).toLong()
-    val usersWithProfileData = mutableMapOf<Long, ProfileDataEntry>()
-
-    try {
-        transaction {
-            val senderIdsByMostRecent = Messages.selectAll().where { receiverId eq userId }
-                .orderBy(Messages.id, SortOrder.DESC)
-                .limit(limit).offset(offsetVal)
-                .map { it[senderId] }
-
-            senderIdsByMostRecent.forEach { senderId ->
-                if (!usersWithProfileData.containsKey(senderId)) {
-                    val senderProfileData = getProfileDataEntry(senderId)
-                    if (senderProfileData != null) {
-                        usersWithProfileData[senderId] = senderProfileData
-                    }
-                }
-            }
-        }
-    } catch (e: Exception) {
-        logger.error { e.message }
-        return null
-    }
-
-    val messageConversations = usersWithProfileData.map { (lng, entry) ->
-        MessageConversation(
-            id = lng,
-            sender = entry.userName,
-            timeOfLastMessage = getLastMessageTimestamp(
-                getUserId(entry.userName)!!,
-                receiver = userId
-            )!!,
-            pgpKey = entry.publicKey ?: "This user does not have a PGP key uploaded",
-        )
-    }
-
-    return messageConversations
-}
