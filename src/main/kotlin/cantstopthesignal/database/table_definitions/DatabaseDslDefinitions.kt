@@ -226,5 +226,5 @@ object SiteWidePermissions : Table(name = "SiteWidePermissions") {
 //If the user chooses to make their forum invite only, this will be where the one-time-use codes are stored
 object InviteCodes : Table(name = "InviteCodes") {
     val id: Column<Long> = long("id").autoIncrement()
-    val inviteCode: Column<String> = text("invite_code").uniqueIndex() //this will be used for nuclear options in case you get swarmed or something, but it can be used to include other stuff too
+    val inviteCode: Column<String> = text("invite_code").uniqueIndex()
 }

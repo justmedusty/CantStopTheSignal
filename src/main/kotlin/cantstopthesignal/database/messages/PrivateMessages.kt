@@ -1,5 +1,6 @@
 package cantstopthesignal.database.messages
 
+import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserIdWithinTransaction
 import cantstopthesignal.database.users.getUserName
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
@@ -71,6 +73,8 @@ fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? 
     }
 
 }
+
+
 
 fun getMessagesFromConversation(
     requesterId: Long,
