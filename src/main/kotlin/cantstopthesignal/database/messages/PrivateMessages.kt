@@ -1,6 +1,5 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserIdWithinTransaction
 import cantstopthesignal.database.users.getUserName
@@ -12,12 +11,9 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.neq
+import com.freedom.cantstopthesignal.enums.RetValues
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
@@ -74,6 +70,47 @@ fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? 
 
 }
 
+fun createConversation(userId: Long, users: List<Long>, conversationName: String): Long? = try {
+    transaction {
+        val targetUserIds = (users + userId).distinct()
+        val numUsers = targetUserIds.size
+
+        val matchingConversationId = ConversationMembers.selectAll()
+            .where { (ConversationMembers.userId inList targetUserIds) or (ConversationMembers.userId eq userId) }
+            .groupBy(ConversationMembers.conversationId)
+            .having {
+                ConversationMembers.userId.count() eq numUsers.toLong()
+            }
+            .firstOrNull()
+            ?.get(ConversationMembers.conversationId)
+
+        if (matchingConversationId != null) {
+            return@transaction RetValues.ALREADY_EXISTS.value
+        }
+
+        val conversationId = Conversations.insert {
+            it[createdBy] = userId
+            it[isGroup] = targetUserIds.size > 2
+            it[name] = conversationName
+        }[Conversations.id]
+
+
+        targetUserIds.forEach { userId ->
+            ConversationMembers.insert {
+                it[joinedAt] = LocalDateTime.now(ZoneOffset.UTC)
+                it[ConversationMembers.conversationId] = conversationId
+                it[ConversationMembers.userId] = userId
+            }
+        }
+
+
+        conversationId
+
+    }
+} catch (e: Exception) {
+    logger.error { e.message + " occurred during createConversation call" }
+    null
+}
 
 
 fun getMessagesFromConversation(
@@ -112,6 +149,7 @@ fun getMessagesFromConversation(
         return null //return null on error , not empty list, because empty list can mean more than just error, null can only mean error
     }
 }
+
 
 //This should only be called within a tx
 fun getMembersOfConversation(conversation: Long): List<String>? {
