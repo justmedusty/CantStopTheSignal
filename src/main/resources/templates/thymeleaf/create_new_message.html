@@ -298,57 +298,61 @@
         <div class="card-header">
             <div class="card-header-icon">✉</div>
             <div>
-                <div class="card-header-title">Direct Message</div>
-                <div class="card-header-sub">Send a private message to another user</div>
+                <div class="card-header-title">Create a new private conversation</div>
+                <div class="card-header-sub">Send a private message to other users</div>
             </div>
         </div>
 
         <!-- Form -->
-        <form method="post" th:action="|/messages/send|">
+        <form method="post" th:action="|/messages/conversation/create|">
             <div class="form-body">
 
                 <!-- To field -->
                 <div class="field">
-                    <label class="field-label" for="recipient">To</label>
+                    <label class="field-label" for="recipients">To</label>
                     <div class="input-wrap">
                         <span class="input-prefix">@</span>
                         <input
                                 type="text"
-                                id="recipient"
-                                name="recipient"
-                                placeholder="username"
+                                id="recipients"
+                                name="recipients"
+                                placeholder="alice, bob, carol"
                                 autocomplete="off"
                                 autocapitalize="none"
                                 spellcheck="false"
-                                minlength="1"
+                                minlength="3"
                                 maxlength="5000"
-                                th:value="${draft_message != null} ? ${draft_message.reciepient}"
+                                th:value="${conversation_draft != null ? conversation_draft.recipients : ''}"
                                 required/>
+
                     </div>
-                    <span class="field-hint">Enter the exact username of the person you want to message.</span>
+                    <span class="field-hint">Separate multiple usernames with commas.</span>
                 </div>
-
-                <!-- Message field -->
+                <!-- Conversation Name Field -->
                 <div class="field">
-                    <label class="field-label" for="message">Message</label>
-                    <textarea
-                            class="input-plain"
-                            id="message"
-                            name="message"
-                            placeholder="Write your message…"
-                            maxlength="2000"
-                            th:text="${draft_message != null} ? ${draft_message.message} : ''"
-                            required></textarea>
+                    <label class="field-label" for="recipients">Group Name</label>
+                    <div class="input-wrap">
+                        <span class="input-prefix">(Groups only)</span>
+                        <input
+                                type="text"
+                                id="chatname"
+                                name="chatname"
+                                placeholder="The A-Team.."
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                th:value="${conversation_draft != null} ? ${conversation_draft.groupName}"
+                                />
 
-                </div>
+                    </div><!-- /form-body -->
 
-            </div><!-- /form-body -->
-
-            <div class="form-footer">
-                <span class="footer-meta">Messages are private between you and the recipient. You should ALWAYS encrypt with the users public key if they have one uploaded. Go to their profile to look for a key. Encrypt locally before pasting into the text box.</span>
-                <div class="footer-actions">
-                    <a class="btn btn-secondary" href="/messages">Cancel</a>
-                    <button type="submit" class="btn btn-send">Send →</button>
+                    <div class="form-footer">
+                        <span class="footer-meta">Messages are private between you and the recipient. You should ALWAYS encrypt with the users public key if they have one uploaded. Go to their profile to look for a key, or open a conversation and get a list of uploaded keys. Encrypt locally before pasting into the text box.</span>
+                        <div class="footer-actions">
+                            <a class="btn btn-secondary" href="/messages">Cancel</a>
+                            <button type="submit" class="btn btn-send">Create New Conversation →</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

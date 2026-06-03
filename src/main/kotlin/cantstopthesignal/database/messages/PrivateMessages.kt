@@ -12,8 +12,12 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.mes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
 import com.freedom.cantstopthesignal.enums.RetValues
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
@@ -39,9 +43,9 @@ data class MessageObject(
 
 data class MessageConversationObject(
     val id: Long,
-    val lastSender: String,
-    val isMe: Boolean,
-    val timeOfLastMessage: LocalDateTime,
+    val lastSender: String?,
+    val isMe: Boolean? ,
+    val timeOfLastMessage: LocalDateTime?,
     val members: List<String>,
     val pgpKey: List<String>? //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs,
 )
@@ -70,19 +74,27 @@ fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? 
 
 }
 
-fun createConversation(userId: Long, users: List<Long>, conversationName: String): Long? = try {
+fun createConversation(userId: Long, users: List<Long>, conversationName: String?): Long? = try {
     transaction {
         val targetUserIds = (users + userId).distinct()
         val numUsers = targetUserIds.size
 
-        val matchingConversationId = ConversationMembers.selectAll()
-            .where { (ConversationMembers.userId inList targetUserIds) or (ConversationMembers.userId eq userId) }
-            .groupBy(ConversationMembers.conversationId)
-            .having {
-                ConversationMembers.userId.count() eq numUsers.toLong()
+        val matchingConversationId = targetUserIds
+            .map { uid ->
+                ConversationMembers
+                    .select(ConversationMembers.conversationId)
+                    .where { ConversationMembers.userId eq uid }
+                    .map { it[ConversationMembers.conversationId] }
+                    .toSet()
             }
-            .firstOrNull()
-            ?.get(ConversationMembers.conversationId)
+            .reduce { acc, ids -> acc intersect ids }
+            .firstOrNull { candidateId ->
+                // Ensure the conversation has exactly numUsers members (no extras)
+                ConversationMembers
+                    .selectAll()
+                    .where { ConversationMembers.conversationId eq candidateId }
+                    .count() == numUsers.toLong()
+            }
 
         if (matchingConversationId != null) {
             return@transaction RetValues.ALREADY_EXISTS.value
@@ -91,7 +103,8 @@ fun createConversation(userId: Long, users: List<Long>, conversationName: String
         val conversationId = Conversations.insert {
             it[createdBy] = userId
             it[isGroup] = targetUserIds.size > 2
-            it[name] = conversationName
+            it[name] =
+                conversationName // This is null for non groups and for groups where it is null it will just be populated with the usernames
         }[Conversations.id]
 
 
@@ -246,18 +259,10 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
 
                     val lastUserWhoSentAMessage = getLastMessageUsername(conversationId)
 
-                    if (lastUserWhoSentAMessage == null) {
-                        logger.warn { "getAllConversations: lastUserWhoSentAMessage is null" }
-                        return@transaction null
-                    }
-                    val isMe = getUserIdWithinTransaction(lastUserWhoSentAMessage) == userId
+                    val isMe =
+                        if (lastUserWhoSentAMessage != null) getUserIdWithinTransaction(lastUserWhoSentAMessage) == userId else null
 
                     val timeOfLastMessage = getLastMessageTimestamp(userId)
-
-                    if (timeOfLastMessage == null) {
-                        logger.warn { "getAllConversations: timeOfLastMessage is null" }
-                        return@transaction null
-                    }
 
                     val userList = getUsersInConversation(userId, conversationId)
 
