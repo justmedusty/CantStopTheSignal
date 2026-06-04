@@ -103,7 +103,7 @@ fun Application.configureMessageRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "The group ID you passed is invalid")
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
 
@@ -115,7 +115,7 @@ fun Application.configureMessageRouting() {
                             "Your message must be no more than ${Length.MAX_DM_MESSAGE_LENGTH.value} characters and cannot only contain whitespace"
                         )
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
                 val ret = sendMessage(userId!!, conversationId!!, message!!)
@@ -125,9 +125,9 @@ fun Application.configureMessageRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "An error occurred while trying to send your message")
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
-                call.respondRedirect("/messages/conversations/$conversationId")
+                return@post call.respondRedirect("/messages/conversations/$conversationId")
 
 
             }

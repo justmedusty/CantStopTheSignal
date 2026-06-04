@@ -83,7 +83,9 @@
             flex-shrink: 0;
         }
 
-        .topbar a.back:hover { opacity: .8; }
+        .topbar a.back:hover {
+            opacity: .8;
+        }
 
         .topbar-avatar {
             width: 36px;
@@ -165,8 +167,13 @@
             background: var(--border);
         }
 
-        .date-divider::before { left: 0; }
-        .date-divider::after  { right: 0; }
+        .date-divider::before {
+            left: 0;
+        }
+
+        .date-divider::after {
+            right: 0;
+        }
 
         .msg-row {
             display: flex;
@@ -241,7 +248,8 @@
             color: var(--text-secondary);
             padding: 0 0.25rem;
         }
-        .message_from{
+
+        .message_from {
             font-size: 0.68rem;
             color: var(--text-secondary);
             padding: 0 0.25rem;
@@ -276,8 +284,13 @@
             line-height: 1.5;
         }
 
-        .compose-input::placeholder { color: var(--text-secondary); }
-        .compose-input:focus { border-color: var(--accent); }
+        .compose-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .compose-input:focus {
+            border-color: var(--accent);
+        }
 
         .send-btn {
             width: 40px;
@@ -294,8 +307,13 @@
             text-decoration: none;
         }
 
-        .send-btn:hover { opacity: .85; }
-        .send-btn:active { opacity: .7; }
+        .send-btn:hover {
+            opacity: .85;
+        }
+
+        .send-btn:active {
+            opacity: .7;
+        }
 
         .send-btn svg {
             width: 18px;
@@ -309,89 +327,116 @@
             font-size: 0.875rem;
             padding: 2rem 0;
         }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+
+        .page-shell {
+            width: 100%;
+            max-width: 900px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            background: var(--bg);
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
+<div class="page-shell">
+    <div class="topbar">
+        <a class="back" href="/messages">← Back</a>
 
-<div class="topbar">
-    <a class="back" href="/messages">← Back</a>
-
-    <div class="topbar-info">
-        <div class="topbar-name">
-            <span th:text="${conversation.name != null} ? ${conversation.name} : ${conversation.lastSender}">Conversation</span>
-            <span class="enc-icon"
-                  th:if="${conversation.pgpKey != null and not #lists.isEmpty(conversation.pgpKey)}"
-                  title="PGP Keys Available">🔒</span>
+        <div class="topbar-info">
+            <div class="topbar-name">
+                <span th:text="${conversation.name != null} ? ${conversation.name} : ${conversation.lastSender}">Conversation</span>
+                <span class="enc-icon"
+                      th:if="${conversation.pgpKey != null and not #lists.isEmpty(conversation.pgpKey)}"
+                      title="PGP Keys Available">🔒</span>
+            </div>
+            <div class="topbar-members"
+                 th:text="${#strings.listJoin(conversation.members, ', ')}">Members
+            </div>
         </div>
-        <div class="topbar-members"
-             th:text="${#strings.listJoin(conversation.members, ', ')}">Members</div>
     </div>
-</div>
 
-<div class="alerts-wrap">
-    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
-    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
-</div>
-
-<!--
-    Messages are rendered newest-first (controller sorts descending).
-    flex-direction: column-reverse naturally places them oldest-at-top,
-    newest-at-bottom with no JS scroll needed.
--->
-<div class="messages-wrap">
-
-    <div class="empty-state"
-         th:if="${messages == null or #lists.isEmpty(messages)}">
-        No messages yet. Say hello!
+    <div class="alerts-wrap">
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
     </div>
-    <th:block th:each="msg, iterStat : ${messages}">
 
-        <div class="msg-row" th:classappend="${msg.isMe} ? 'me'">
+    <!--
+        Messages are rendered newest-first (controller sorts descending).
+        flex-direction: column-reverse naturally places them oldest-at-top,
+        newest-at-bottom with no JS scroll needed.
+    -->
+    <div class="messages-wrap">
 
-            <div th:if="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
-                 class="msg-avatar spacer"></div>
-            <div th:unless="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
-                 class="msg-avatar"
-                 th:classappend="${msg.isMe} ? 'me-avatar'"
-                 th:text="${(msg.sender != null) ? msg.sender.substring(0,1) : '?'}">?</div>
+        <div class="empty-state"
+             th:if="${messages == null or #lists.isEmpty(messages)}">
+            No messages yet. Say hello!
+        </div>
+        <th:block th:each="msg, iterStat : ${messages}">
 
-            <div class="msg-content">
+            <div class="msg-row" th:classappend="${msg.isMe} ? 'me'">
+
+                <div th:if="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
+                     class="msg-avatar spacer"></div>
+                <div th:unless="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
+                     class="msg-avatar"
+                     th:classappend="${msg.isMe} ? 'me-avatar'"
+                     th:text="${(msg.sender != null) ? msg.sender.substring(0,1) : '?'}">?
+                </div>
+
+                <div class="msg-content">
             <span class="msg-sender"
                   th:if="${!msg.isMe and
                            (iterStat.first or messages[iterStat.index - 1].sender != msg.sender)}"
                   th:text="${msg.sender}">Sender</span>
 
-                <div class="bubble" th:text="${msg.message}">Message text</div>
+                    <div class="bubble" th:text="${msg.message}">Message text</div>
 
-                <span class="msg-time"
-                      th:text="${#temporals.format(msg.timeSent, 'HH:mm')}">12:00</span>
+                    <span class="msg-time"
+                          th:text="${#temporals.format(msg.timeSent, 'HH:mm')}">12:00</span>
+                </div>
+
             </div>
 
-        </div>
-
-        <div class="date-divider"
-             th:if="${iterStat.last or
+            <div class="date-divider"
+                 th:if="${iterStat.last or
                   !#temporals.format(msg.timeSent, 'yyyy-MM-dd').equals(
                     #temporals.format(messages[iterStat.index + 1].timeSent, 'yyyy-MM-dd')
                   )}"
-             th:text="${#temporals.format(msg.timeSent, 'MMMM d, yyyy')}">
-            Today
-        </div>
-    </th:block>
-</div>
-<form class="compose"
-      th:action="|/messages/conversations/${conversation.id}/send|"
-      method="post">
+                 th:text="${#temporals.format(msg.timeSent, 'MMMM d, yyyy')}">
+                Today
+            </div>
+        </th:block>
+    </div>
+    <form class="compose"
+          th:action="|/messages/conversations/${conversation.id}/send|"
+          method="post">
     <textarea class="compose-input"
               name="message"
               placeholder="Message…"
               rows="1"
               required></textarea>
-    <button class="send-btn" type="submit" aria-label="Send">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
-        </svg>
-    </button>
-</form>
+        <button class="send-btn" type="submit" aria-label="Send">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+            </svg>
+        </button>
+    </form>
+</div>
 </body>
 </html>
