@@ -42,19 +42,3 @@ fun getLastCommentEdit(commentId: Long): LocalDateTime? {
         null
     }
 }
-
-fun getLastCommentEditWithinTransaction(commentId: Long): LocalDateTime? {
-    return try {
-
-        val result = CommentEdits.select(CommentEdits.commentId eq commentId)
-            .orderBy(CommentEdits.lastEdited, SortOrder.DESC)
-            .limit(1)
-            .firstOrNull()
-
-        result?.get(CommentEdits.lastEdited)
-
-    } catch (e: Exception) {
-        logger.error { e.message }
-        null
-    }
-}

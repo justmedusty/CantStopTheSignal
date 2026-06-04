@@ -4,7 +4,7 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.enums.Notif
-import insertNotificationWithinTransaction
+import insertNotification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -33,25 +33,6 @@ fun isCommentDisLikedByUser(commentId: Long, likedById: Long?): Boolean {
 
 }
 
-fun isCommentDisLikedByUserWithinTransaction(commentId: Long, likedById: Long?): Boolean {
-    return if (likedById == null) {
-        return false
-    } else {
-        try {
-
-
-            val alreadyLiked = CommentDislikes.select(
-                (CommentDislikes.commentId eq commentId) and (CommentDislikes.dislikedById eq likedById)
-            )
-            alreadyLiked.count() > 0
-
-        } catch (e: Exception) {
-            logger.error { e.message }
-            true
-        }
-    }
-
-}
 
 fun getLikesForComment(commentId: Long): Long {
     return try {
@@ -72,7 +53,7 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
                 it[CommentLikes.commentId] = commentId
                 it[CommentLikes.likedById] = likedById
             }
-            insertNotificationWithinTransaction(null,commentId, likedById, Notif.COMMENT_LIKE.value)
+            insertNotification(null, commentId, likedById, Notif.COMMENT_LIKE.value)
             true
         }
     } catch (e: Exception) {
@@ -120,12 +101,3 @@ fun unlikeComment(requesterId: Long, commentId: Long): Boolean {
     }
 }
 
-fun unlikeCommentWithinTransaction(requesterId: Long, commentId: Long): Boolean {
-    return try {
-        val success = CommentLikes.deleteWhere { (likedById eq requesterId) and (CommentLikes.commentId eq commentId) }
-        success > 0
-    } catch (e: Exception) {
-        logger.error { e.message }
-        false
-    }
-}

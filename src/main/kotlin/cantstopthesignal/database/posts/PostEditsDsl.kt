@@ -29,20 +29,23 @@ fun insertNewPostEdit(post: Long, poster: Long): Boolean {
 }
 
 fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: String?): Boolean {
-    if (verifyUserId(userId, postId) || isUserAdmin(userId)) {
+    transaction {
+        if (verifyUserId(userId, postId) || isUserAdmin(userId)) {
 
-        if (newTitle == null && newPostContents == null) {
-            return false
-        }
-        return try {
-            if (updatePostContents(newTitle, newPostContents, postId)) {
-                insertNewPostEdit(postId, userId)
-            } else {
-                false
+            if (newTitle == null && newPostContents == null) {
+                return@transaction false
             }
-        } catch (e: Exception) {
-            logger.error { e.message }
-            return false
+            return@transaction try {
+                if (updatePostContents(newTitle, newPostContents, postId)) {
+                    insertNewPostEdit(postId, userId)
+                } else {
+                    false
+                }
+
+            } catch (e: Exception) {
+                logger.error { e.message }
+                return@transaction false
+            }
         }
     }
     return false
@@ -50,14 +53,15 @@ fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: Str
 
 fun checkLastPostEdit(postId: Long): LocalDateTime? {
     return try {
+        transaction {
 
-        val latestEdit = PostEdits.select(PostEdits.postId eq postId)
-            .orderBy(PostEdits.lastEdited, SortOrder.DESC)
-            .limit(1)
-            .singleOrNull()
+            val latestEdit = PostEdits.select(PostEdits.postId eq postId)
+                .orderBy(PostEdits.lastEdited, SortOrder.DESC)
+                .limit(1)
+                .singleOrNull()
 
-        latestEdit?.getOrNull(PostEdits.lastEdited)
-
+            latestEdit?.getOrNull(PostEdits.lastEdited)
+        }
     } catch (e: Exception) {
         logger.error { e.message }
         null

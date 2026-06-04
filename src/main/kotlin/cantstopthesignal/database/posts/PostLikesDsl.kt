@@ -5,7 +5,7 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
 import com.freedom.cantstopthesignal.enums.Notif
-import insertNotificationWithinTransaction
+import insertNotification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -39,19 +39,17 @@ fun isPostLikedByUser(postId: Long, userId: Long): Boolean {
 }
 
 fun likePost(likedById: Long, postId: Long): Boolean {
-
-
     return try {
         transaction {
             if(isPostDislikedByUser(postId, likedById)){
-                unDislikePostWithinTransaction(likedById,postId)
+                unDislikePost(likedById,postId)
             }
 
             PostLikes.insert {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
-            insertNotificationWithinTransaction(postId,null,likedById,Notif.POST_LIKE.value)
+            insertNotification(postId,null,likedById,Notif.POST_LIKE.value)
             true
         }
     } catch (e: Exception) {
@@ -98,14 +96,3 @@ fun unlikePost(requesterId: Long, postsId: Long): Boolean {
     } else return false
 }
 
-fun unlikePostWithinTransaction(requesterId: Long, postsId: Long): Boolean {
-    if (isRequesterPostLikeOwnerWithTransaction(requesterId, postsId) || isUserAdmin(requesterId)) {
-       return try {
-                val success = PostLikes.deleteWhere { (likedById eq requesterId)and(postId eq postsId) }
-                success > 0
-        } catch (e: Exception) {
-            logger.error { e.message }
-            return false
-        }
-    } else return false
-}

@@ -7,12 +7,8 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
 import org.mindrot.jbcrypt.BCrypt
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -84,7 +80,7 @@ fun verifyCredentials(userName: String, password: String): Boolean {
                 .where { Users.userName eq userName }.singleOrNull()
             val userpassword = user?.get(Users.passwordHash).toString()
             if (user != null && BCrypt.checkpw(password, userpassword) && updateLastLogin(
-                    getUserIdWithinTransaction(
+                    getUserId(
                         userName
                     )!!
                 )   /* This can be asserted not null because user != null at this point*/) {
@@ -180,18 +176,6 @@ fun getUserId(userName: String): Long? {
     }
 }
 
-fun getUserIdWithinTransaction(userName: String): Long? {
-    return try {
-
-        Users
-            .selectAll()
-            .where { Users.userName eq userName }.singleOrNull()?.get(Users.id)
-
-    } catch (e: Exception) {
-        logger.error { "Error getting userID $e" }
-        -1
-    }
-}
 
 /**
  * Get username
@@ -208,21 +192,6 @@ fun getUserName(id: Long): String? {
                 .where { Users.id eq id }.singleOrNull()?.get(Users.userName)
         }
         return result
-
-    } catch (e: Exception) {
-        logger.error { "Error grabbing username $e" }
-        null
-    }
-}
-
-fun getUserNameWithinTransaction(id: Long): String? {
-
-    return try {
-
-        Users
-            .selectAll()
-            .where { Users.id eq id }.singleOrNull()?.get(Users.userName)
-
 
     } catch (e: Exception) {
         logger.error { "Error grabbing username $e" }

@@ -1,6 +1,6 @@
 package cantstopthesignal.database.comments
 
-import cantstopthesignal.database.users.getUserNameWithinTransaction
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
@@ -10,7 +10,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.par
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
-import insertNotificationWithinTransaction
+import insertNotification
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -82,7 +82,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 it[timeStamp] = LocalDateTime.now(ZoneOffset.UTC)
             } get Comments.id
             val postOwnerId = getPostOwnerId(postId)
-            insertNotificationWithinTransaction(
+            insertNotification(
                 postId,
                 null,
                 postOwnerId!! /* We will verify this at a higher layer */,
@@ -92,7 +92,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
             if (isReply) {
                 val parentCommenterId =
                     getUserIdFromCommentId(parentCommentId!! /* We will also sanitize this higher up */)
-                insertNotificationWithinTransaction(
+                insertNotification(
                     postId,
                     parentCommentId,
                     postOwnerId /* We will also ALSO  sanitize this higher up  */,
@@ -192,14 +192,14 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
         transaction {
             val commentLikes: Long = getLikesForComment(id)
             val commentDislikes: Long = getDislikesForComment(id)
-            val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(id)
-            val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(id, userId)
-            val isCommentDisliked: Boolean = isCommentDisLikedByUserWithinTransaction(id, userId)
+            val lastEdited: LocalDateTime? = getLastCommentEdit(id)
+            val isCommentLiked: Boolean = isCommentLikedByUser(id, userId)
+            val isCommentDisliked: Boolean = isCommentDisLikedByUser(id, userId)
             val hasReplies = doesCommentHaveReplies(id)
 
 
             Comments.selectAll().where { Comments.id eq id }.singleOrNull()?.let {
-                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
                     it[Comments.content],
@@ -277,11 +277,11 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
             query.map {
                 val commentLikes: Long = getLikesForComment(it[Comments.id])
                 val commentDislikes: Long = getDislikesForComment(it[Comments.id])
-                val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(it[Comments.id])
-                val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], userId)
-                val isCommentDisliked: Boolean = isCommentDisLikedByUserWithinTransaction(it[Comments.id], userId)
+                val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
+                val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], userId)
+                val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], userId)
                 val hasReplies = doesCommentHaveReplies(it[Comments.id])
-                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
 
                 Comment(
                     it[Comments.id],
@@ -315,12 +315,12 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
-                    val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(it[Comments.id])
-                    val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                    val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
+                    val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
                     val isCommentDisliked: Boolean =
-                        isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                        isCommentDisLikedByUser(it[Comments.id], requesterId)
                     val hasReplies = doesCommentHaveReplies(it[Comments.id])
-                    val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                    val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                     Comment(
                         it[Comments.id],
                         it[Comments.content],
@@ -352,7 +352,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
             val parentCommentData = parentComment?.let {
-                val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
                     it[Comments.content],
@@ -364,9 +364,9 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     it[Comments.timeStamp].toString(),
                     getLikesForComment(it[Comments.id]),
                     getDislikesForComment(it[Comments.id]),
-                    getLastCommentEditWithinTransaction(it[Comments.id]).toString(),
-                    isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId),
-                    isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId),
+                    getLastCommentEdit(it[Comments.id]).toString(),
+                    isCommentLikedByUser(it[Comments.id], requesterId),
+                    isCommentLikedByUser(it[Comments.id], requesterId),
                     hasReplies,
                     it[Comments.commenterId] == requesterId
                 )
@@ -376,12 +376,12 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
-                    val lastEdited: LocalDateTime? = getLastCommentEditWithinTransaction(it[Comments.id])
-                    val isCommentLiked: Boolean = isCommentLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                    val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
+                    val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
                     val isCommentDisliked: Boolean =
-                        isCommentDisLikedByUserWithinTransaction(it[Comments.id], requesterId)
+                        isCommentDisLikedByUser(it[Comments.id], requesterId)
                     val hasRepliesChild = doesCommentHaveReplies(it[Comments.id])
-                    val username: String = getUserNameWithinTransaction(it[Comments.commenterId]) ?: "Couldn't load"
+                    val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                     Comment(
                         it[Comments.id],
                         it[Comments.content],

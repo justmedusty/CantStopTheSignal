@@ -10,19 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-fun isCommentLikedByUserWithinTransaction(commentId: Long, dislikedById: Long?): Boolean {
-    return if (dislikedById == null) {
-        false
-    } else try {
-        val alreadyLiked = CommentLikes.select(
-            (CommentLikes.commentId eq commentId) and (CommentLikes.likedById eq dislikedById)
-        )
-        alreadyLiked.count() > 0
-    } catch (e: Exception) {
-        logger.error { e.message }
-        true
-    }
-}
+
 
 fun isCommentLikedByUser(commentId: Long, dislikedById: Long?): Boolean {
     return if (dislikedById == null) {
@@ -104,25 +92,6 @@ fun unDislikeComment(requesterId: Long, commentId: Long): Boolean {
             success > 0
 
         }
-    } catch (e: Exception) {
-        logger.error { e.message }
-        false
-    }
-
-
-}
-
-fun unDislikeCommentWithinTransaction(requesterId: Long, commentId: Long): Boolean {
-    return try {
-
-
-        val success =
-            CommentDislikes.deleteWhere {
-                (dislikedById eq requesterId) and (CommentDislikes.commentId eq commentId)
-            }
-        success > 0
-
-        
     } catch (e: Exception) {
         logger.error { e.message }
         false

@@ -39,7 +39,7 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
 }
 
 /*
-    This function is needed because the basic bitch post form clobbers the base64 PGP key so must restore it to it's former glory. This is mostly replacing spaces with line breaks with a bit of extra stuff for header and footer
+    This function is needed because the basic bitch post form clobbers the base64 PGP key so must restore it to its former glory. This is mostly replacing spaces with line breaks with a bit of extra stuff for header and footer
  */
 fun convertKey(key: String): String {
     val lines = key.trim().split(" ")
@@ -82,3 +82,4 @@ fun convertKey(key: String): String {
 
     return result.toString().trim()
 }
+

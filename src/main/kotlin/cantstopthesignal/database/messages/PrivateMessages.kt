@@ -1,9 +1,9 @@
 package cantstopthesignal.database.messages
 
 import cantstopthesignal.database.users.getPublicKey
-import cantstopthesignal.database.users.getUserIdWithinTransaction
+import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
-import cantstopthesignal.database.users.getUserNameWithinTransaction
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
@@ -189,7 +189,7 @@ fun getMessagesFromConversation(
                 .map {
                     MessageObject(
                         id = it[Messages.id],
-                        sender = getUserNameWithinTransaction(it[senderId])!!, // This should not conceivably be null so we will force this for now
+                        sender = getUserName(it[senderId])!!, // This should not conceivably be null so we will force this for now
                         message = it[message],
                         timeSent = it[timeSent],
                         isMe = it[senderId] == requesterId
@@ -214,7 +214,7 @@ fun getMembersOfConversation(conversation: Long): List<String>? {
     return try {
         val usernameList: List<String> =
             ConversationMembers.selectAll().where { ConversationMembers.conversationId eq conversation }.map {
-                getUserNameWithinTransaction(it[ConversationMembers.userId])!! //There should not be any null entries here we will verify that the conversation actually exists somewhere
+                getUserName(it[ConversationMembers.userId])!! //There should not be any null entries here we will verify that the conversation actually exists somewhere
             }
 
         usernameList
@@ -235,7 +235,7 @@ fun getLastMessageUsername(conversation: Long): String? {
             return null
         }
 
-        getUserNameWithinTransaction(userId)
+        getUserName(userId)
 
     } catch (e: Exception) {
         logger.error { e.message + " occurred while trying to get last username " }
@@ -248,7 +248,7 @@ fun getUsersInConversation(userId: Long, groupId: Long): List<String>? {
     return try {
         val list = ConversationMembers.selectAll()
             .where { (ConversationMembers.conversationId eq groupId) and (ConversationMembers.userId neq userId) }.map {
-                getUserNameWithinTransaction(it[ConversationMembers.userId])
+                getUserName(it[ConversationMembers.userId])
             }
         for (item in list) {
             if (item == null) {
@@ -326,7 +326,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                     val lastUserWhoSentAMessage = getLastMessageUsername(conversationId)
 
                     val isMe =
-                        if (lastUserWhoSentAMessage != null) getUserIdWithinTransaction(lastUserWhoSentAMessage) == userId else null
+                        if (lastUserWhoSentAMessage != null) getUserId(lastUserWhoSentAMessage) == userId else null
 
                     val timeOfLastMessage = getLastMessageTimestamp(userId)
 

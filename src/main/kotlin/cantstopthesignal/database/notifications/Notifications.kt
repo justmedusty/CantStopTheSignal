@@ -33,7 +33,7 @@ fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
 
 }
 
-fun insertNotificationWithinTransaction(postId: Long?, commentId: Long?, user: Long, notifType: Long): Boolean {
+fun insertNotification(postId: Long?, commentId: Long?, user: Long, notifType: Long): Boolean {
     if (postId == null && commentId == null) return false
     return try {
         Notifications.insert {

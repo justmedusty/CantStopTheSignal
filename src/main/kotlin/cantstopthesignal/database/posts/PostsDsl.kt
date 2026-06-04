@@ -1,10 +1,10 @@
 package com.freedom.cantstopthesignal.database.posts
 
-import cantstopthesignal.database.comments.isCommentDisLikedByUserWithinTransaction
-import cantstopthesignal.database.comments.isCommentLikedByUserWithinTransaction
+import cantstopthesignal.database.comments.isCommentDisLikedByUser
+import cantstopthesignal.database.comments.isCommentLikedByUser
 import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
-import cantstopthesignal.database.users.getUserNameWithinTransaction
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
@@ -171,7 +171,7 @@ fun fetchPostsByTopic(
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]
-                val username = getUserNameWithinTransaction(posterUsername) ?: "Could not get username"
+                val username = getUserName(posterUsername) ?: "Could not get username"
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId) ?: ""
@@ -301,8 +301,8 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                     val posterUsername = it[Posts.posterId]
                     val username = getUserName(posterUsername) ?: "Could not get username"
                     val lastEdited = checkLastPostEdit(postId)
-                    val dislikedByMe = isCommentDisLikedByUserWithinTransaction(postId, userId)
-                    val likedByMe = isCommentLikedByUserWithinTransaction(postId, userId)
+                    val dislikedByMe = isCommentDisLikedByUser(postId, userId)
+                    val likedByMe = isCommentLikedByUser(postId, userId)
                     val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                     Post(
                         postId,
@@ -359,7 +359,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]
-                val username = getUserNameWithinTransaction(posterUsername) ?: "Could not get username"
+                val username = getUserName(posterUsername) ?: "Could not get username"
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
                 val lastEdited = checkLastPostEdit(postId)
