@@ -271,7 +271,7 @@
         <h1>Messages</h1>
         <div class="topbar-actions">
             <a class="btn btn-secondary" href="/feed">← Home</a>
-            <a class="btn btn-primary" href="/messages/new">+ New</a>
+            <a class="btn btn-primary" href="/messages/conversation/create">+ New</a>
         </div>
     </div>
 
@@ -312,12 +312,16 @@
                             now
                         </span>
                     </div>
-
+                    <div class="conv-name"
+                         th:text="${convo.name}">
+                        Name
+                    </div>
                     <!-- Members list, excluding the current user if isMe is true -->
                     <div class="conv-members"
                          th:text="${#strings.listJoin(convo.members, ', ')}">
                         Members
                     </div>
+
                 </div>
 
                 <div class="conv-indicators">

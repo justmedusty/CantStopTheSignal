@@ -69,9 +69,7 @@ fun hasAutoEncryptionEnabled(userId: Long): Boolean {
 fun getPublicKey(userId: Long): String? {
     return try {
         transaction {
-            ProfileData.select(ProfileData.userId eq userId)
-                .map { it[ProfileData.publicKey] }
-                .singleOrNull() // Assuming publicKey is the column name storing public keys
+            ProfileData.selectAll().where { (ProfileData.userId eq userId) }.firstOrNull()?.get(ProfileData.publicKey)
         }
     } catch (e: Exception) {
         logger.error { e.message }
@@ -170,7 +168,7 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     createdAt = it[ProfileData.createdAt],
                     lastLogin = it[ProfileData.lastLogin],
 
-                )
+                    )
             }
         }
     } catch (e: Exception) {

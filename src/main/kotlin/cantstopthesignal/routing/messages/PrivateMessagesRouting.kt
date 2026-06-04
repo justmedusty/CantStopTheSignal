@@ -1,14 +1,12 @@
 package cantstopthesignal.routing.messages
 
-import cantstopthesignal.database.messages.createConversation
-import cantstopthesignal.database.messages.getAllConversations
-import cantstopthesignal.database.messages.sendMessage
-import cantstopthesignal.database.messages.verifyConversationId
+import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -48,8 +46,8 @@ fun Application.configureMessageRouting() {
                 )
 
             }
-
-            get("/messages/new") {
+            get("/messages/conversation/create") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
@@ -61,24 +59,44 @@ fun Application.configureMessageRouting() {
 
             }
 
+            get("/messages/conversations/{id}") {
+
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                    ?: return@get call.respondRedirect { "/logout" }
+                val page = call.parameters["page"]?.toIntOrNull() ?: 1
+                val limit = call.parameters["limit"]?.toIntOrNull()?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
+                    ?: Length.MAX_PAGE_LIMIT.value.toInt()
+                val conversationId = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest
+                )
+
+                val messagesList = getMessagesFromConversation(userId, conversationId, page, limit)
+                val conversation = getConversation(userId, conversationId)
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.PRIVATE_MESSAGE_SINGLE_CONVERSATIONS.value, conversation)
+                    put(ThymeLeafMapKeys.PRIVATE_MESSAGE_LIST.value, messagesList)
+                }
+
+                call.respond(
+                    ThymeleafContent("conversation", model)
+                )
+
+            }
 
 
-            post("/messages/send") {
+
+            post("/messages/conversations/{id}/send") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val parameters = call.receiveParameters()
 
-                val conversationId = parameters["recipient"]?.toLongOrNull()
+
+                val conversationId =
+                    call.parameters["id"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val message = parameters["message"]
 
-                if (conversationId == null) {
-                    val map = buildMap {
-                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "User to send message to must be specified")
-                    }
-                    call.respond(ThymeleafContent("create_new_message", map))
-                }
-
-                val verified = verifyConversationId(conversationId!!)
+                //Make sure conversation is valid
+                val verified = verifyConversationId(conversationId, userId!!)
 
                 if (verified == null) {
                     val map = buildMap {
@@ -109,13 +127,9 @@ fun Application.configureMessageRouting() {
                     }
                     call.respond(ThymeleafContent("create_new_message", map))
                 }
+                call.respondRedirect("/messages/conversations/$conversationId")
 
 
-                val map = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.SUCCESS.value, "Your message was sent")
-                }
-                call.respond(ThymeleafContent("create_new_message", map))
             }
 
             post("/messages/conversation/create") {
@@ -130,7 +144,7 @@ fun Application.configureMessageRouting() {
                     groupName
                 )
                 //These should ONLY be a comma separating usernames
-                val usernames = usersToAdd?.split("\\s*,\\s*")
+                val usernames = usersToAdd?.replace(" ", "")?.split(",")
 
                 if (usernames == null) {
                     val map = buildMap {
