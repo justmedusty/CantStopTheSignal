@@ -56,7 +56,7 @@ fun encryptMessageForMany(publicKeys: List<String>, message: String): ByteArray?
     return try {
         val outputStream = ByteArrayOutputStream()
         val plaintextInputStream = ByteArrayInputStream(message.toByteArray())
-        val api: PGPainless = PGPainless.Companion.getInstance()
+        val api: PGPainless = PGPainless.getInstance()
 
         val encryptionOptions = EncryptionOptions.get(api)
         for (publicKey in publicKeys) {

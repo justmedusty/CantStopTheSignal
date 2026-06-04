@@ -1,5 +1,7 @@
 package cantstopthesignal.routing.login
 
+
+import cantstopthesignal.cryptography.convertKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
@@ -34,10 +36,10 @@ fun Application.configureSignupRoutes() {
                 ThymeleafContent("signup", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
             )
 
-            val pgp_publicKey = params["pgp"]
+            var pgpPublickey = params["pgp"]
 
-            if (!pgp_publicKey.isNullOrEmpty() && !isValidOpenPGPPublicKey(pgp_publicKey)) {
-                call.respond(
+            if (!pgpPublickey.isNullOrEmpty() && !isValidOpenPGPPublicKey(pgpPublickey)) {
+                return@post call.respond(
                     ThymeleafContent(
                         "signup", mapOf(
                             ThymeLeafMapKeys.ERROR.value to "Your PGP Public key is invalid, please check your PGP key"
@@ -46,13 +48,18 @@ fun Application.configureSignupRoutes() {
                 )
 
             }
+            if (pgpPublickey != null) {
+                pgpPublickey = convertKey(pgpPublickey)
+            }
+
+
             val user = User(
-                username, pgp_publicKey, password, isAdmin = false, isModerator = false, isSuspended = false
+                username, pgpPublickey, password, isAdmin = false, isModerator = false, isSuspended = false
             )
             val regex = RegexPatterns.USERNAME.value
 
             if (!regex.matches(username)) {
-                call.respond(
+                return@post call.respond(
                     ThymeleafContent(
                         "signup", mapOf(
                             ThymeLeafMapKeys.ERROR.value to "Your username has invalid characters, you must ensure you do not have special characters , only letters, numbers, and underscores are permitted"
@@ -62,7 +69,7 @@ fun Application.configureSignupRoutes() {
             }
             when {
                 username.length !in Length.MIN_USERNAME_LENGTH.value..Length.MAX_USERNAME_LENGTH.value -> {
-                    call.respond(
+                    return@post call.respond(
                         ThymeleafContent(
                             "signup", mapOf(
                                 ThymeLeafMapKeys.ERROR.value to "Your username must be between ${Length.MIN_USERNAME_LENGTH.value} and ${Length.MAX_USERNAME_LENGTH.value} characters"
@@ -73,7 +80,7 @@ fun Application.configureSignupRoutes() {
 
 
                 password.length !in Length.MIN_PASSWORD_LENGTH.value..Length.MAX_PASSWORD_LENGTH.value -> {
-                    call.respond(
+                    return@post call.respond(
                         ThymeleafContent(
                             "signup", mapOf(
                                 ThymeLeafMapKeys.ERROR.value to "Your password must be between ${Length.MIN_PASSWORD_LENGTH.value} and ${Length.MAX_PASSWORD_LENGTH.value} characters"
@@ -84,7 +91,7 @@ fun Application.configureSignupRoutes() {
 
 
                 userNameAlreadyExists(username) -> {
-                    call.respond(
+                    return@post call.respond(
                         ThymeleafContent(
                             "signup", mapOf(
                                 ThymeLeafMapKeys.ERROR.value to "Username already exists, please choose another one"
@@ -95,7 +102,7 @@ fun Application.configureSignupRoutes() {
 
                 else -> {
                     if (!createUser(user)) {
-                        call.respond(
+                        return@post call.respond(
                             ThymeleafContent(
                                 "signup", mapOf(
                                     ThymeLeafMapKeys.ERROR.value to "An error occurred while creating your user"
@@ -103,7 +110,7 @@ fun Application.configureSignupRoutes() {
                             )
                         )
                     }
-                    call.respond(
+                    return@post call.respond(
                         ThymeleafContent(
                             "login", mapOf(
                                 ThymeLeafMapKeys.SUCCESS.value to "Your account was created successfully"
