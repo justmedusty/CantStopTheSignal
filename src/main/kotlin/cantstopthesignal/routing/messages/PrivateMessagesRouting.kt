@@ -4,6 +4,7 @@ import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
+import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.http.*
@@ -209,6 +210,21 @@ fun Application.configureMessageRouting() {
                     getUserId(it)!!
                 }
                 val ret = createConversation(userId!!, userIdList, groupName)
+
+                if (ret == RetValues.ALREADY_EXISTS.value) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "This conversation already exists, go to conversation view to send messages in it."
+                        )
+                        put(
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                            convoDraft
+                        ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
+                    }
+                    call.respond(ThymeleafContent("create_new_message", map))
+                }
 
                 if (ret == null) {
                     val map = buildMap {
