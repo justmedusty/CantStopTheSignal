@@ -56,7 +56,6 @@ fun Application.configureProfileRoutes() {
 
                 if (!self) {
 
-
                     return@get call.respond(
                         ThymeleafContent("profile", model)
                     )

@@ -1,7 +1,7 @@
 package cantstopthesignal.routing.login
 
 
-import cantstopthesignal.cryptography.convertKey
+import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
@@ -61,10 +61,9 @@ fun Application.configureSignupRoutes() {
                         )
                     )
                 )
-
             }
             if (pgpPublickey != null) {
-                pgpPublickey = convertKey(pgpPublickey)
+                pgpPublickey = convertPgpMessageOrKey(pgpPublickey)
             }
 
 

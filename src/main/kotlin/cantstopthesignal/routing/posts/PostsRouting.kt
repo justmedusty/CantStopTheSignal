@@ -82,12 +82,8 @@ fun Application.configurePostRouting() {
                 val order = call.request.queryParameters["order"] ?: SortOrderValues.NEWEST.value
 
                 if (postList == null) {
-
-                    val model = buildMap {
-                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "Error fetching post")
-                    }
-                    return@get call.respond(ThymeleafContent("post", model))
+                    val error = "The post you requested was not found"
+                    return@get call.respondRedirect { "/feed/?error=$error" }
                 }
 
                 val post = postList?.get(0)

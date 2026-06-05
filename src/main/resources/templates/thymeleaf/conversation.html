@@ -405,7 +405,8 @@
                            (iterStat.first or messages[iterStat.index - 1].sender != msg.sender)}"
                   th:text="${msg.sender}">Sender</span>
 
-                    <div class="bubble" th:text="${msg.message}">Message text</div>
+                    <div class="bubble" th:text="${msg.message}"
+                         style="white-space: pre-wrap; word-break: break-word;"></div>
 
                     <span class="msg-time"
                           th:text="${#temporals.format(msg.timeSent, 'HH:mm')}">12:00</span>

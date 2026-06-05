@@ -279,7 +279,7 @@
                 <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
             </a>
             <a class="btn-icon"
-               href="messages"
+               href="/messages"
                th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
                 ✉️
                 <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>

@@ -1,7 +1,10 @@
 package cantstopthesignal.routing.messages
 
+import cantstopthesignal.cryptography.convertPgpMessageOrKey
+import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
 import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -106,7 +109,7 @@ fun Application.configureMessageRouting() {
 
                 val conversationId =
                     call.parameters["id"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val message = parameters["message"]
+                var message = parameters["message"]
 
                 //Make sure conversation is valid
                 val verified = verifyConversationId(conversationId, userId!!)
@@ -129,6 +132,12 @@ fun Application.configureMessageRouting() {
                         )
                     }
                     return@post call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                if (isPgpMessageOrPgpKey(message)) {
+                    logger.debug { "post(\"/messages/conversations/{id}/send\"): Converting message $message to valid PGP" }
+                    message = convertPgpMessageOrKey(message)
+                    logger.debug { " post(\"/messages/conversations/{id}/send\") Message after conversion is $message" }
                 }
 
                 val ret = sendMessage(userId!!, conversationId!!, message!!)

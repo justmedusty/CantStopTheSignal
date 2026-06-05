@@ -8,7 +8,7 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
 
 
     val trimmedKey = publicKey.trim()
-    val convertedKey = convertKey(trimmedKey)
+    val convertedKey = convertPgpMessageOrKey(trimmedKey)
     val lines = convertedKey.split("\n")
 
     for (line in lines) {
@@ -41,8 +41,18 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
 /*
     This function is needed because the basic bitch post form clobbers the base64 PGP key so must restore it to its former glory. This is mostly replacing spaces with line breaks with a bit of extra stuff for header and footer
  */
-fun convertKey(key: String): String {
-    val lines = key.trim().split(" ")
+/*
+ We will support people sending pgp keys through chat as well so they dont HAVE to put on on their profile if they don't want to or want to share multiple keys in chats
+ */
+fun isPgpMessageOrPgpKey(message: String): Boolean {
+    return (message.startsWith("-----BEGIN PGP"))
+}
+
+/*
+    This function is needed because the basic bitch post form clobbers the base64 PGP key so must restore it to its former glory. This is mostly replacing spaces with line breaks with a bit of extra stuff for header and footer
+ */
+fun convertPgpMessageOrKey(message: String): String {
+    val lines = message.trim().split(" ")
 
     val result = StringBuilder()
     var inHeader = false
@@ -55,6 +65,7 @@ fun convertKey(key: String): String {
                 inHeader = true
                 headerBuffer.append(token)
             }
+
             inHeader && token.endsWith("-----") -> {
                 headerBuffer.append(" $token")
                 result.appendLine(headerBuffer.toString())
@@ -62,18 +73,21 @@ fun convertKey(key: String): String {
                 inHeader = false
                 headerBuffer.clear()
             }
+
             inHeader -> headerBuffer.append(" $token")
 
             token.startsWith("-----END") -> {
                 inFooter = true
                 headerBuffer.append(token)
             }
+
             inFooter && token.endsWith("-----") -> {
                 headerBuffer.append(" $token")
                 result.appendLine(headerBuffer.toString())
                 inFooter = false
                 headerBuffer.clear()
             }
+
             inFooter -> headerBuffer.append(" $token")
 
             else -> result.appendLine(token)
