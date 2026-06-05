@@ -38,7 +38,7 @@ fun Application.configureCommentRepliesRouting() {
                 //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
                 if (callingUser == null) {
                     logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
+                    return@get call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
                 }
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
@@ -64,7 +64,7 @@ fun Application.configureCommentRepliesRouting() {
 
                 if (!verifyPostId(postId)) {
                     //This shouldn't be possible under normal conditions so fuck 'em
-                    call.respond(HttpStatusCode.BadRequest)
+                    return@get call.respond(HttpStatusCode.BadRequest)
                 }
 
                 /*
@@ -91,7 +91,7 @@ fun Application.configureCommentRepliesRouting() {
                     /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                 }
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("comments", model)
                 )
             }
@@ -103,7 +103,7 @@ fun Application.configureCommentRepliesRouting() {
                 //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
                 if (callingUser == null) {
                     logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
+                    return@post call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
                 }
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
@@ -129,7 +129,7 @@ fun Application.configureCommentRepliesRouting() {
                     )
                 ) {
                     //This shouldn't be possible under normal conditions so fuck 'em
-                    call.respond(HttpStatusCode.BadRequest)
+                    return@post call.respond(HttpStatusCode.BadRequest)
                 }
 
                 val post = fetchPostById(postId, callingUser!!) ?: return@post call.respond(HttpStatusCode.BadRequest)
@@ -160,7 +160,7 @@ fun Application.configureCommentRepliesRouting() {
                     /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                 }
-                call.respond(
+                return@post call.respond(
                     ThymeleafContent("comments", model)
                 )
 

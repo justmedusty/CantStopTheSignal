@@ -22,7 +22,7 @@ fun Application.configureLoginRoutes() {
     routing {
 
         get("/login") {
-            call.respond(
+            return@get call.respond(
                 ThymeleafContent("login", mapOf<String, Any>())
             )
         }
@@ -35,7 +35,7 @@ fun Application.configureLoginRoutes() {
                 put(ThymeLeafMapKeys.SUCCESS.value,"You have been logged out")
             }
 
-            call.respond(
+            return@get call.respond(
                 ThymeleafContent("login", model)
             )
         }
@@ -87,7 +87,7 @@ fun Application.configureLoginRoutes() {
                 Cookie(name = "jwt", value = token, httpOnly = true, secure = true, path = "/"),
             )
             //Redirect user to the home page
-            call.respondRedirect("/feed")
+            return@post call.respondRedirect("/feed")
 
 
         }

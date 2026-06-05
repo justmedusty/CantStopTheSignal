@@ -39,7 +39,7 @@ fun Application.configureProfileRoutes() {
                             ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching this users profile"
                         )
                     }
-                    call.respond(ThymeleafContent("profile", model))
+                    return@get call.respond(ThymeleafContent("profile", model))
                 }
                 val model = buildMap {
                     put(
@@ -50,11 +50,11 @@ fun Application.configureProfileRoutes() {
                 self = userId == id
 
                 if (!self) {
-                    call.respond(
+                    return@get call.respond(
                         ThymeleafContent("profile", model)
                     )
                 } else {
-                    call.respond(
+                    return@get call.respond(
                         ThymeleafContent("my_profile", model)
                     )
                 }
@@ -75,7 +75,7 @@ fun Application.configureProfileRoutes() {
                             ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching this users profile"
                         )
                     }
-                    call.respond(ThymeleafContent("profile", model))
+                    return@get call.respond(ThymeleafContent("profile", model))
                 }
                 val model = buildMap {
                     put(
@@ -85,7 +85,7 @@ fun Application.configureProfileRoutes() {
 
 
 
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("my_profile", model)
                 )
 

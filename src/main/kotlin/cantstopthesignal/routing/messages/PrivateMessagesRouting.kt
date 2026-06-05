@@ -42,7 +42,7 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION.value, messageList)
                 }
 
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("private_message_list", model)
                 )
 
@@ -54,7 +54,7 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                 }
 
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("create_new_message", model)
                 )
 
@@ -79,7 +79,7 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_LIST.value, messagesList)
                 }
 
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("conversation", model)
                 )
 
@@ -152,7 +152,7 @@ fun Application.configureMessageRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "Users must be specified")
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                   return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
                 val userRegex = RegexPatterns.USERNAME.value
@@ -171,7 +171,7 @@ fun Application.configureMessageRouting() {
                                 convoDraft
                             ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                         }
-                        call.respond(ThymeleafContent("create_new_message", map))
+                        return@post call.respond(ThymeleafContent("create_new_message", map))
                     }
 
                     /* It can be argued we should only do this check and skip the above check but I think this is more meaningful to the user */
@@ -187,7 +187,7 @@ fun Application.configureMessageRouting() {
                                 convoDraft
                             ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                         }
-                        call.respond(ThymeleafContent("create_new_message", map))
+                        return@post call.respond(ThymeleafContent("create_new_message", map))
                     }
 
                 }
@@ -204,7 +204,7 @@ fun Application.configureMessageRouting() {
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
                 val userIdList = usernames.map {
                     getUserId(it)!!
@@ -223,7 +223,7 @@ fun Application.configureMessageRouting() {
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
                 if (ret == null) {
@@ -238,11 +238,11 @@ fun Application.configureMessageRouting() {
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
-                    call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
                 //Open the conversation
-                call.respondRedirect("/messages/conversation/${ret}")
+                return@post call.respondRedirect("/messages/conversation/${ret}")
             }
 
         }

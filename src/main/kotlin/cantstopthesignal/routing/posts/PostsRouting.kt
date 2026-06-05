@@ -43,7 +43,7 @@ fun Application.configurePostRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching posts.")
                     }
-                    call.respond(
+                    return@get call.respond(
                         ThymeleafContent("posts_feed", model)
                     )
 
@@ -52,7 +52,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
                 }
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("posts_feed", model)
                 )
             }
@@ -63,7 +63,7 @@ fun Application.configurePostRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (userId == null) {
-                    call.respondRedirect("/logout")
+                    return@get call.respondRedirect("/logout")
                 }
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
@@ -78,7 +78,7 @@ fun Application.configurePostRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "Error fetching post")
                     }
-                    call.respond(ThymeleafContent("post", model))
+                    return@get call.respond(ThymeleafContent("post", model))
                 }
 
                 val post = postList?.get(0)
@@ -93,7 +93,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
                 }
 
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("post", model)
                 )
             }

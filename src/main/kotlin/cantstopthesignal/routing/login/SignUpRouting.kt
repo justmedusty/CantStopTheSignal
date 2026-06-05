@@ -19,7 +19,7 @@ fun Application.configureSignupRoutes() {
     routing {
 
         get("/signup") {
-            call.respond(
+            return@get call.respond(
                 ThymeleafContent("signup", mapOf<String, Any>())
             )
         }

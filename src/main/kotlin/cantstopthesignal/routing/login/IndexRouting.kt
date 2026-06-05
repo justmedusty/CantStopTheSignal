@@ -18,7 +18,7 @@ fun Application.indexRouting() {
     routing {
 
         get("/") {
-            call.respondRedirect("/index")
+            return@get call.respondRedirect("/index")
         }
 
 
@@ -29,7 +29,7 @@ fun Application.indexRouting() {
                     siteConfig
                 )
             }
-            call.respond(
+            return@get call.respond(
                 ThymeleafContent("index", model)
             )
         }

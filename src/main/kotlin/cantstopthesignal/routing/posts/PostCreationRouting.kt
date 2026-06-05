@@ -35,7 +35,7 @@ fun Application.configurePostCreationRouting() {
                         siteConfig
                     )
                 }
-                call.respond(
+                return@get call.respond(
                     ThymeleafContent("create_post", model)
                 )
             }
@@ -49,7 +49,7 @@ fun Application.configurePostCreationRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (userId == null) {
-                    call.respondRedirect("/logout")
+                    return@post call.respondRedirect("/logout")
                 }
 
                 /*
@@ -114,7 +114,7 @@ fun Application.configurePostCreationRouting() {
                         )
                     }
 
-                    call.respond(ThymeleafContent("create_post", model))
+                    return@post call.respond(ThymeleafContent("create_post", model))
                 }
 
 
@@ -127,12 +127,12 @@ fun Application.configurePostCreationRouting() {
                         )
                     }
 
-                    call.respond(ThymeleafContent("create_post", model))
+                    return@post call.respond(ThymeleafContent("create_post", model))
                 }
 
 
 
-                call.respondRedirect("/posts/${success}")
+                return@post call.respondRedirect("/posts/${success}")
             }
 
         }

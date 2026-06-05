@@ -23,7 +23,7 @@ fun Application.configureNotificationRoutes() {
                 val safeLimit = limit.coerceIn(1, 100) // max 100 per page
 
                 if (userId == null) {
-                    call.respond(
+                    return@get call.respond(
                         ThymeleafContent(
                             "login",
                             mapOf(ThymeLeafMapKeys.ERROR.value to "Session expired or invalid, please log in again.")
@@ -46,7 +46,7 @@ fun Application.configureNotificationRoutes() {
                 }
 
 
-                call.respond(
+               return@get call.respond(
                     ThymeleafContent("notifications", model)
                 )
             }
