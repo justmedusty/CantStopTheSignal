@@ -16,7 +16,8 @@ fun Application.configurePostLikesRouting() {
 
             //The database layer will handle unliking or undisliking etc
             post("/posts/like/{postId}") {
-                val postId = call.parameters["postId"]!!.toLong()
+                val postId = call.parameters["postId"]?.toLongOrNull()
+                if (postId == null) return@post call.respondRedirect("/posts/$postId?error=Nice try")
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (postId == null) {
@@ -38,7 +39,8 @@ fun Application.configurePostLikesRouting() {
 
             }
             post("/posts/dislike/{postId}") {
-                val postId = call.parameters["postId"]!!.toLong()
+                val postId = call.parameters["postId"]?.toLongOrNull()
+                if (postId == null) return@post call.respondRedirect("/posts/$postId?error=Nice try")
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (postId == null) {

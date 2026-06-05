@@ -694,20 +694,22 @@
             <!-- Actions on the focal comment itself -->
             <div class="focal-actions">
                 <!-- Like -->
-                <button type="button"
-                        class="btn btn-like"
-                        th:classappend="${focal_comment.isCommentLikedByMe} ? 'active'"
-                        th:attr="data-comment-id=${focal_comment.id}">
-                    &#9650; <span th:text="${focal_comment.commentLikes}">0</span>
-                </button>
+                <form th:action="|/comments/${post.id}/like/${focal_comment.id}|" method="post">
+                    <button type="submit"
+                            class="btn btn-like"
+                            th:classappend="${focal_comment.isCommentLikedByMe} ? 'active'">
+                        &#9650; <span th:text="${focal_comment.commentLikes}">0</span>
+                    </button>
+                </form>
 
                 <!-- Dislike -->
-                <button type="button"
-                        class="btn btn-dislike"
-                        th:classappend="${focal_comment.isCommentDislikedByMe} ? 'active'"
-                        th:attr="data-comment-id=${focal_comment.id}">
-                    &#9660; <span th:text="${focal_comment.commentDislikes}">0</span>
-                </button>
+                <form th:action="|/comments/${post.id}/dislike/${focal_comment.id}|" method="post">
+                    <button type="submit"
+                            class="btn btn-dislike"
+                            th:classappend="${focal_comment.isCommentDislikedByMe} ? 'active'">
+                        &#9660; <span th:text="${focal_comment.commentDislikes}">0</span>
+                    </button>
+                </form>
 
                 <!-- Edit / Delete (owner only) -->
                 <th:block th:if="${focal_comment.myComment}">
@@ -769,20 +771,22 @@
 
                     <div class="reply-actions">
                         <!-- Like -->
-                        <button type="button"
-                                class="btn-tiny"
-                                th:classappend="${reply.isCommentLikedByMe} ? 'liked'"
-                                th:attr="data-comment-id=${reply.id}">
-                            &#9650; <span th:text="${reply.commentLikes}">0</span>
-                        </button>
+                        <form th:action="|/comments/${post.id}/like/${reply.id}|" method="post">
+                            <button type="submit"
+                                    class="btn btn-like"
+                                    th:classappend="${reply.isCommentLikedByMe} ? 'active'">
+                                &#9650; <span th:text="${reply.commentLikes}">0</span>
+                            </button>
+                        </form>
 
                         <!-- Dislike -->
-                        <button type="button"
-                                class="btn-tiny"
-                                th:classappend="${reply.isCommentDislikedByMe} ? 'disliked'"
-                                th:attr="data-comment-id=${reply.id}">
-                            &#9660; <span th:text="${reply.commentDislikes}">0</span>
-                        </button>
+                        <form th:action="|/comments/${post.id}/dislike/${reply.id}|" method="post">
+                            <button type="submit"
+                                    class="btn btn-dislike"
+                                    th:classappend="${reply.isCommentDislikedByMe} ? 'active'">
+                                &#9660; <span th:text="${reply.commentDislikes}">0</span>
+                            </button>
+                        </form>
 
                         <!--
                             If this reply itself has replies, link to the same

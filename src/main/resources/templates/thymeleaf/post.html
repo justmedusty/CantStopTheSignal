@@ -12,21 +12,21 @@
         }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
-            --muted:         #4a5068;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          'DM Sans', sans-serif;
-            --font-serif:    'Lora', serif;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #4a5068;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
         }
 
         body {
@@ -550,13 +550,17 @@
         }
 
         .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.4);
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.4);
             animation: glow-pulse 1.5s ease-in-out infinite;
         }
 
         @keyframes glow-pulse {
-            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35); }
-            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224,96,96,0.6); }
+            0%, 100% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.35);
+            }
+            50% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224, 96, 96, 0.6);
+            }
         }
 
         .badge {
@@ -672,20 +676,20 @@
         <!-- Reaction Bar -->
         <div class="reaction-bar">
             <!-- Like -->
-           <form th:action="|/posts/like/${post.id}|" method="post">
-            <button type="submit"
-                    class="btn btn-like"
-                    th:classappend="${post.likedByMe} ? 'active'">
-                &#9650; <span th:text="${post.likeCount}">0</span>
-            </button>
-        </form>
+            <form th:action="|/posts/like/${post.id}|" method="post">
+                <button type="submit"
+                        class="btn btn-like"
+                        th:classappend="${post.likedByMe} ? 'active'">
+                    &#9650; <span th:text="${post.likeCount}">0</span>
+                </button>
+            </form>
 
             <!-- Dislike -->
             <form th:action="|/posts/dislike/${post.id}|" method="post">
                 <button type="submit"
                         class="btn btn-dislike"
                         th:classappend="${post.dislikedByMe} ? 'active'">
-                    &#9650; <span th:text="${post.dislikeCount}">0</span>
+                    &#9660; <span th:text="${post.dislikeCount}">0</span>
                 </button>
             </form>
 
@@ -758,20 +762,22 @@
                         <div class="comment-actions">
 
                             <!-- Like -->
-                            <button type="button"
-                                    class="btn-tiny"
-                                    th:classappend="${comment.isCommentLikedByMe} ? 'liked'"
-                                    th:attr="data-comment-id=${comment.id}">
-                                &#9650; <span th:text="${comment.commentLikes}">0</span>
-                            </button>
+                            <form th:action="|/comments/${post.id}/like/${comment.id}|" method="post">
+                                <button type="submit"
+                                        class="btn btn-like"
+                                        th:classappend="${comment.isCommentLikedByMe} ? 'active'">
+                                    &#9650; <span th:text="${comment.commentLikes}">0</span>
+                                </button>
+                            </form>
 
                             <!-- Dislike -->
-                            <button type="button"
-                                    class="btn-tiny"
-                                    th:classappend="${comment.isCommentDislikedByMe} ? 'disliked'"
-                                    th:attr="data-comment-id=${comment.id}">
-                                &#9660; <span th:text="${comment.commentDislikes}">0</span>
-                            </button>
+                            <form th:action="|/comments/${post.id}/dislike/${comment.id}|" method="post">
+                                <button type="submit"
+                                        class="btn btn-dislike"
+                                        th:classappend="${comment.isCommentDislikedByMe} ? 'active'">
+                                    &#9660; <span th:text="${comment.commentDislikes}">0</span>
+                                </button>
+                            </form>
 
                             <!-- View Replies (only when replies exist) -->
                             <a th:if="${comment.hasReplies}"

@@ -7,6 +7,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -416,5 +417,18 @@ fun getPostIdFromComment(commentId: Long): Long? {
     } catch (e: Exception) {
         logger.error { "Error trying to get the post id! ${e}" }
         null
+    }
+}
+/*
+    Sanity check helper function to make sure people aren't trying to interact with posts that dont exist
+ */
+fun verifyCommentId(id: Long): Boolean {
+    return try {
+        transaction {
+            Comments.select(Comments.id eq id).count() > 0
+        }
+    } catch (e: Exception) {
+        logger.error { e }
+        false
     }
 }

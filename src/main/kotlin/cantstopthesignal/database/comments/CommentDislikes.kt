@@ -8,8 +8,8 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-
 
 
 fun isCommentLikedByUser(commentId: Long, dislikedById: Long?): Boolean {
@@ -18,9 +18,9 @@ fun isCommentLikedByUser(commentId: Long, dislikedById: Long?): Boolean {
     } else try {
         transaction {
 
-            val alreadyLiked = CommentLikes.select(
+            val alreadyLiked = CommentLikes.selectAll().where {
                 (CommentLikes.commentId eq commentId) and (CommentLikes.likedById eq dislikedById)
-            )
+            }
             alreadyLiked.count() > 0
         }
     } catch (e: Exception) {
@@ -32,9 +32,9 @@ fun isCommentLikedByUser(commentId: Long, dislikedById: Long?): Boolean {
 
 fun getDislikesForComment(commentId: Long): Long {
     return try {
-        CommentDislikes.select(
+        CommentDislikes.selectAll().where {
             (CommentDislikes.commentId eq commentId)
-        ).count()
+        }.count()
     } catch (e: Exception) {
         logger.error { e.message }
         -1
@@ -44,6 +44,9 @@ fun getDislikesForComment(commentId: Long): Long {
 fun dislikeComment(dislikedById: Long, commentId: Long): Boolean {
     if (!isCommentLikedByUser(commentId, dislikedById)) return try {
         transaction {
+            if (isCommentDisLikedByUser(commentId, dislikedById)) {
+                return@transaction unDislikeComment(dislikedById, commentId)
+            }
             CommentDislikes.insert {
                 it[CommentDislikes.commentId] = commentId
                 it[CommentDislikes.dislikedById] = dislikedById
