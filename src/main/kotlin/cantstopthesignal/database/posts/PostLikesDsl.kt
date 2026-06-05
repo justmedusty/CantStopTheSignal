@@ -1,6 +1,5 @@
 package cantstopthesignal.database.posts
 
-import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
@@ -11,6 +10,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun getLikesForPost(postId: Long): Long {
@@ -26,34 +26,36 @@ fun getLikesForPost(postId: Long): Long {
         -1
     }
 }
+
 fun isPostLikedByUser(postId: Long, userId: Long): Boolean {
     return try {
-
-            PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId)).count() > 0
+        PostLikes.selectAll().where {
+            ((PostLikes.postId eq postId) and (likedById eq userId))
+        }.count() > 0
     } catch (e: Exception) {
         logger.error { e.message }
         false
     }
-
-
 }
 
 fun likePost(likedById: Long, postId: Long): Boolean {
     return try {
         transaction {
-            if(isPostDislikedByUser(postId, likedById)){
-                unDislikePost(likedById,postId)
+            if (isPostDislikedByUser(postId, likedById)) {
+                unDislikePost(likedById, postId)
             }
-
+            if (isPostLikedByUser(postId, likedById)) {
+                return@transaction unlikePost(likedById, postId)
+            }
             PostLikes.insert {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
-            insertNotification(postId,null,likedById,Notif.POST_LIKE.value)
-            true
+            insertNotification(postId, null, likedById, Notif.POST_LIKE.value)
+            return@transaction true
         }
     } catch (e: Exception) {
-        logger.error { e.message }
+        logger.error { e.message + "occurred while trying to like post" }
         false
     }
 }
@@ -61,7 +63,7 @@ fun likePost(likedById: Long, postId: Long): Boolean {
 fun isRequesterPostLikeOwner(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId) )
+            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId))
             match.count() > 0
         }
     } catch (e: Exception) {
@@ -73,7 +75,7 @@ fun isRequesterPostLikeOwner(userId: Long, postId: Long): Boolean {
 fun isRequesterPostLikeOwnerWithTransaction(userId: Long, postId: Long): Boolean {
     return try {
         transaction {
-            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId) )
+            val match = PostLikes.select((PostLikes.postId eq postId) and (likedById eq userId))
             match.count() > 0
         }
     } catch (e: Exception) {
@@ -83,16 +85,13 @@ fun isRequesterPostLikeOwnerWithTransaction(userId: Long, postId: Long): Boolean
 }
 
 fun unlikePost(requesterId: Long, postsId: Long): Boolean {
-    if (isRequesterPostLikeOwner(requesterId, postsId) || isUserAdmin(requesterId)) {
-        try {
-            return transaction {
-                val success = PostLikes.deleteWhere { (likedById eq requesterId)and(postId eq postsId) }
-                success > 0
-            }
-        } catch (e: Exception) {
-            logger.error { e.message }
-            return false
+    try {
+        return transaction {
+            val success = PostLikes.deleteWhere { (likedById eq requesterId) and (postId eq postsId) }
+            success > 0
         }
-    } else return false
+    } catch (e: Exception) {
+        logger.error { e.message }
+        return false
+    }
 }
-

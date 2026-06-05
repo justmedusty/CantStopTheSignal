@@ -22,6 +22,7 @@ ktor:
       - cantstopthesignal.routing.messages.PrivateMessagesRoutingKt.configureMessageRouting
       - com.freedom.cantstopthesignal.routing.comments.CommentsRoutingKt.configureCommentsRouting
       - com.freedom.cantstopthesignal.routing.comments.CommentRepliesRoutingKt.configureCommentRepliesRouting
+      - com.freedom.cantstopthesignal.routing.posts.PostLikesRoutingKt.configurePostLikesRouting
 
 
 

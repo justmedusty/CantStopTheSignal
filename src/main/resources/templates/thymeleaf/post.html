@@ -672,20 +672,22 @@
         <!-- Reaction Bar -->
         <div class="reaction-bar">
             <!-- Like -->
-            <button type="button"
+           <form th:action="|/posts/like/${post.id}|" method="post">
+            <button type="submit"
                     class="btn btn-like"
-                    th:classappend="${post.likedByMe} ? 'active'"
-                    th:attr="data-post-id=${post.id}">
+                    th:classappend="${post.likedByMe} ? 'active'">
                 &#9650; <span th:text="${post.likeCount}">0</span>
             </button>
+        </form>
 
             <!-- Dislike -->
-            <button type="button"
-                    class="btn btn-dislike"
-                    th:classappend="${post.dislikedByMe} ? 'active'"
-                    th:attr="data-post-id=${post.id}">
-                &#9660; <span th:text="${post.dislikeCount}">0</span>
-            </button>
+            <form th:action="|/posts/dislike/${post.id}|" method="post">
+                <button type="submit"
+                        class="btn btn-dislike"
+                        th:classappend="${post.dislikedByMe} ? 'active'">
+                    &#9650; <span th:text="${post.dislikeCount}">0</span>
+                </button>
+            </form>
 
             <div class="reaction-spacer"></div>
 
