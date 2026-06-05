@@ -9,6 +9,7 @@ import cantstopthesignal.database.users.userNameAlreadyExists
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
+import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,8 +20,22 @@ fun Application.configureSignupRoutes() {
     routing {
 
         get("/signup") {
+            val error = call.request.queryParameters["error"]
+            val success = call.request.queryParameters["success"]
+
+            val map = buildMap {
+                put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                if (error != null) {
+                    put(ThymeLeafMapKeys.ERROR.value, error)
+                }
+
+                if (success != null) {
+                    put(ThymeLeafMapKeys.SUCCESS.value, success)
+                }
+            }
             return@get call.respond(
-                ThymeleafContent("signup", mapOf<String, Any>())
+                ThymeleafContent("signup", map)
             )
         }
 

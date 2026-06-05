@@ -34,11 +34,15 @@ fun Application.configureCommentRepliesRouting() {
             get("/comments/{postId}/replies/{commentId}") {
 
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
                 //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
                 if (callingUser == null) {
                     logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    return@get call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
+                    return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        "You are not authorized to perform this operation"
+                    )
                 }
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
@@ -90,6 +94,14 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
                     /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
                 return@get call.respond(
                     ThymeleafContent("comments", model)
@@ -103,7 +115,10 @@ fun Application.configureCommentRepliesRouting() {
                 //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
                 if (callingUser == null) {
                     logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    return@post call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        "You are not authorized to perform this operation"
+                    )
                 }
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without

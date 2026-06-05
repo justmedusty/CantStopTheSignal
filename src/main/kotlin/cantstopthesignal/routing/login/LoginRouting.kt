@@ -7,39 +7,65 @@ import cantstopthesignal.security.createJWT
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
-import io.ktor.http.Cookie
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import io.ktor.server.thymeleaf.ThymeleafContent
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 
 fun Application.configureLoginRoutes() {
     routing {
 
         get("/login") {
-            return@get call.respond(
-                ThymeleafContent("login", mapOf<String, Any>())
-            )
-        }
-    authenticate("jwt") {
+            val error = call.request.queryParameters["error"]
+            val success = call.request.queryParameters["success"]
 
-        get("/logout") {
-            //We should probably do some invalidation , but it's short lived enough so maybe this is fine
-            val model = buildMap {
+
+            val map = buildMap {
                 put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                put(ThymeLeafMapKeys.SUCCESS.value,"You have been logged out")
-            }
+                /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                if (error != null) {
+                    put(ThymeLeafMapKeys.ERROR.value, error)
+                }
 
+                if (success != null) {
+                    put(ThymeLeafMapKeys.SUCCESS.value, success)
+                }
+            }
             return@get call.respond(
-                ThymeleafContent("login", model)
+                ThymeleafContent("login", map)
             )
         }
-    }
+        authenticate("jwt") {
+
+            get("/logout") {
+                val error = call.request.queryParameters["error"]
+                var success = call.request.queryParameters["success"]
+
+                if (success == null && error == null) {
+                    success = "Logged out successfully!"
+                }
+                //We should probably do some invalidation , but it's short lived enough so maybe this is fine
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
+
+                }
+
+                return@get call.respond(
+                    ThymeleafContent("login", model)
+                )
+            }
+        }
 
 
         post("/login") {
@@ -66,12 +92,12 @@ fun Application.configureLoginRoutes() {
                 )
             }
             val model = buildMap {
+
                 put(
                     ThymeLeafMapKeys.SERVER_CONFIG.value,
                     siteConfig
                 )
             }
-
 
 
             val token = (createJWT(

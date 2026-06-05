@@ -1,18 +1,12 @@
 package cantstopthesignal.routing.login
 
 
-import cantstopthesignal.config.SiteConfig
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
-import io.ktor.server.application.Application
-import io.ktor.server.application.serverConfig
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
-import io.ktor.server.routing.application
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.server.thymeleaf.ThymeleafContent
-import io.ktor.util.AttributeKey
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 
 fun Application.indexRouting() {
     routing {
@@ -22,12 +16,22 @@ fun Application.indexRouting() {
         }
 
 
-        get ("/index"){
+        get("/index") {
+            val error = call.request.queryParameters["error"]
+            val success = call.request.queryParameters["success"]
             val model = buildMap {
                 put(
                     ThymeLeafMapKeys.SERVER_CONFIG.value,
                     siteConfig
                 )
+                /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                if (error != null) {
+                    put(ThymeLeafMapKeys.ERROR.value, error)
+                }
+
+                if (success != null) {
+                    put(ThymeLeafMapKeys.SUCCESS.value, success)
+                }
             }
             return@get call.respond(
                 ThymeleafContent("index", model)

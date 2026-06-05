@@ -17,7 +17,8 @@ fun Application.configurePostRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject
 
                 if (postId == null) {
-                    return@get call.respondRedirect { "/feed" }
+                    val error = "The post ID you passed was not correct"
+                    return@get call.respondRedirect { "/feed?error=${error}" }
                 }
                 val validPostId = verifyPostId(postId)
 

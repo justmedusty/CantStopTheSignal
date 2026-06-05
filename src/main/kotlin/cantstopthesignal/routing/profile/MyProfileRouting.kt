@@ -3,24 +3,21 @@ package cantstopthesignal.routing.profile
 
 import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
-import cantstopthesignal.database.users.getUserName
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import io.ktor.server.thymeleaf.ThymeleafContent
-import kotlin.collections.mapOf
+import com.freedom.cantstopthesignal.siteConfig
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 
 fun Application.configureProfileRoutes() {
     routing {
         authenticate("jwt") {
             get("/profile/{id}") {
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val id = call.parameters["id"]?.toLongOrNull()
                 var profile: ProfileDataEntry? = null
@@ -42,14 +39,24 @@ fun Application.configureProfileRoutes() {
                     return@get call.respond(ThymeleafContent("profile", model))
                 }
                 val model = buildMap {
-                    put(
-                        ThymeLeafMapKeys.PROFILE_DATA.value, profile
-                    )
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
+
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
 
                 self = userId == id
 
                 if (!self) {
+
+
                     return@get call.respond(
                         ThymeleafContent("profile", model)
                     )

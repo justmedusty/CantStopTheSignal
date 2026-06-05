@@ -61,7 +61,8 @@ fun Application.configureMessageRouting() {
             }
 
             get("/messages/conversations/{id}") {
-
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                     ?: return@get call.respondRedirect { "/logout" }
                 val page = call.parameters["page"]?.toIntOrNull() ?: 1
@@ -77,6 +78,17 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_SINGLE_CONVERSATIONS.value, conversation)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_LIST.value, messagesList)
+                    /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
+                    * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
+                    *
+                    */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
 
                 return@get call.respond(
@@ -152,7 +164,7 @@ fun Application.configureMessageRouting() {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(ThymeLeafMapKeys.ERROR.value, "Users must be specified")
                     }
-                   return@post call.respond(ThymeleafContent("create_new_message", map))
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
 
                 val userRegex = RegexPatterns.USERNAME.value

@@ -108,8 +108,10 @@ fun Application.configureCommentsRouting() {
             }
 
 
-            get("/comments/") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
+            get("/comments/{postId}") {
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
+                val id = call.parameters["postId"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (userId == null) {
@@ -141,6 +143,14 @@ fun Application.configureCommentsRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
 
                 return@get call.respond(

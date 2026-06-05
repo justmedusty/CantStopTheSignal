@@ -18,6 +18,8 @@ fun Application.configureNotificationRoutes() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 1
                 val limit = call.request.queryParameters["limit"]?.toLongOrNull() ?: 50
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
 
                 val safePage = page.coerceAtLeast(1)
                 val safeLimit = limit.coerceIn(1, 100) // max 100 per page
@@ -43,10 +45,23 @@ fun Application.configureNotificationRoutes() {
                     put(ThymeLeafMapKeys.CURRENT_LIMIT.value, safeLimit)
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+
+                    /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
+                    * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
+                    *
+                    */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
 
 
-               return@get call.respond(
+                return@get call.respond(
                     ThymeleafContent("notifications", model)
                 )
             }
