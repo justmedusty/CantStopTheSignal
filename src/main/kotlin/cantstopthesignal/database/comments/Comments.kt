@@ -68,7 +68,6 @@ fun getUserIdFromCommentId(commentId: Long): Long? {
 }
 
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
-    println("Posting comment $content for postId $postId with parentCommentId $parentCommentId")
     return try {
         transaction {
             if (isDuplicateComment(content, commenterId, postId, parentCommentId)) {

@@ -12,7 +12,6 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
     val lines = convertedKey.split("\n")
 
     for (line in lines) {
-        println(line)
         if (line.length > 76 && !line.equals("\n")) {
             return false
         }

@@ -175,9 +175,7 @@ fun getMessagesFromConversation(
             val hasMessages = Messages.selectAll().where { Messages.conversationId eq conversationId }.count() > 0
 
             if (!hasMessages) {
-                println("No messages found")
                 return@transaction emptyList<MessageObject>()
-                println("SHouldnt get here")
             }
 
             val messageList = Messages

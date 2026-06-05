@@ -18,7 +18,7 @@ fun getDislikesForPost(postId: Long): Long {
             ).count()
         }
     } catch (e: Exception) {
-        println("Error getting likes for post: $e")
+        logger.error {("Error getting likes for post: ${e.message}")}
         -1
     }
 }

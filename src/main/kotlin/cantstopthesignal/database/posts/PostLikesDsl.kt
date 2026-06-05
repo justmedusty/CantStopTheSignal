@@ -22,7 +22,7 @@ fun getLikesForPost(postId: Long): Long {
         }
 
     } catch (e: Exception) {
-        println("Error getting likes for post: $e")
+        logger.error { ("Error getting likes for post: $e") }
         -1
     }
 }
