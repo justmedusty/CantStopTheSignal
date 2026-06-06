@@ -814,9 +814,8 @@
                      th:each="reply : ${replies}">
 
                     <div class="reply-top">
-                        <span class="comment-author"
-                              th:classappend="${reply.myComment} ? 'me'"
-                              th:text="${reply.commenterUsername}">username</span>
+                        <a th:href="|/profile/${reply.commenterId}|"
+                           th:text="${reply.commenterUsername}">username</a>
                         <span class="comment-time" th:text="|Posted: ${#temporals.format(reply.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                         <span class="comment-edited"
                               th:if="${reply.lastEdited != null}"

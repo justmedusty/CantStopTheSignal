@@ -1,6 +1,7 @@
 package cantstopthesignal.routing.profile
 
 
+import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import getAllNotifications
@@ -17,12 +18,11 @@ fun Application.configureNotificationRoutes() {
             get("/notifications") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 1
-                val limit = call.request.queryParameters["limit"]?.toLongOrNull() ?: 50
+                val limit: Long = Length.MAX_PAGE_LIMIT.value
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
                 val safePage = page.coerceAtLeast(1)
-                val safeLimit = limit.coerceIn(1, 100) // max 100 per page
 
                 if (userId == null) {
                     return@get call.respond(
@@ -34,7 +34,7 @@ fun Application.configureNotificationRoutes() {
                 }
 
                 //We need to convert this into something usable , its just ids so we will want to generate actual post titles, usernames from userids, etc. It will be for comment likes and post likes, no notifs for dislikes although that would be funny lol
-                val list = getAllNotifications(safePage, safeLimit, userId!!)
+                val list = getAllNotifications(safePage, limit, userId!!)
 
                 val model = buildMap {
                     put(
@@ -42,7 +42,7 @@ fun Application.configureNotificationRoutes() {
                     )
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, safePage)
-                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, safeLimit)
+                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)

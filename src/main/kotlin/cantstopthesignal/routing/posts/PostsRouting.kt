@@ -25,9 +25,7 @@ fun Application.configurePostRouting() {
         authenticate("jwt") {
             get("/feed") {
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
-                val limit =
-                    call.request.queryParameters["limit"]?.toInt()?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
-                        ?: Length.MAX_PAGE_LIMIT.value.toInt()
+                val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "Desc"
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val error = call.request.queryParameters["error"]
@@ -75,9 +73,7 @@ fun Application.configurePostRouting() {
                 }
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
-                val limit =
-                    call.request.queryParameters["limit"]?.toInt()?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
-                        ?: Length.MAX_PAGE_LIMIT.value.toInt()
+                val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId!!)
                 val order = call.request.queryParameters["order"] ?: SortOrderValues.NEWEST.value
 

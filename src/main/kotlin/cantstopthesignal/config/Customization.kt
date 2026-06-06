@@ -1,7 +1,7 @@
 package cantstopthesignal.config
 
 import com.freedom.cantstopthesignal.siteConfig
-import io.ktor.server.application.Application
+import io.ktor.server.application.*
 
 data class SiteConfig(
     val name: String,
@@ -15,7 +15,11 @@ data class SiteConfig(
     val issuer: String,
     val baseUrl: String,
     val tokenLifetimeMinutes: Long,
-    val forceEncryptionGroupDefault: Boolean
+    val forceEncryptionGroupDefault: Boolean,
+    val rateLimitWindowSeconds: Long,
+    val rateLimitNumAllowedInWindow: Long,
+    val rateLimitWindowSecondsLoginSignup: Long,
+    val rateLimitNumAllowedInWindowLoginSignup: Long
 
 )
 
@@ -33,6 +37,12 @@ fun Application.loadSiteConfig() {
         issuer = config.property("issuer").getString(),
         baseUrl = config.property("baseUrl").getString(),
         tokenLifetimeMinutes = config.property("token_lifetime_minutes").getString().toLong(),
-        forceEncryptionGroupDefault = config.property("force_encryption_group_default").getString().toBoolean()
+        forceEncryptionGroupDefault = config.property("force_encryption_group_default").getString().toBoolean(),
+        rateLimitWindowSeconds = config.property("rate_limit_window_seconds").getString().toLong(),
+        rateLimitNumAllowedInWindow = config.property("rate_limit_num_allowed_in_window").getString().toLong(),
+        rateLimitWindowSecondsLoginSignup = config.property("rate_limit_window_seconds_login_signup").getString()
+            .toLong(),
+        rateLimitNumAllowedInWindowLoginSignup = config.property("rate_limit_num_allowed_in_window_login_signup")
+            .getString().toLong(),
     )
 }

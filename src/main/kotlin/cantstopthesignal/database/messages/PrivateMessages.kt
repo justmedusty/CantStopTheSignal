@@ -3,7 +3,6 @@ package cantstopthesignal.database.messages
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
-import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
@@ -11,6 +10,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
+import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -48,7 +48,8 @@ data class MessageConversationObject(
     val timeOfLastMessage: LocalDateTime?,
     val name: String?,
     val members: List<String>,
-    val pgpKey: List<String>? //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs,
+    val pgpKey: List<String>?, //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs
+    val numPages: Long
 )
 
 
@@ -86,7 +87,8 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     timeOfLastMessage = null,
                     name = it[Conversations.name],
                     members = getMembersOfConversation(conversationId)!! /* This should already be sanitized so we will assert it not null*/,
-                    pgpKey = getPgpKeysInConversation(userId, conversationId)
+                    pgpKey = getPgpKeysInConversation(userId, conversationId),
+                    getNumPagesInConversation(conversationId, Length.MAX_PAGE_LIMIT.value.toInt())
                 )
             }
 
@@ -309,6 +311,18 @@ fun verifyConversationId(id: Long, userId: Long): Boolean? {
     }
 }
 
+//Pagination helper
+fun getNumPagesInConversation(conversationId: Long, limit: Int): Long {
+    return try {
+        transaction {
+            Messages.selectAll().where { Messages.conversationId eq conversationId }.count() / limit
+        }
+    } catch (e: Exception) {
+        logger.error { "$e.message " }
+        0
+    }
+}
+
 fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConversationObject>? {
     val offsetVal = ((page - 1) * limit).toLong()
     val receiverUserNameString = getUserName(userId)
@@ -326,8 +340,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                     val isMe =
                         if (lastUserWhoSentAMessage != null) getUserId(lastUserWhoSentAMessage) == userId else null
 
-                    val timeOfLastMessage = getLastMessageTimestamp(userId)
-
+                    val timeOfLastMessage = getLastMessageTimestamp(conversationId)
                     val userList = getUsersInConversation(userId, conversationId)
 
                     if (userList == null) {
@@ -338,8 +351,6 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
 
                     val publicKeys = getPgpKeysInConversation(userId, conversationId)
 
-
-
                     MessageConversationObject(
                         conversationId,
                         lastUserWhoSentAMessage,
@@ -347,7 +358,8 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                         timeOfLastMessage,
                         getConversationName(conversationId),
                         userList,
-                        publicKeys
+                        publicKeys,
+                        getNumPagesInConversation(conversationId, limit)
                     )
 
                 }

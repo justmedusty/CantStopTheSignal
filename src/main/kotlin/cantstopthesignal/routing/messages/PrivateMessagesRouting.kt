@@ -31,11 +31,9 @@ fun Application.configureMessageRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val page = call.parameters["page"]?.toIntOrNull() ?: 1
 
-                val limit = call.parameters["limit"]?.toIntOrNull()
-                    ?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
-                    ?: Length.MAX_PAGE_LIMIT.value.toInt()
+                val limit: Long = Length.MAX_PAGE_LIMIT.value
 
-                val messageList = getAllConversations(userId!!, page, limit) ?: emptyList()
+                val messageList = getAllConversations(userId!!, page, limit.toInt()) ?: emptyList()
 
 
                 val model = buildMap {
@@ -69,7 +67,7 @@ fun Application.configureMessageRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                     ?: return@get call.respondRedirect { "/logout" }
                 val page = call.parameters["page"]?.toIntOrNull() ?: 1
-                val limit = call.parameters["limit"]?.toIntOrNull()?.coerceAtMost(Length.MAX_PAGE_LIMIT.value.toInt())
+                val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
                 val conversationId = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(
                     HttpStatusCode.BadRequest
