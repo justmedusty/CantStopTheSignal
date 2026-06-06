@@ -213,7 +213,7 @@ fun Application.configureMessageRouting() {
 
                 }
 
-                if (usernames.size > 2 && groupName != null && groupName.length > Length.MAX_GROUPNAME_LENGTH.value) {
+                if ((groupName != null && groupName.length > Length.MAX_GROUPNAME_LENGTH.value)) {
                     val map = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(
@@ -263,7 +263,7 @@ fun Application.configureMessageRouting() {
                 }
 
                 //Open the conversation
-                return@post call.respondRedirect("/messages/conversation/${ret}")
+                return@post call.respondRedirect("/messages/conversations/${ret}")
             }
 
         }
