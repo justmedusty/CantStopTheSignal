@@ -294,8 +294,12 @@
             <div class="avatar" th:text="${#strings.substring(profile_data.username, 0, 1)}">U</div>
             <div class="profile-header-info">
                 <h2 th:text="${profile_data.username}">username</h2>
-                <span class="joined"     th:text="|Member since ${profile_data.createdAt}|">Member since today</span>
-                <span class="last-login" th:text="|Last logged in: ${profile_data.lastLogin}|">Unknown last login</span>
+                <span class="last-login" th:text="|Joined at: ${#temporals.format(profile_data.createdAt, 'MMMM d yyyy HH:mm')}UTC|">
+    Unknown account creation
+</span>
+                <span class="last-login" th:text="|Last logged in: ${#temporals.format(profile_data.lastLogin, 'MMMM d yyyy HH:mm')}UTC|">
+    Unknown last login
+</span>
             </div>
         </div>
     </div>

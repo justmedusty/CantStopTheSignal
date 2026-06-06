@@ -289,11 +289,17 @@
             margin-bottom: 0.75rem;
         }
 
+        .focal-actions-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
         .focal-actions {
             display: flex;
             align-items: center;
             gap: 0.4rem;
             flex-wrap: wrap;
+            align-content: flex-start;
         }
 
         /* ── Replies List ── */
@@ -378,6 +384,7 @@
             align-items: center;
             gap: 0.4rem;
             flex-wrap: wrap;
+            align-content: flex-start;
         }
 
         /* ── Shared Button Styles ── */
@@ -613,6 +620,63 @@
         .reply-toggle:checked ~ label.reply-btn {
             display: none;
         }
+
+        /* ── Reply Box ── */
+        .reply-box {
+            width: 100%;
+            flex-basis: 100%;
+            margin-top: 0.85rem;
+            background: #12151f;
+            border: 1.5px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            box-shadow: 0 0 0 3px rgba(91, 138, 245, 0.08);
+        }
+
+        .reply-box textarea {
+            width: 100%;
+            min-height: 130px;
+            resize: vertical;
+            background: var(--bg);
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-family: var(--font);
+            font-size: 0.92rem;
+            line-height: 1.65;
+            outline: none;
+            display: block;
+            box-sizing: border-box;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .reply-box textarea::placeholder {
+            color: var(--muted);
+        }
+
+        .reply-box textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 138, 245, 0.15);
+        }
+
+        .reply-box-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .reply-box-actions .btn-replies,
+        .reply-box-actions .btn-blue {
+            padding: 0.48rem 1rem;
+            font-size: 0.82rem;
+        }
+
+        .reply-box-actions .btn-tiny {
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -666,11 +730,6 @@
     <div class="thread-card">
 
         <!-- ─── Focal Comment ─── -->
-        <!--
-            Model expectation:
-              - `focal_comment`  : the comment whose replies this page shows
-              - `replies`       : a Page<CommentDto> of direct replies to focal_comment
-        -->
         <div class="focal-comment" th:if="${focal_comment != null}">
             <p class="focal-label">Viewing replies to</p>
 
@@ -718,15 +777,15 @@
 
 
                 <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${focal_comment.id}">
-                <label class="btn-tiny reply-btn" th:for="'reply-toggle-' + ${focal_comment.id}">Reply</label>
+                <label class="btn-blue reply-btn" th:for="'reply-toggle-' + ${focal_comment.id}">Reply</label>
 
-                <div class="reply-box" th:id="'reply-box-' + ${focal_comment.id}" style="margin-top: 0.75rem;">
+                <div class="reply-box" th:id="'reply-box-' + ${focal_comment.id}">
                     <form th:action="|/comments/${focal_comment.id}/reply|" method="post">
                         <input type="hidden" name="parentCommentId" th:value="${focal_comment.id}"/>
                         <input type="hidden" name="postId" th:value="${posts[0].id}">
-                        <textarea name="content" rows="3" placeholder="Write a reply…"></textarea>
+                        <textarea name="content" rows="5" placeholder="Share your thoughts…"></textarea>
                         <div class="reply-box-actions">
-                            <button type="submit" class="btn-tiny">Post Reply</button>
+                            <button type="submit" class="btn-replies">Post Reply</button>
                             <label class="btn-tiny" th:for="'reply-toggle-' + ${focal_comment.id}">Cancel</label>
                         </div>
                     </form>
@@ -758,7 +817,7 @@
                         <span class="comment-author"
                               th:classappend="${reply.myComment} ? 'me'"
                               th:text="${reply.commenterUsername}">username</span>
-                        <span class="comment-time" th:text="|Posted: ${#temporals.format(reply.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp>timestamp</span>
+                        <span class="comment-time" th:text="|Posted: ${#temporals.format(reply.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                         <span class="comment-edited"
                               th:if="${reply.lastEdited != null}"
                               th:text="| edited ${reply.lastEdited}|">· edited …</span>
@@ -785,11 +844,6 @@
                             </button>
                         </form>
 
-                        <!--
-                            If this reply itself has replies, link to the same
-                            /comments/{id}/replies route — this is what makes the chain
-                            infinitely deep without a separate template.
-                        -->
                         <a th:if="${reply.hasReplies}"
                            class="btn-replies"
                            th:href="|/comments/${id}/replies/${reply.id}|">
@@ -799,17 +853,18 @@
                         <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${reply.id}">
                         <label class="btn-blue reply-btn" th:for="'reply-toggle-' + ${reply.id}">Reply</label>
 
-                        <div class="reply-box" th:id="'reply-box-' + ${reply.id}" style="margin-top: 0.75rem;">
+                        <div class="reply-box" th:id="'reply-box-' + ${reply.id}">
                             <form th:action="|/comments/${reply.id}/reply|" method="post">
                                 <input type="hidden" name="parentCommentId" th:value="${reply.id}"/>
                                 <input type="hidden" name="postId" th:value="${post.id}"/>
-                                <textarea name="content" rows="5" placeholder="Write a reply…"></textarea>
+                                <textarea name="content" rows="5" placeholder="Share your thoughts…"></textarea>
                                 <div class="reply-box-actions">
                                     <button type="submit" class="btn-blue">Post Reply</button>
                                     <label class="btn-tiny" th:for="'reply-toggle-' + ${reply.id}">Cancel</label>
                                 </div>
                             </form>
                         </div>
+
                         <!-- Edit / Delete (owner only) -->
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-tiny"
@@ -818,8 +873,6 @@
                                style="color: var(--danger); border-color: #f3c6c6;"
                                th:href="|/comments/${id}/delete/${reply.id}|">Delete</a>
                         </th:block>
-
-
                     </div>
                 </div>
 
@@ -852,7 +905,7 @@
                th:classappend="${replies.last} ? 'disabled'"
                th:href="|/comments/${id}/replies/${focal_comment.id}, page=${replies.number + 1}|">
                 Next &#8594;
-            </a>
+ed            </a>
 
         </div>
 

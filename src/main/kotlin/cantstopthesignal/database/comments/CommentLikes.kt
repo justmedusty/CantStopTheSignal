@@ -51,7 +51,7 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
     if (!isCommentDisLikedByUser(commentId, likedById)) return try {
         transaction {
             if(isCommentLikedByUser(commentId, likedById)){
-                return@transaction unDislikeComment(likedById, commentId)
+                return@transaction unlikeComment(likedById, commentId)
             }
             CommentLikes.insert {
                 it[CommentLikes.commentId] = commentId
