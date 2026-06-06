@@ -299,7 +299,7 @@
 
                 <div class="conv-body">
                     <div class="conv-header">
-                        <span class="conv-name">y
+                        <span class="conv-name">
                             <!-- Sender name -->
                             <span th:text="${convo.lastSender}">Sender</span>
                             <!-- Lock icon shown only when pgpKey list is present and non-empty -->
@@ -327,7 +327,7 @@
                 <div class="conv-indicators">
                     <span class="type-pill">DM</span>
                     <!-- Small "You" badge when the last sender is the current user -->
-                    <span class="me-badge" th:if="${convo.isMe}">You sent</span>
+                    <span class="me-badge" th:if="${convo.isMe}">You sent last message</span>
                 </div>
 
             </a>
