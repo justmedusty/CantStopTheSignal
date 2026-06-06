@@ -8,6 +8,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun getDislikesForPost(postId: Long): Long {
@@ -18,14 +19,15 @@ fun getDislikesForPost(postId: Long): Long {
             ).count()
         }
     } catch (e: Exception) {
-        logger.error {("Error getting likes for post: ${e.message}")}
+        logger.error { ("Error getting likes for post: ${e.message}") }
         -1
     }
 }
 
 fun isPostDislikedByUser(postId: Long, userId: Long): Boolean {
     return try {
-        PostDislikes.select((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId)).count() > 0
+        PostDislikes.selectAll().where { ((PostDislikes.postId eq postId) and (PostDislikes.dislikedById eq userId)) }
+            .count() > 0
     } catch (e: Exception) {
         logger.error { e.message }
         false
@@ -43,7 +45,7 @@ fun dislikePost(likedById: Long, postId: Long): Boolean {
             if (isPostLikedByUser(postId, likedById)) {
                 unlikePost(likedById, postId)
             }
-            if(isPostDislikedByUser(postId, likedById)) {
+            if (isPostDislikedByUser(postId, likedById)) {
                 return@transaction unDislikePost(likedById, postId)
             }
             PostDislikes.insert {

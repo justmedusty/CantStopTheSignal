@@ -4,24 +4,28 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
-            --muted:         #4a5068;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          'DM Sans', sans-serif;
-            --font-serif:    'Lora', serif;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #4a5068;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
         }
 
         body {
@@ -33,7 +37,10 @@
             min-height: 100vh;
         }
 
-        .container { max-width: 760px; margin: 0 auto; }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+        }
 
         /* ── Flash messages ── */
         .error {
@@ -45,6 +52,7 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
         .success {
             background: #1a2d1f;
             color: #4ecb82;
@@ -64,6 +72,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+
         .topbar h1 {
             font-family: var(--font-serif);
             font-size: 2rem;
@@ -71,7 +80,12 @@
             letter-spacing: -0.02em;
             margin: 0;
         }
-        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        .topbar-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
 
         /* ── Buttons ── */
         .btn {
@@ -89,26 +103,45 @@
             transition: opacity 0.15s, transform 0.1s;
             line-height: 1;
         }
-        .btn:active { transform: scale(0.97); }
 
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { opacity: 0.88; }
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+        }
 
         .btn-secondary {
             background: transparent;
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-secondary:hover { background: var(--surface-hover); }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
 
         .btn-danger {
             background: transparent;
             color: var(--danger);
             border-color: #7a2020;
         }
-        .btn-danger:hover { background: var(--danger-soft); }
 
-        .btn-sm { padding: 0.28rem 0.65rem; font-size: 0.75rem; }
+        .btn-danger:hover {
+            background: var(--danger-soft);
+        }
+
+        .btn-sm {
+            padding: 0.28rem 0.65rem;
+            font-size: 0.75rem;
+        }
 
         /* ── Icon buttons ── */
         .btn-icon {
@@ -125,21 +158,38 @@
             align-items: center;
             transition: background 0.15s;
         }
-        .btn-icon:hover { background: var(--border); }
+
+        .btn-icon:hover {
+            background: var(--border);
+        }
+
         .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35);
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.35);
             animation: glow-pulse 1.5s ease-in-out infinite;
         }
+
         @keyframes glow-pulse {
-            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35); }
-            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224,96,96,0.6); }
+            0%, 100% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.35);
+            }
+            50% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224, 96, 96, 0.6);
+            }
         }
+
         .badge {
-            position: absolute; top: -6px; right: -6px;
-            background: var(--danger); color: #fff;
-            font-size: 0.65rem; font-weight: 700;
-            border-radius: 999px; padding: 1px 5px;
-            min-width: 16px; text-align: center; line-height: 1.4;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
         }
 
         /* ── Cards ── */
@@ -152,7 +202,9 @@
             overflow: hidden;
         }
 
-        .card-body { padding: 1.5rem 1.75rem; }
+        .card-body {
+            padding: 1.5rem 1.75rem;
+        }
 
         /* ── Profile header ── */
         .profile-header {
@@ -178,7 +230,10 @@
             text-transform: uppercase;
         }
 
-        .profile-header-info { flex: 1; }
+        .profile-header-info {
+            flex: 1;
+        }
+
         .profile-header-info h2 {
             font-family: var(--font-serif);
             font-size: 1.4rem;
@@ -186,6 +241,7 @@
             color: var(--text-primary);
             margin-bottom: 0.2rem;
         }
+
         .profile-header-info .joined,
         .profile-header-info .last-login {
             display: block;
@@ -214,7 +270,10 @@
             padding: 0.875rem 1.75rem;
             border-bottom: 1px solid var(--border);
         }
-        .field-row:last-child { border-bottom: none; }
+
+        .field-row:last-child {
+            border-bottom: none;
+        }
 
         .field-label {
             font-size: 0.82rem;
@@ -232,6 +291,7 @@
             line-height: 1.6;
             word-break: break-word;
         }
+
         .field-value.empty {
             color: var(--muted);
             font-style: italic;
@@ -265,7 +325,7 @@
 <body>
 <div class="container">
 
-    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
 
     <!-- Top bar -->
@@ -294,8 +354,12 @@
             <div class="avatar" th:text="${#strings.substring(profile_data.username, 0, 1)}">U</div>
             <div class="profile-header-info">
                 <h2 th:text="${profile_data.username}">username</h2>
-                <span class="joined"     th:text="|Member since ${profile_data.createdAt}|">Member since today</span>
-                <span class="last-login" th:text="|Last logged in: ${profile_data.lastLogin}|">Unknown last login</span>
+                <span class="last-login" th:text="|Joined at: ${#temporals.format(profile_data.createdAt, 'MMMM d yyyy HH:mm')}UTC|">
+    Unknown account creation
+</span>
+                <span class="last-login" th:text="|Last logged in: ${#temporals.format(profile_data.lastLogin, 'MMMM d yyyy HH:mm')}UTC|">
+    Unknown last login
+</span>
             </div>
         </div>
     </div>

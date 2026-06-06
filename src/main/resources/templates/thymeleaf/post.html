@@ -663,7 +663,7 @@
             <p class="post-meta">
                 by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                 &nbsp;·&nbsp;
-                <span th:text="${post.timeStamp}">timestamp</span>
+                <span th:text="|Posted: ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
             </p>
 
             <div class="post-content" th:text="${post.content}">Post content goes here.</div>
@@ -742,7 +742,7 @@
                 <span class="comment-author"
                       th:classappend="${comment.myComment} ? 'me'">
                             <a th:href="|/profile/${comment.commenterId}|" th:text="${comment.commenterUsername}">username</a>
-                            <span class="comment-time" th:text="${comment.timeStamp}">timestamp</span>
+                              <span class="comment-time" th:text="|Posted: ${#temporals.format(comment.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                             <span class="comment-edited"
                                   th:if="${comment.lastEdited != null and comment.lastEdited != 'null'}"
                                   th:text="| edited ${comment.lastEdited}|">· edited …</span>

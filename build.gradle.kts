@@ -39,6 +39,7 @@ dependencies {
     implementation("org.bouncycastle:bcpg-jdk18on:1.84")
     implementation("org.jetbrains.exposed:exposed-java-time:1.2.0")
     implementation("org.mindrot:jbcrypt:0.4")
+    implementation ("org.pgpainless:pgpainless-sop:2.0.3")
 
 
     testImplementation(kotlin("test"))

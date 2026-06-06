@@ -299,13 +299,13 @@
 
                 <div class="conv-body">
                     <div class="conv-header">
-                        <span class="conv-name">
+                        <span class="conv-name">y
                             <!-- Sender name -->
                             <span th:text="${convo.lastSender}">Sender</span>
                             <!-- Lock icon shown only when pgpKey list is present and non-empty -->
                             <span class="enc-icon"
                                   th:if="${convo.pgpKey != null and not #lists.isEmpty(convo.pgpKey)}"
-                                  title="PGP-Keys-Available">Public Keys Available🔒</span>
+                                  title="PGP-Keys-Available">PGP Keys Available🔒</span>
                         </span>
                         <span class="conv-time"
                               th:text="${#temporals.format(convo.timeOfLastMessage, 'MMM d, HH:mm')}">

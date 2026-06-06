@@ -3,8 +3,11 @@ package cantstopthesignal.routing.profile
 
 import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
+import cantstopthesignal.database.users.getUserId
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -64,6 +67,22 @@ fun Application.configureProfileRoutes() {
                         ThymeleafContent("my_profile", model)
                     )
                 }
+
+            }
+
+            get("/profile/name/{username}") {
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val username = call.parameters["username"] ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val id = getUserId(username)
+
+                if(userId == null) {
+                    val error = "No user by the name ${username} found..."
+                    return@get call.respondRedirect { "/feed?error=$error" }
+                }
+
+                return@get call.respondRedirect("/profile/$id")
 
             }
 
