@@ -402,6 +402,26 @@
             opacity: 0.5;
         }
 
+
+        .reaction-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1.5px solid #2d3f7a;
+        }
+
+        .reaction-pill.dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -488,16 +508,12 @@
         <!-- Reaction / action bar -->
         <div class="post-actions">
             <div class="post-actions-left">
-                <button class="btn like" type="button"
-                        th:attr="data-post-id=${post.id}"
-                        th:classappend="${post.likedByMe} ? ' active' : ''">
-                    👍 <span th:text="${post.likeCount}">0</span>
-                </button>
-                <button class="btn dislike" type="button"
-                        th:attr="data-post-id=${post.id}"
-                        th:classappend="${post.dislikedByMe} ? ' active' : ''">
-                    👎 <span th:text="${post.dislikeCount}">0</span>
-                </button>
+                <!-- Read-only reaction summary -->
+                <div class="post-reaction-bar">
+                    <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
+                    <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
+                    <a th:href="|/posts/${post.id}|">See Other Comments</a>
+                </div>
                 <span class="comment-count">
                     💬 <span th:text="${post.commentCount}">0</span>
                 </span>
