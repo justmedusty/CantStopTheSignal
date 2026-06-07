@@ -53,6 +53,8 @@ enum class ThymeLeafMapKeys(val value: String) {
     CURRENT_PAGE("current_page"),
     TOTAL_PAGES("total_pages"),
     EDIT_FIELD("edit_field"),
+    NOTIFICATION_COUNT("notification_count"),
+    UNREAD_MESSAGE_COUNT("unread_message_count"),
 }
 
 enum class SortOrderValues(val value: String) {

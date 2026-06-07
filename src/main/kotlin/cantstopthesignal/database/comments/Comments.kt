@@ -1,5 +1,6 @@
 package cantstopthesignal.database.comments
 
+import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
@@ -10,7 +11,6 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.par
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
-import insertNotification
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -105,8 +105,15 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 insertNotification(
                     postId,
                     parentCommentId,
-                    postOwnerId /* We will also ALSO  sanitize this higher up  */,
+                    parentCommenterId!! /* We will also ALSO  sanitize this higher up  */,
                     Notif.COMMENT_REPLY.value
+                )
+            } else {
+                insertNotification(
+                    postId,
+                    ret,
+                    postOwnerId,
+                    Notif.POST_COMMENT.value
                 )
             }
             ret

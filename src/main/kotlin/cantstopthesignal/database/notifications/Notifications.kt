@@ -1,7 +1,10 @@
+package cantstopthesignal.database.notifications
+
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -16,22 +19,6 @@ data class Notification(
     val type: Long
 )
 
-fun insertNotification(id: Long, user: Long, notifType: Long): Boolean {
-    return try {
-        transaction {
-            Notifications.insert {
-                it[Notifications.postId] = id
-                it[userId] = user
-                it[type] = notifType
-            }
-            true
-        }
-    } catch (e: Exception) {
-        logger.error { e.message }
-        false
-    }
-
-}
 
 fun insertNotification(postId: Long?, commentId: Long?, user: Long, notifType: Long): Boolean {
     if (postId == null && commentId == null) return false
@@ -55,15 +42,15 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
         transaction {
             Notifications.selectAll().where { (Notifications.userId eq userId) }.limit(limit.toInt())
                 .offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
-                Notification(
-                    it[Notifications.id],
-                    it[Notifications.read],
-                    it[Notifications.postId],
-                    it[Notifications.commentId],
-                    userId,
-                    it[Notifications.type]
-                )
-            }
+                    Notification(
+                        it[Notifications.id],
+                        it[Notifications.read],
+                        it[Notifications.postId],
+                        it[Notifications.commentId],
+                        userId,
+                        it[Notifications.type]
+                    )
+                }
 
         }
     } catch (e: Exception) {
@@ -98,6 +85,39 @@ fun markNotifUnread(notif: Long, user: Long): Boolean {
         }
     } catch (e: Exception) {
         logger.error { e.message }
+        false
+    }
+}
+
+fun markAllNotificationsRead(userId: Long): Boolean {
+    return try {
+        transaction {
+            Notifications.update(where = { Notifications.userId eq userId }) {
+                it[Notifications.read] = true
+            }
+        } > 0  // returns true if at least 1 row was updated
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to mark all notifications read" }
+        false
+    }
+}
+
+fun getUnreadNotificationsCount(user: Long): Long {
+    return try {
+        transaction {
+            Notifications.selectAll().where((Notifications.userId eq user) and (Notifications.read eq false)).count()
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to fetch unread notifs" }
+        0
+    }
+}
+
+fun deleteAllNotifications(user: Long): Boolean {
+    return try {
+        Notifications.deleteWhere { Notifications.userId eq user } > 0
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to delete all notifs" }
         false
     }
 }

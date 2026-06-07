@@ -274,15 +274,15 @@
         <div class="topbar-actions">
             <a class="btn-icon"
                href="/notifications"
-               th:classappend="${notificationCount > 0} ? 'has-alert' : ''">
+               th:classappend="${notification_count > 0} ? 'has-alert' : ''">
                 🔔
-                <span class="badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+                <span class="badge" th:if="${notification_count > 0}" th:text="${notification_count}"></span>
             </a>
             <a class="btn-icon"
                href="messages"
-               th:classappend="${unreadMessageCount > 0} ? 'has-alert' : ''">
+               th:classappend="${unread_message_count > 0} ? 'has-alert' : ''">
                 ✉️
-                <span class="badge" th:if="${unreadMessageCount > 0}" th:text="${unreadMessageCount}"></span>
+                <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
             </a>
             <a class="btn btn-primary" th:href="|/feed|">← Home Feed</a>
         </div>

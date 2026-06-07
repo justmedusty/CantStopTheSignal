@@ -1,6 +1,7 @@
 package cantstopthesignal.routing.posts
 
 import cantstopthesignal.database.comments.getCommentsByPost
+import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.fetchPosts
 import com.freedom.cantstopthesignal.enums.Length
@@ -46,6 +47,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.POSTS.value, postList)
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages ?: 1)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser!!))
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
                     *
@@ -94,6 +96,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, comments?.get(0)?.totalPages ?: 1)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
 
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {

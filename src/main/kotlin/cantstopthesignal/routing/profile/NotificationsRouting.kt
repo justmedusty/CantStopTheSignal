@@ -1,10 +1,11 @@
 package cantstopthesignal.routing.profile
 
 
+import cantstopthesignal.database.notifications.getAllNotifications
+import cantstopthesignal.database.notifications.markAllNotificationsRead
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
-import getAllNotifications
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -36,10 +37,9 @@ fun Application.configureNotificationRoutes() {
                 //We need to convert this into something usable , its just ids so we will want to generate actual post titles, usernames from userids, etc. It will be for comment likes and post likes, no notifs for dislikes although that would be funny lol
                 val list = getAllNotifications(safePage, limit, userId!!)
 
+
                 val model = buildMap {
-                    put(
-                        ThymeLeafMapKeys.OTHER_NOTIFICATIONS.value, list
-                    )
+                    put(ThymeLeafMapKeys.OTHER_NOTIFICATIONS.value, list)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, safePage)
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
@@ -63,6 +63,48 @@ fun Application.configureNotificationRoutes() {
                 return@get call.respond(
                     ThymeleafContent("notifications", model)
                 )
+            }
+
+            get("/notifications/markAllRead") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                val ret = markAllNotificationsRead(userId!!)
+
+                if (ret == null) {
+                    val error = "Unable to mark all notifications read"
+                    return@get call.respondRedirect("/notifications?error=$error")
+                }
+
+                val success = "Successfully marked all notifications read"
+                call.respondRedirect("/notifications?success=$success")
+            }
+
+            post("/notifications/markRead/{id}") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val id = call.queryParameters["id"]?.toLongOrNull()
+                val ret = markAllNotificationsRead(userId!!)
+
+                if (ret == null) {
+                    val error = "Unable to mark all notifications read"
+                    return@post call.respondRedirect("/notifications?error=$error")
+                }
+
+                val success = "Successfully marked all notifications read"
+                call.respondRedirect("/notifications?success=$success")
+            }
+            post("/notifications/markUnread/{id}") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val id = call.queryParameters["id"]?.toLongOrNull()
+
+                val ret = markAllNotificationsRead(userId!!)
+
+                if (ret == null) {
+                    val error = "Unable to mark all notifications read"
+                    return@post call.respondRedirect("/notifications?error=$error")
+                }
+
+                val success = "Successfully marked all notifications read"
+                call.respondRedirect("/notifications?success=$success")
             }
 
         }

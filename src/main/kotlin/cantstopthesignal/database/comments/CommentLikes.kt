@@ -4,7 +4,7 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.enums.Notif
-import insertNotification
+import cantstopthesignal.database.notifications.insertNotification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

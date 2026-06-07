@@ -1,125 +1,240 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Notifications</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8"/>
+    <title>Notifications</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    :root {
-      --bg:             #0f1117;
-      --surface:        #181b24;
-      --surface-hover:  #1e2130;
-      --border:         #272b3a;
-      --accent:         #5b8af5;
-      --accent-dim:     #1e2d56;
-      --text:           #e8eaf2;
-      --text-secondary: #ffffff;
-      --unread-bg:      #161c2e;
-      --unread-border:  #2a3560;
-      --new-bg:         #1e2d56;
-      --new-text:       #7ba4f5;
-      --font:           'Segoe UI', system-ui, sans-serif;
-      --radius:         10px;
-    }
+        :root {
+            --bg: #0f1117;
+            --surface: #181b24;
+            --surface-hover: #1e2130;
+            --border: #272b3a;
+            --accent: #5b8af5;
+            --accent-dim: #1e2d56;
+            --text: #e8eaf2;
+            --text-secondary: #ffffff;
+            --unread-bg: #161c2e;
+            --unread-border: #2a3560;
+            --new-bg: #1e2d56;
+            --new-text: #7ba4f5;
+            --font: 'Segoe UI', system-ui, sans-serif;
+            --radius: 10px;
+        }
 
-    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; padding: 2rem 1rem; }
-    .container { max-width: 680px; margin: 0 auto; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
 
-    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; }
-    .topbar h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
-    .topbar-actions { display: flex; gap: 0.5rem; }
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
 
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.3rem;
-      padding: 0.45rem 1rem; border-radius: 7px;
-      font-size: 0.82rem; font-weight: 600; text-decoration: none;
-      transition: opacity .15s;
-    }
-    .btn:hover { opacity: .85; }
-    .btn-secondary { background: var(--surface); color: var(--text-secondary); border: 1px solid var(--border); }
-    .btn-primary   { background: var(--accent); color: #fff; }
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
 
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        .topbar h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
 
-    .section-title {
-      padding: 0.85rem 1.1rem;
-      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.07em; color: var(--text-secondary);
-      border-bottom: 1px solid var(--border);
-    }
+        .topbar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
 
-    /* ── Notification item ── */
-    .notification-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.95rem 1.1rem;
-      border-bottom: 1px solid var(--border);
-      transition: background .15s;
-    }
-    .notification-item:last-child { border-bottom: none; }
-    .notification-item:hover { background: var(--surface-hover); }
-    .notification-item.unread {
-      background: var(--unread-bg);
-      border-left: 3px solid var(--accent);
-    }
-    .notification-item.unread:hover { background: color-mix(in srgb, var(--unread-bg) 80%, var(--accent)); }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.45rem 1rem;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity .15s;
+        }
 
-    .notification-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+        .btn:hover {
+            opacity: .85;
+        }
 
-    .notification-title {
-      display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.88rem; font-weight: 600; color: var(--text);
-    }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
 
-    .badge-new {
-      font-size: 0.65rem; font-weight: 700;
-      padding: 0.1rem 0.45rem; border-radius: 20px;
-      background: var(--new-bg); color: var(--new-text);
-      text-transform: uppercase; letter-spacing: 0.05em;
-    }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
 
-    .notification-text {
-      font-size: 0.82rem; color: var(--text-secondary);
-    }
-    .notif-link {
-      color: var(--accent); text-decoration: none; font-weight: 600;
-    }
-    .notif-link:hover { text-decoration: underline; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
 
-    .notification-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .section-title {
+            padding: 0.85rem 1.1rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
 
-    .empty-state {
-      padding: 2.5rem 1rem; text-align: center;
-      color: var(--text-secondary); font-size: 0.875rem;
-    }
-  </style>
+        /* ── Notification item ── */
+        .notification-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .notification-item.unread {
+            background: var(--unread-bg);
+            border-left: 3px solid var(--accent);
+        }
+
+        .notification-item.unread:hover {
+            background: color-mix(in srgb, var(--unread-bg) 80%, var(--accent));
+        }
+
+        .notification-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .notification-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .badge-new {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 20px;
+            background: var(--new-bg);
+            color: var(--new-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .notification-text {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .notif-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .notif-link:hover {
+            text-decoration: underline;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            padding: 2.5rem 1rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #7a2020;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .success {
+            background: #1a2d1f;
+            color: #4ecb82;
+            border: 1px solid #207a40;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+    </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="topbar">
-    <h1>Notifications</h1>
-    <div class="topbar-actions">
-      <a class="btn btn-secondary" href="/feed">← Home Feed</a>
-      <a class="btn btn-primary"   href="/notifications/mark-all-read">Mark all read</a>
+    <div class="topbar">
+        <h1>Notifications</h1>
+        <div class="topbar-actions">
+            <a class="btn btn-secondary" href="/feed">← Home Feed</a>
+            <a class="btn btn-primary" href="/notifications/markAllRead">Mark all read</a>
+        </div>
     </div>
-  </div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
 
-  <div class="card">
-    <div class="section-title">Recent Activity</div>
+    <div class="card">
+        <div class="section-title">Recent Activity</div>
 
-    <div th:if="${notifications != null and not #lists.isEmpty(notifications)}">
-      <div class="notification-item"
-           th:each="n : ${notifications}"
-           th:classappend="${!n.read} ? 'unread'">
+        <div th:if="${other_notifications != null and not #lists.isEmpty(other_notifications)}">
+            <div class="notification-item"
+                 th:each="n : ${other_notifications}"
+                 th:classappend="${!n.read} ? 'unread'">
 
-        <div class="notification-main">
+                <div class="notification-main">
 
-          <!-- Title line: what happened -->
-          <div class="notification-title">
+                    <!-- Title line: what happened -->
+                    <div class="notification-title">
                         <span th:switch="${n.type}">
                             <span th:case="1">💬 New comment on your post</span>
                             <span th:case="2">↩️ Reply to your comment</span>
@@ -127,62 +242,62 @@
                             <span th:case="4">❤️ Someone liked your post</span>
                             <span th:case="*">🔔 Notification</span>
                         </span>
-            <span class="badge-new" th:if="${!n.read}">New</span>
-          </div>
+                        <span class="badge-new" th:if="${!n.read}">New</span>
+                    </div>
 
-          <!-- Body line: link to the relevant content -->
-          <div class="notification-text" th:switch="${n.type}">
+                    <!-- Body line: link to the relevant content -->
+                    <div class="notification-text" th:switch="${n.type}">
 
-            <!-- POST_COMMENT (1): link to the post -->
-            <span th:case="1">
+                        <!-- POST_COMMENT (1): link to the post -->
+                        <span th:case="1">
                             View <a class="notif-link"
-                                    th:href="@{/post/{id}(id=${n.postId})}">the post</a>
+                                    th:href="|/posts/${n.postId}|">the post</a>
                         </span>
 
-            <!-- COMMENT_REPLY (2): link to the comment's replies -->
-            <span th:case="2">
+                        <!-- COMMENT_REPLY (2): link to the comment's replies -->
+                        <span th:case="2">
                             View <a class="notif-link"
-                                    th:href="@{/comments/{pid}/replies/{cid}(pid=${n.postId}, cid=${n.commentId})}">the reply</a>
+                                    th:href="|/comments/${n.postId}/replies/n.commentId|">the reply</a>
                         </span>
 
-            <!-- COMMENT_LIKE (3): link to the comment -->
-            <span th:case="3">
+                        <!-- COMMENT_LIKE (3): link to the comment -->
+                        <span th:case="3">
                             View <a class="notif-link"
-                                    th:href="@{/comments/{pid}/replies/{cid}(pid=${n.postId}, cid=${n.commentId})}">your comment</a>
+                                    th:href="|/comments/${n.postId}/replies/${n.commentId}|">your comment</a>
                         </span>
 
-            <!-- POST_LIKE (4): link to the post -->
-            <span th:case="4">
+                        <!-- POST_LIKE (4): link to the post -->
+                        <span th:case="4">
                             View <a class="notif-link"
-                                    th:href="@{/post/{id}(id=${n.postId})}">your post</a>
+                                    th:href="|/posts/${n.postId}|">your post</a>
                         </span>
 
-          </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="notification-actions">
+                    <a class="btn btn-secondary"
+                       th:if="${!n.read}"
+                       th:href="|/notifications/markRead/${n.id}|">Mark read</a>
+
+                    <!-- View button: comment-based types go to replies, post-based go to post -->
+                    <a class="btn btn-primary"
+                       th:if="${n.type == 1 or n.type == 4}"
+                       th:href="|/posts/${n.postId}|">View Post</a>
+                    <a class="btn btn-primary"
+                       th:if="${n.type == 2 or n.type == 3}"
+                       th:href="|/comments/${n.postId}/replies/${n.commentId}|">View Comment</a>
+                </div>
+
+            </div>
         </div>
 
-        <!-- Actions -->
-        <div class="notification-actions">
-          <a class="btn btn-secondary"
-             th:if="${!n.read}"
-             th:href="@{/notifications/read/{id}(id=${n.id})}">Mark read</a>
-
-          <!-- View button: comment-based types go to replies, post-based go to post -->
-          <a class="btn btn-primary"
-             th:if="${n.type == 1 or n.type == 4}"
-             th:href="@{/post/{id}(id=${n.postId})}">View</a>
-          <a class="btn btn-primary"
-             th:if="${n.type == 2 or n.type == 3}"
-             th:href="@{/comments/{pid}/replies/{cid}(pid=${n.postId}, cid=${n.commentId})}">View</a>
+        <div class="empty-state"
+             th:if="${other_notifications == null or #lists.isEmpty(other_notifications)}">
+            No notifications yet.
         </div>
-
-      </div>
     </div>
-
-    <div class="empty-state"
-         th:if="${notifications == null or #lists.isEmpty(notifications)}">
-      No notifications yet.
-    </div>
-  </div>
 
 </div>
 </body>

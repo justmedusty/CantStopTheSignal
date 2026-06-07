@@ -309,8 +309,8 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                     val posterUsername = it[Posts.posterId]
                     val username = getUserName(posterUsername) ?: "Could not get username"
                     val lastEdited = checkLastPostEdit(postId)
-                    val dislikedByMe = isCommentDisLikedByUser(postId, userId)
-                    val likedByMe = isCommentLikedByUser(postId, userId)
+                    val dislikedByMe = isPostDislikedByUser(postId, userId)
+                    val likedByMe = isPostLikedByUser(postId, userId)
                     val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                     Post(
                         postId,

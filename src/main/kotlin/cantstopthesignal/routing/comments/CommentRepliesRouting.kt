@@ -2,6 +2,7 @@ package com.freedom.cantstopthesignal.routing.comments
 
 
 import cantstopthesignal.database.comments.*
+import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.verifyPostId
@@ -87,7 +88,8 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(replies.isEmpty()) 0 else replies.size)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if (replies.isEmpty()) 0 else replies.size)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)

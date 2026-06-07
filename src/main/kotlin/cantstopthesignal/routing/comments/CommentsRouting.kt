@@ -3,6 +3,7 @@ package com.freedom.cantstopthesignal.routing.comments
 
 import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.comments.postComment
+import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.verifyPostId
@@ -114,6 +115,7 @@ fun Application.configureCommentsRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
