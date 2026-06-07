@@ -520,17 +520,27 @@
         </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination" th:if="${totalPages > 1}">
-        <a th:if="${currentPage > 0}"
-           th:href="@{/posts(page=${currentPage - 1})}">← Back</a>
-        <span class="disabled" th:unless="${currentPage > 0}">← Back</span>
+    <!-- ─── Pagination ─── -->
+    <div class="pagination"
+         th:if="${total_pages > 0}">
 
-        <span class="current" th:text="|Page ${currentPage + 1} of ${totalPages}|"></span>
+        <a class="page-btn"
+           th:classappend="${current_page == 0} ? 'disabled'"
+           th:href="|/feed?page=${current_page - 1}|">
+            &#8592; Prev
+        </a>
 
-        <a th:if="${currentPage + 1 < totalPages}"
-           th:href="@{/posts(page=${currentPage + 1})}">Next →</a>
-        <span class="disabled" th:unless="${currentPage + 1 < totalPages}">Next →</span>
+        <span class="page-info"
+              th:text="|Page ${current_page + 1} of ${total_pages}|">
+        Page 1 of 1
+    </span>
+
+        <a class="page-btn"
+           th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
+           th:href="|/feed?page=${current_page + 1}|">
+            Next &#8594;
+        </a>
+
     </div>
 
 </div>

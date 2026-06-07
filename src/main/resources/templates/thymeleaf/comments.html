@@ -889,7 +889,7 @@
 
         <!-- ─── Pagination ─── -->
         <div class="pagination"
-             th:if="${total_pages > 1}">
+             th:if="${total_pages > 0}">
 
             <a class="page-btn"
                th:classappend="${current_page == 0} ? 'disabled'"

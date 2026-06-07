@@ -15,8 +15,6 @@ My vision for this project, is to allow free, open communication about deception
 
 The sun will rise again, even after the darkest night.
 
-<img width="4444" height="2500" alt="image" src="https://github.com/user-attachments/assets/2a7715ac-b70e-4758-9d91-2496da0ff6d0" />
-
 
 ## Building & Running
 To build or run the project, use one of the following tasks:

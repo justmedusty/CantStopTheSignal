@@ -87,7 +87,7 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, replies[0].totalPages)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(replies.isEmpty()) 0 else replies.size)
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
@@ -141,10 +141,9 @@ fun Application.configureCommentRepliesRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
 
-                if (isDuplicateComment(commentContents, callingUser!!, postId, commentId,true)) {
+                if (isDuplicateComment(commentContents, callingUser!!, postId, commentId, true)) {
                     val error = "This reply already exists."
                     return@post call.respondRedirect("/comments/$postId/replies/$commentId?error=$error")
-
                 }
 
 
