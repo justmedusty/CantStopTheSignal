@@ -101,7 +101,7 @@ fun Application.configureNotificationRoutes() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respondRedirect("/notifications?error=Invalid id passed")
 
-                val ret = markNotifUnread(id!!,userId!!)
+                val ret = markNotifUnread(id,userId!!)
 
                 if (ret == null) {
                     val error = "Unable to mark all notifications read"
