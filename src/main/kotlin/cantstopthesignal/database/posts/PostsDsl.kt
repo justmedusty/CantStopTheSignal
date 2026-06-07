@@ -1,9 +1,6 @@
 package com.freedom.cantstopthesignal.database.posts
 
-import cantstopthesignal.database.comments.isCommentDisLikedByUser
-import cantstopthesignal.database.comments.isCommentLikedByUser
 import cantstopthesignal.database.posts.*
-import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
@@ -197,7 +194,7 @@ fun fetchPostsByTopic(
                     userId == it[Posts.posterId],
                     totalPages,
 
-                )
+                    )
             }
         }
     } catch (e: Exception) {
@@ -245,7 +242,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         it[Posts.posterId] == callerId,
                         totalPages,
 
-                    )
+                        )
                 }
         }
     } catch (e: Exception) {
@@ -288,7 +285,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         it[Posts.posterId] == userId,
                         totalPages,
 
-                    )
+                        )
                 }
         }
     } catch (e: Exception) {
@@ -358,7 +355,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
                 ).where { Posts.id inList relevantPostIds }
 
-            val totalPages = query.count() / limit
+
 
             if (orderByCount != null) {
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(orderByCount, sortOrder)
@@ -366,7 +363,9 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(Posts.id, sortOrder)
             }
 
+
             query.limit(limit).offset((page - 1) * limit.toLong())
+            val totalPages = query.distinct().count() / limit.toLong()
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]

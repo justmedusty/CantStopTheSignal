@@ -16,7 +16,9 @@ data class Notification(
     val postId: Long?,
     val commentId: Long?,
     val user: Long,
-    val type: Long
+    val type: Long,
+    val numPages: Long //Again, duplicates things but its easier to m'
+
 )
 
 
@@ -40,6 +42,7 @@ fun insertNotification(postId: Long?, commentId: Long?, user: Long, notifType: L
 fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notification>? {
     return try {
         transaction {
+            val numPages = Notifications.selectAll().where{ Notifications.userId eq userId }.count() / limit
             Notifications.selectAll().where { (Notifications.userId eq userId) }.limit(limit.toInt())
                 .offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
                     Notification(
@@ -48,7 +51,8 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
                         it[Notifications.postId],
                         it[Notifications.commentId],
                         userId,
-                        it[Notifications.type]
+                        it[Notifications.type],
+                        numPages
                     )
                 }
 

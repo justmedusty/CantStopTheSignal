@@ -885,7 +885,7 @@
 
                 <a class="page-btn"
                    th:classappend="${current_page == 0} ? 'disabled'"
-                   th:href="|/comments/${post.id}?page=${current_page - 1}|">
+                   th:href="|/posts/${posts.id}?page=${current_page - 1}|">
                     &#8592; Prev
                 </a>
 
@@ -896,7 +896,7 @@
 
                 <a class="page-btn"
                    th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
-                   th:href="|/comments/${post.id}?page=${current_page + 1}|">
+                   th:href="|/posts/${post.id}?page=${current_page + 1}|">
                     Next &#8594;
                 </a>
 

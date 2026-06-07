@@ -29,7 +29,7 @@ fun Application.configureMessageRouting() {
         authenticate("jwt") {
             get("/messages") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val page = call.request.queryParameters["page"]?.toInt() ?: 1
+                val page = call.request.queryParameters["page"]?.toInt() ?: 0
 
                 val limit: Long = Length.MAX_PAGE_LIMIT.value
 
@@ -65,7 +65,7 @@ fun Application.configureMessageRouting() {
                 val success = call.request.queryParameters["success"]
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                     ?: return@get call.respondRedirect { "/logout" }
-                val page = call.request.queryParameters["page"]?.toInt() ?: 1
+                val page = call.request.queryParameters["page"]?.toInt() ?: 0
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
                 val conversationId = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(

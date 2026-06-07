@@ -53,7 +53,7 @@ fun Application.configureCommentRepliesRouting() {
                     call.parameters["postId"]?.toLongOrNull()
                 val commentId =
                     call.parameters["commentId"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
-                val page = call.queryParameters["page"]?.toIntOrNull() ?: 1
+                val page = call.queryParameters["page"]?.toIntOrNull() ?: 0
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
 
 

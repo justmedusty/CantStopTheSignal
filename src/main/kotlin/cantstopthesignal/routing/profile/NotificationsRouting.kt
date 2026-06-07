@@ -3,6 +3,7 @@ package cantstopthesignal.routing.profile
 
 import cantstopthesignal.database.notifications.getAllNotifications
 import cantstopthesignal.database.notifications.markAllNotificationsRead
+import cantstopthesignal.database.notifications.markNotifRead
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -18,12 +19,12 @@ fun Application.configureNotificationRoutes() {
         authenticate("jwt") {
             get("/notifications") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 1
+                val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 0
                 val limit: Long = Length.MAX_PAGE_LIMIT.value
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
-                val safePage = page.coerceAtLeast(1)
+                val safePage = page.coerceAtLeast(0)
 
                 if (userId == null) {
                     return@get call.respond(
@@ -45,6 +46,8 @@ fun Application.configureNotificationRoutes() {
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, list?.get(0)?.numPages ?: 1)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page ?: 1)
 
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
@@ -79,17 +82,18 @@ fun Application.configureNotificationRoutes() {
                 call.respondRedirect("/notifications?success=$success")
             }
 
-            post("/notifications/markRead/{id}") {
+            get("/notifications/markRead/{id}") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val id = call.queryParameters["id"]?.toLongOrNull()
-                val ret = markAllNotificationsRead(userId!!)
+                    ?: return@get call.respondRedirect("/notifications?error=Invalid id passed")
+                val ret = markNotifRead(id, userId!!)
 
-                if (ret == null) {
+                if (!ret) {
                     val error = "Unable to mark all notifications read"
-                    return@post call.respondRedirect("/notifications?error=$error")
+                    return@get call.respondRedirect("/notifications?error=$error")
                 }
 
-                val success = "Successfully marked all notifications read"
+                val success = "Successfully marked notification read"
                 call.respondRedirect("/notifications?success=$success")
             }
             post("/notifications/markUnread/{id}") {
