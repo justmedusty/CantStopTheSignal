@@ -207,20 +207,19 @@ fun getUserName(id: Long): String? {
  * @param password
  * @param newValue
  */
-fun updateUserCredentials(userName: String, password: Boolean, newValue: String): Boolean {
+fun updateUserCredentials(userId: Long, password: Boolean, newValue: String): Boolean {
     return try {
         transaction {
             when {
                 !password && newValue.isNotEmpty() -> {
-                    Users.update({ Users.userName eq userName }) {
+                    Users.update({ Users.id eq userId }) {
                         it[Users.userName] = newValue
                     }
                     return@transaction true
                 }
 
-
                 password && newValue.isNotEmpty() -> {
-                    Users.update({ Users.userName eq userName }) {
+                    Users.update({ Users.id eq userId }) {
                         it[passwordHash] = hashPassword(newValue)
                     }
                     return@transaction true
@@ -238,6 +237,8 @@ fun updateUserCredentials(userName: String, password: Boolean, newValue: String)
         false
     }
 }
+
+
 
 /**
  * Delete user

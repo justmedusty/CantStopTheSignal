@@ -3,6 +3,7 @@ package cantstopthesignal.database.users
 
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
@@ -21,6 +22,9 @@ data class ProfileDataEntry(
     val autoEncrypt: Boolean,
     val createdAt: LocalDateTime,
     val lastLogin: LocalDateTime?,
+    val isAdmin: Boolean,
+    val isModerator: Boolean,
+    val isSuspended: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -159,6 +163,11 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
     try {
         transaction {
             ProfileData.selectAll().where { ProfileData.userId eq userId }.map {
+                val isAdmin = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isAdmin)
+                val isModerator = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isModerator)
+                val isSuspended = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isSuspended)
+
+
                 profileDataEntry = ProfileDataEntry(
                     userName = getUserName(userId) ?: "Could not get username",
                     bio = it[ProfileData.bio] ?: "No bio for this user",
@@ -167,6 +176,9 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     autoEncrypt = it[ProfileData.autoEncrypt],
                     createdAt = it[ProfileData.createdAt],
                     lastLogin = it[ProfileData.lastLogin],
+                    isSuspended = isSuspended ?: false,
+                    isAdmin = isAdmin ?: false,
+                    isModerator = isModerator ?: false,
 
                     )
             }

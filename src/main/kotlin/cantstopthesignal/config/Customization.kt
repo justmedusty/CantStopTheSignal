@@ -15,7 +15,7 @@ data class SiteConfig(
     val issuer: String,
     val baseUrl: String,
     val tokenLifetimeMinutes: Long,
-    val forceEncryptionGroupDefault: Boolean,
+    val inviteOnly: Boolean,
     val rateLimitWindowSeconds: Long,
     val rateLimitNumAllowedInWindow: Long,
     val rateLimitWindowSecondsLoginSignup: Long,
@@ -37,7 +37,7 @@ fun Application.loadSiteConfig() {
         issuer = config.property("issuer").getString(),
         baseUrl = config.property("baseUrl").getString(),
         tokenLifetimeMinutes = config.property("token_lifetime_minutes").getString().toLong(),
-        forceEncryptionGroupDefault = config.property("force_encryption_group_default").getString().toBoolean(),
+        inviteOnly = config.property("invite_only").getString().toBoolean(),
         rateLimitWindowSeconds = config.property("rate_limit_window_seconds").getString().toLong(),
         rateLimitNumAllowedInWindow = config.property("rate_limit_num_allowed_in_window").getString().toLong(),
         rateLimitWindowSecondsLoginSignup = config.property("rate_limit_window_seconds_login_signup").getString()

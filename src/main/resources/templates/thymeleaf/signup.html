@@ -5,24 +5,28 @@
     <title>Sign Up</title>
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
             --muted: #ffffff;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          'DM Sans', sans-serif;
-            --font-serif:    'Lora', serif;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
         }
 
         body {
@@ -89,6 +93,7 @@
             transition: border-color 0.15s;
             outline: none;
         }
+
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus {
@@ -111,7 +116,10 @@
             transition: opacity 0.15s, transform 0.1s;
             line-height: 1;
         }
-        .btn:active { transform: scale(0.97); }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
 
         .btn-submit {
             width: 100%;
@@ -120,14 +128,20 @@
             color: #fff;
             border-color: var(--accent);
         }
-        .btn-submit:hover { opacity: 0.88; }
+
+        .btn-submit:hover {
+            opacity: 0.88;
+        }
 
         .btn-secondary {
             background: transparent;
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-secondary:hover { background: var(--surface-hover); }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
 
         .card-footer {
             margin-top: 1rem;
@@ -156,16 +170,28 @@
     <form action="signup" method="post">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required />
+            <input type="text" id="username" name="username" minlength="3" maxlength="40" required/>
         </div>
+
         <div class="form-group">
             <label for="pgp">PGP Public Key</label>
-            <input type="text" id="pgp" name="pgp" />
-            <p class="field-hint">Optional — used for encrypted messaging. Ensure that the name and email attached to the key you use here does NOT reveal more than you intend it to.</p>
+            <input type="text" id="pgp" name="pgp"/>
+            <p class="field-hint">Optional — used for encrypted messaging. Ensure that the name and email attached to
+                the key you use here does NOT reveal more than you intend it to.</p>
         </div>
+
+        <div class="form-group" th:if="${server_config.inviteOnly == true}">
+            <label for="invite-code">Invite Code</label>
+            <input type="text" id="invite-code" name="invite-code" minlength="1" maxlength="500" required/>
+        </div>
+
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required />
+            <input type="password" id="password" name="password" minlength="8" maxlength="75" required/>
+        </div>
+        <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" name="confirm-password" minlength="8" maxlength="75" required/>
         </div>
         <button class="btn btn-submit" type="submit">Sign Up</button>
     </form>

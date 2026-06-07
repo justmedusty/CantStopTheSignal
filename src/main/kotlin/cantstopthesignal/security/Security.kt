@@ -38,7 +38,8 @@ fun Application.configureSecurity() {
             }
 
             challenge { _, _ ->
-              return@challenge call.respondRedirect("/index")
+                val error = "Your token has expired or is invalid."
+              return@challenge call.respondRedirect("/index?error=${error}")
             }
         }
     }

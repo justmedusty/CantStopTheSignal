@@ -9,6 +9,7 @@ enum class Length(val value: Long) {
     MAX_USERNAME_LENGTH(20),
     MIN_PASSWORD_LENGTH(8),
     MAX_PASSWORD_LENGTH(75),
+    MAX_BIO_LENGTH(250),
     MAX_PHOTO_SIZE_BYTES(1_048_576),
     MAX_DM_MESSAGE_LENGTH(10_000),
     MAX_PAGE_LIMIT(50),
@@ -69,4 +70,9 @@ enum class RetValues(val value: Long) {
 
 enum class RegexPatterns(val value: Regex) {
     USERNAME("""^[a-zA-Z0-9_]+""".toRegex()),
+}
+
+enum class SiteWidePermissions(val value: Int) {
+    SUSPENDED_SIGNUPS(1), // This will disable signups until the entry is removed from the database
+    SERVER_MAINTENANCE(2), //This will prevent logins until you are done doing your database backup or whatever you want to do, this will be checked for in the auth flow so existing sessions can be logged out
 }

@@ -4,6 +4,8 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserModerator
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -53,3 +55,27 @@ fun generateNewInviteCode(userId: Long): String? {
         null
     }
 }
+
+
+fun isValidInviteCode(inviteCode: String): Boolean {
+    return try {
+        transaction {
+            InviteCodes.selectAll().where { InviteCodes.inviteCode eq inviteCode }.count() > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to check the validity of an invite code" }
+        false
+    }
+}
+
+fun consumeInviteCode(inviteCode: String): Boolean {
+    return try {
+        transaction {
+            InviteCodes.deleteWhere { InviteCodes.inviteCode eq inviteCode } == 1
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to check the validity of an invite code" }
+        false
+    }
+}
+

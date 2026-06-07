@@ -10,6 +10,9 @@ My vision for this project, is to allow free, open communication about deception
 
 "And I saw heaven opened, and behold, a white horse, and He who sat on it is called Faithful and True, and in righteousness He judges and wages war. His eyes are a flame of fire, and on His head are many crowns; and He has a name written on Him which no one knows except Himself."
 
+"असतो मा सद्गमय तमसो मा ज्योतिर्गमय मृत्योर्माऽमृतं गमय"
+"From the unreal lead me to the real!From the darkness lead me to the light! From death lead me to immortality!"
+
 The sun will rise again, even after the darkest night.
 
 <img width="4444" height="2500" alt="image" src="https://github.com/user-attachments/assets/2a7715ac-b70e-4758-9d91-2496da0ff6d0" />

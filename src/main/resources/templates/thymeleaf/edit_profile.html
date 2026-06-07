@@ -232,8 +232,10 @@
                     <label class="field-label" for="username">New Username</label>
                     <input type="text" id="username" name="username"
                            placeholder="Enter new username"
+                           minlength="3"
+                           maxlength="20"
                            th:value="${profile_data.username}" />
-                    <p class="field-note">Usernames must be 3–24 characters and may only contain letters, numbers, and underscores.</p>
+                    <p class="field-note">Usernames must be 3–20 characters and may only contain letters, numbers, and underscores.</p>
                 </div>
             </th:block>
 
@@ -263,8 +265,10 @@
                     <label class="field-label" for="bio">Biography</label>
                     <textarea id="bio" name="bio" class="bio-area"
                               placeholder="Write a short bio about yourself…"
+                              minlength="1"
+                              maxlength="250"
                               th:text="${profile_data.bio}"></textarea>
-                    <p class="field-note">Max 500 characters. Shown on your public profile.</p>
+                    <p class="field-note">Max 250 characters. Shown on your public profile.</p>
                 </div>
             </th:block>
 
@@ -274,6 +278,7 @@
                     <label class="field-label" for="public_key">PGP Public Key</label>
                     <textarea id="public_key" name="public_key" class="pgp-area"
                               placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…&#10;-----END PGP PUBLIC KEY BLOCK-----"
+                              maxlength="20000"
                               th:text="${profile_data.publicKey}"></textarea>
                     <p class="field-note">Paste your ASCII-armored PGP public key. This lets others send you encrypted messages.</p>
                 </div>

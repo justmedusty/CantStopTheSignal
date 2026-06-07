@@ -43,7 +43,6 @@ site:
   baseUrl: "http://cantstopthesignal.i2p"
   token_lifetime_minutes: "15"
   invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums
-  force_encryption_group_default: "false" # Should groupchat be encrypted by force? This will disallow members of the group without a public key uploaded to read messages until they upload a key
   rate_limit_window_seconds: "20"
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"

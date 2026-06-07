@@ -3,13 +3,17 @@ package cantstopthesignal.routing.login
 
 import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
+import cantstopthesignal.database.invite_only.consumeInviteCode
+import cantstopthesignal.database.invite_only.isValidInviteCode
 import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
 import cantstopthesignal.database.users.userNameAlreadyExists
+import com.freedom.cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -20,6 +24,9 @@ fun Application.configureSignupRoutes() {
     routing {
 
         get("/signup") {
+            if(areSignupsSuspended()){
+                return@get call.respond(HttpStatusCode.NotFound)
+            }
             val error = call.request.queryParameters["error"]
             val success = call.request.queryParameters["success"]
 
@@ -40,27 +47,48 @@ fun Application.configureSignupRoutes() {
         }
 
         post("/signup") {
+            if(areSignupsSuspended()){
+                return@post call.respond(HttpStatusCode.NotFound)
+            }
             val params = call.receiveParameters()
 
-            //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
-            val username = params["username"] ?: return@post call.respond(
-                ThymeleafContent("signup", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a username"))
-            )
 
-            val password = params["password"] ?: return@post call.respond(
-                ThymeleafContent("signup", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
-            )
+            //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
+            val username =
+                params["username"] ?: return@post call.respondRedirect("/signup?error=You must provide a username")
+
+
+            val password =
+                params["password"] ?: return@post call.respondRedirect("/signup?error=You must provide a password")
+            val confirmPassword = params["confirm-password"]
+                ?: return@post call.respondRedirect("/signup?error=You must confirm your password")
+
+            val inviteCode = if (siteConfig?.inviteOnly == true) {
+                params["invite-code"]
+                    ?: return@post call.respondRedirect("/signup?error=You must provide an invite code")
+            } else {
+                null
+            }
+
+            if (password != confirmPassword) {
+                val errorMesage = "Your passwords do not match"
+                return@post call.respondRedirect("/signup?error=Your passwords do not match")
+            }
+
+            if (siteConfig?.inviteOnly == true) {
+                /*
+                    We can assert inviteCode isn't null because if invite only is true and the field is null it will have already returned
+                 */
+                if (!isValidInviteCode(inviteCode!!)) {
+                    return@post call.respondRedirect("/signup?error=The invite code you provided is not valid")
+                }
+
+            }
 
             var pgpPublickey = params["pgp"]
 
             if (!pgpPublickey.isNullOrEmpty() && !isValidOpenPGPPublicKey(pgpPublickey)) {
-                return@post call.respond(
-                    ThymeleafContent(
-                        "signup", mapOf(
-                            ThymeLeafMapKeys.ERROR.value to "Your PGP Public key is invalid, please check your PGP key"
-                        )
-                    )
-                )
+                return@post call.respondRedirect("/signup?error=The PGP key provided is not valid")
             }
             if (pgpPublickey != null) {
                 pgpPublickey = convertPgpMessageOrKey(pgpPublickey)
@@ -73,56 +101,30 @@ fun Application.configureSignupRoutes() {
             val regex = RegexPatterns.USERNAME.value
 
             if (!regex.matches(username)) {
-                return@post call.respond(
-                    ThymeleafContent(
-                        "signup", mapOf(
-                            ThymeLeafMapKeys.ERROR.value to "Your username has invalid characters, you must ensure you do not have special characters , only letters, numbers, and underscores are permitted"
-                        )
-                    )
-                )
+                return@post call.respondRedirect("/signup?error=Your username has invalid characters, only letters numbers and underscores are permitted")
             }
             when {
                 username.length !in Length.MIN_USERNAME_LENGTH.value..Length.MAX_USERNAME_LENGTH.value -> {
-                    return@post call.respond(
-                        ThymeleafContent(
-                            "signup", mapOf(
-                                ThymeLeafMapKeys.ERROR.value to "Your username must be between ${Length.MIN_USERNAME_LENGTH.value} and ${Length.MAX_USERNAME_LENGTH.value} characters"
-                            )
-                        )
-                    )
+                    return@post call.respondRedirect("/signup?error=Your username must be between ${Length.MIN_USERNAME_LENGTH.value} and ${Length.MAX_USERNAME_LENGTH.value} characters")
+
                 }
 
 
                 password.length !in Length.MIN_PASSWORD_LENGTH.value..Length.MAX_PASSWORD_LENGTH.value -> {
-                    return@post call.respond(
-                        ThymeleafContent(
-                            "signup", mapOf(
-                                ThymeLeafMapKeys.ERROR.value to "Your password must be between ${Length.MIN_PASSWORD_LENGTH.value} and ${Length.MAX_PASSWORD_LENGTH.value} characters"
-                            )
-                        )
-                    )
+                    return@post call.respondRedirect("/signupYour password must be between ${Length.MIN_PASSWORD_LENGTH.value} and ${Length.MAX_PASSWORD_LENGTH.value} characters")
                 }
 
 
                 userNameAlreadyExists(username) -> {
-                    return@post call.respond(
-                        ThymeleafContent(
-                            "signup", mapOf(
-                                ThymeLeafMapKeys.ERROR.value to "Username already exists, please choose another one"
-                            )
-                        )
-                    )
+                    return@post call.respondRedirect("/signupUsername already exists, please choose another one")
                 }
 
                 else -> {
-                    if (!createUser(user)) {
-                        return@post call.respond(
-                            ThymeleafContent(
-                                "signup", mapOf(
-                                    ThymeLeafMapKeys.ERROR.value to "An error occurred while creating your user"
-                                )
-                            )
-                        )
+                    if (!createUser(user) || (siteConfig?.inviteOnly == true && !consumeInviteCode(/* We can assert since this has to be evaluted only after invite only is true*/
+                            inviteCode!!
+                        ))
+                    ) {
+                        return@post call.respondRedirect("/signupAn error occurred while creating your user")
                     }
                     return@post call.respond(
                         ThymeleafContent(
