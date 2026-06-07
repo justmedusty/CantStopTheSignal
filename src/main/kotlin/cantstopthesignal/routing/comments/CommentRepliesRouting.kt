@@ -1,10 +1,7 @@
 package com.freedom.cantstopthesignal.routing.comments
 
 
-import cantstopthesignal.database.comments.getCommentById
-import cantstopthesignal.database.comments.getPostIdFromComment
-import cantstopthesignal.database.comments.getReplyComments
-import cantstopthesignal.database.comments.postComment
+import cantstopthesignal.database.comments.*
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.verifyPostId
@@ -55,7 +52,7 @@ fun Application.configureCommentRepliesRouting() {
                     call.parameters["postId"]?.toLongOrNull()
                 val commentId =
                     call.parameters["commentId"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
-                val page = call.parameters["page"]?.toIntOrNull() ?: 1
+                val page = call.queryParameters["page"]?.toIntOrNull() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
 
 
@@ -90,9 +87,7 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
-                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
-                    /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, replies[0].totalPages)
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
@@ -142,11 +137,15 @@ fun Application.configureCommentRepliesRouting() {
                         postId
                     )
                 ) {
-                    //This shouldn't be possible under normal conditions so fuck 'em
+
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
 
-                val post = fetchPostById(postId, callingUser!!) ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (isDuplicateComment(commentContents, callingUser!!, postId, commentId,true)) {
+                    val error = "This reply already exists."
+                    return@post call.respondRedirect("/comments/$postId/replies/$commentId?error=$error")
+
+                }
 
 
                 val result =
@@ -154,29 +153,9 @@ fun Application.configureCommentRepliesRouting() {
                         HttpStatusCode.BadRequest
                     )
 
-                val root_comment =
-                    getCommentById(commentId, callingUser) ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val replies = getReplyComments(commentId, Length.MAX_PAGE_LIMIT.value.toInt(), 1, callingUser)
-                    ?: return@post call.respond(
-                        HttpStatusCode.BadRequest
-                    )
 
-
-                val model = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.POSTS.value, post)
-                    put(ThymeLeafMapKeys.COMMENT_BEING_REPLIED_TO.value, root_comment)
-                    put(ThymeLeafMapKeys.COMMENT_REPLIES.value, replies)
-                    put(ThymeLeafMapKeys.POSTS.value, post)
-                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, 1)
-                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, Length.MAX_COMMENT_LENGTH.value)
-                    put(ThymeLeafMapKeys.SUCCESS.value, "Posted commented successfully")
-                    /* TEMPORARY HARD CODED VALUE THIS NEEDS TO BE GRABBED PROPERLY!*/
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
-                }
-                return@post call.respond(
-                    ThymeleafContent("comments", model)
-                )
+                val success = "Reply posted successfully."
+                return@post call.respondRedirect("/comments/$postId/replies/$result?success=$success")
 
 
             }

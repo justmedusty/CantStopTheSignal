@@ -42,7 +42,6 @@ fun Application.configureNotificationRoutes() {
                     )
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, safePage)
-                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)

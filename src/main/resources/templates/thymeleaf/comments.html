@@ -738,7 +738,8 @@
                       th:classappend="${focal_comment.myComment} ? 'me'">
                             <a th:href="|/profile/${focal_comment.commenterId}|"
                                th:text="${focal_comment.commenterUsername}">username</a>
-                             <span class="comment-time" th:text="|Posted: ${#temporals.format(focal_comment.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
+                             <span class="comment-time"
+                                   th:text="|Posted: ${#temporals.format(focal_comment.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                             <span class="comment-edited"
                                   th:if="${focal_comment.lastEdited != null}"
                                   th:text="| edited ${focal_comment.lastEdited}|">· edited …</span>
@@ -816,7 +817,8 @@
                     <div class="reply-top">
                         <a th:href="|/profile/${reply.commenterId}|"
                            th:text="${reply.commenterUsername}">username</a>
-                        <span class="comment-time" th:text="|Posted: ${#temporals.format(reply.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
+                        <span class="comment-time"
+                              th:text="|Posted: ${#temporals.format(reply.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                         <span class="comment-edited"
                               th:if="${reply.lastEdited != null}"
                               th:text="| edited ${reply.lastEdited}|">· edited …</span>
@@ -887,24 +889,24 @@
 
         <!-- ─── Pagination ─── -->
         <div class="pagination"
-             th:if="${replies != null and total_pages > 1}">
+             th:if="${total_pages > 1}">
 
             <a class="page-btn"
-               th:classappend="${replies.first} ? 'disabled'"
-               th:href="|/comments/${id}/replies/${focal_comment.id}, page=${replies.number - 1}|">
+               th:classappend="${current_page == 0} ? 'disabled'"
+               th:href="|/comments/${id}/replies/${focal_comment.id}?page=${current_page - 1}|">
                 &#8592; Prev
             </a>
 
             <span class="page-info"
-                  th:text="|Page ${replies.number + 1} of ${replies.totalPages}|">
-                Page 1 of 1
-            </span>
+                  th:text="|Page ${current_page + 1} of ${total_pages}|">
+        Page 1 of 1
+    </span>
 
             <a class="page-btn"
-               th:classappend="${replies.last} ? 'disabled'"
-               th:href="|/comments/${id}/replies/${focal_comment.id}, page=${replies.number + 1}|">
+               th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
+               th:href="|/comments/${id}/replies/${focal_comment.id}?page=${current_page + 1}|">
                 Next &#8594;
-ed            </a>
+            </a>
 
         </div>
 

@@ -34,7 +34,7 @@ data class Post(
     val lastEdited: String?,
     val commentCount: Long,
     val myPost: Boolean, //this can be used to toggle the edit and delete buttons
-    val numPages: Long //Again this causes duplication but this makes life easier with the way things are set up at the time of adding this field
+    val totalPages: Long //Again this causes duplication but this makes life easier with the way things are set up at the time of adding this field
 )
 
 /*
@@ -169,7 +169,7 @@ fun fetchPostsByTopic(
 
             query.limit(limit).offset((page - 1) * limit.toLong())
 
-            val numPages = query.count() / limit.toLong()
+            val totalPages = query.count() / limit.toLong()
 
             query.map {
                 val postId = it[Posts.id]
@@ -195,7 +195,7 @@ fun fetchPostsByTopic(
                     lastEdited.toString(),
                     commentCount,
                     userId == it[Posts.posterId],
-                    numPages,
+                    totalPages,
 
                 )
             }
@@ -209,7 +209,7 @@ fun fetchPostsByTopic(
 fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): List<Post>? {
     return try {
         transaction {
-            val numPages = Posts.selectAll().where(Posts.posterId eq userId).count() / limit
+            val totalPages = Posts.selectAll().where(Posts.posterId eq userId).count() / limit
             (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).select(
                 Posts.id,
                 Posts.posterId,
@@ -243,7 +243,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         lastEdited.toString(),
                         commentCount,
                         it[Posts.posterId] == callerId,
-                        numPages,
+                        totalPages,
 
                     )
                 }
@@ -259,7 +259,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
 
     return try {
         transaction {
-            val numPages = Posts.selectAll().where(column eq userId).count() / limit
+            val totalPages = Posts.selectAll().where(column eq userId).count() / limit
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
@@ -286,7 +286,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         lastEdited.toString(),
                         commentCount,
                         it[Posts.posterId] == userId,
-                        numPages,
+                        totalPages,
 
                     )
                 }
@@ -358,7 +358,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
                 ).where { Posts.id inList relevantPostIds }
 
-            val numPages = query.count() / limit
+            val totalPages = query.count() / limit
 
             if (orderByCount != null) {
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(orderByCount, sortOrder)
@@ -391,7 +391,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     lastEdited.toString(),
                     commentCount,
                     it[Posts.posterId] == userId,
-                    numPages,
+                    totalPages,
                 )
             }
         }
@@ -410,7 +410,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
             ).where { (PostContents.title like query) or (PostContents.content like query) }
 
-            val numPages = postsWithContents.count() / limit
+            val totalPages = postsWithContents.count() / limit
 
             val paginatedQuery =
                 postsWithContents.limit(limit).offset((page - 1) * limit.toLong()).orderBy(Posts.id, SortOrder.DESC)
@@ -439,7 +439,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     lastEdited.toString(),
                     commentCount,
                     row[Posts.id] == userId,
-                    numPages
+                    totalPages
 
 
                 )

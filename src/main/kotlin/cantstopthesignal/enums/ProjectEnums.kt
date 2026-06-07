@@ -51,7 +51,6 @@ enum class ThymeLeafMapKeys(val value: String) {
     SUSPEND_LOGS("suspension_logs"),
     SERVER_CONFIG("server_config"), //This one will be for pluggable values to show users such as an MOTD or a different name in case someone wishes to use my code for their own forum website
     CURRENT_PAGE("current_page"),
-    CURRENT_LIMIT("current_limit"),
     TOTAL_PAGES("total_pages"),
     EDIT_FIELD("edit_field"),
 }

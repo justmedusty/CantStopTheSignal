@@ -1,34 +1,25 @@
 package com.freedom.cantstopthesignal.routing.comments
 
-import io.ktor.http.HttpStatusCode
-
 
 import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.comments.postComment
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.posts.Post
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
-import com.freedom.cantstopthesignal.database.posts.fetchPosts
 import com.freedom.cantstopthesignal.database.posts.verifyPostId
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.enums.SortOrderValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
-import io.ktor.server.application.Application
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.put
-import io.ktor.server.routing.routing
-import io.ktor.server.thymeleaf.ThymeleafContent
-import org.jetbrains.exposed.v1.core.SortOrder
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.thymeleaf.*
 
 /*
     This will be put together from database data since these things aren't all stored together
@@ -46,9 +37,12 @@ fun Application.configureCommentsRouting() {
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
-                if(callingUser == null){
+                if (callingUser == null) {
                     logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    return@post call.respond(HttpStatusCode.BadRequest, "You are not authorized to perform this operation")
+                    return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        "You are not authorized to perform this operation"
+                    )
                 }
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
@@ -68,43 +62,22 @@ fun Application.configureCommentsRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
 
-                val post = fetchPostById(postId,callingUser!!) ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val result = postComment(commentContents, callingUser, postId, false, null)
 
 
-                val result = postComment(commentContents, callingUser, postId,false,null)
-
-                val comments = getCommentsByPost(postId, Length.MAX_PAGE_LIMIT.value.toInt(),0,callingUser, SortOrderValues.NEWEST.value)
-
-                if(result == RetValues.ALREADY_EXISTS.value){
-                    val model = buildMap {
-                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "This comment already exists, cannot post it again")
-                        put(ThymeLeafMapKeys.POSTS.value, post)
-                        put(ThymeLeafMapKeys.COMMENTS.value, comments)
-                    }
-                    return@post call.respond(ThymeleafContent("post", model))
+                if (result == RetValues.ALREADY_EXISTS.value) {
+                    val error = "The comment you tried to post already exists."
+                    return@post call.respondRedirect("/comments/$postId?error=$error")
                 }
 
-                if(result == null){
-                    val model = buildMap {
-                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "An error occurred while attempting to post your new comment")
-                        put(ThymeLeafMapKeys.POSTS.value, post)
-                        put(ThymeLeafMapKeys.COMMENTS.value, comments)
-                    }
-                    return@post call.respond(ThymeleafContent("post", model))
+                if (result == null) {
+                    val error = "An error occurred while posting your comment"
+                    return@post call.respondRedirect("/comments/$postId?error=$error")
                 }
 
 
-                val model = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.POSTS.value, post)
-                    put(ThymeLeafMapKeys.COMMENTS.value, comments)
-                    put(ThymeLeafMapKeys.SUCCESS.value,"Comment successfully posted")
-                }
-                return@post call.respond(
-                    ThymeleafContent("post", model)
-                )
+                val success = "Comment posted successfully."
+                return@post call.respondRedirect("/comments/$postId?success=$success")
             }
 
 

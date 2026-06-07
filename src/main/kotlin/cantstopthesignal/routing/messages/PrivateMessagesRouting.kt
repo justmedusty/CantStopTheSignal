@@ -29,7 +29,7 @@ fun Application.configureMessageRouting() {
         authenticate("jwt") {
             get("/messages") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val page = call.parameters["page"]?.toIntOrNull() ?: 1
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
 
                 val limit: Long = Length.MAX_PAGE_LIMIT.value
 
@@ -39,7 +39,6 @@ fun Application.configureMessageRouting() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
-                    put(ThymeLeafMapKeys.CURRENT_LIMIT.value, limit)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION.value, messageList)
                 }
 
@@ -66,7 +65,7 @@ fun Application.configureMessageRouting() {
                 val success = call.request.queryParameters["success"]
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                     ?: return@get call.respondRedirect { "/logout" }
-                val page = call.parameters["page"]?.toIntOrNull() ?: 1
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
                 val conversationId = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(

@@ -44,6 +44,8 @@ fun Application.configurePostRouting() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages ?: 1)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
                     *
@@ -91,6 +93,8 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, comments?.get(0)?.totalPages ?: 1)
+
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)

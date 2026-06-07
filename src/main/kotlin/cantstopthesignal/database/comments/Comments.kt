@@ -40,15 +40,25 @@ data class Comment(
     We need to do duplicate checks because if you click the browser refresh page after posting a comment or post it will send the request again
     so this can happen pretty easily. Need to check.
  */
-fun isDuplicateComment(content: String, commenterId: Long, postId: Long, parentCommentId: Long?): Boolean {
+fun isDuplicateComment(
+    content: String,
+    commenterId: Long,
+    postId: Long,
+    parentCommentId: Long?,
+    isReply: Boolean
+): Boolean {
     return try {
-        if (Comments.selectAll()
-                .where { (Comments.commenterId eq commenterId) and (Comments.content eq content) and (Comments.postId eq postId) and (Comments.parentCommentId eq parentCommentId) }
-                .count() != 0L
-        ) {
-            return true
+        transaction {
+
+
+            if (Comments.selectAll()
+                    .where { (Comments.commenterId eq commenterId) and (Comments.content eq content) and (Comments.postId eq postId) and (Comments.parentCommentId eq parentCommentId) and (Comments.isReply eq isReply) }
+                    .count() != 0L
+            ) {
+                return@transaction true
+            }
+            false
         }
-        false
     } catch (e: Exception) {
         logger.error { e.message + " An error occured while trying to check if a comment is a duplicate" }
         true
@@ -70,7 +80,7 @@ fun getUserIdFromCommentId(commentId: Long): Long? {
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
     return try {
         transaction {
-            if (isDuplicateComment(content, commenterId, postId, parentCommentId)) {
+            if (isDuplicateComment(content, commenterId, postId, parentCommentId, false)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }
             val ret = Comments.insert {
@@ -274,7 +284,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
             } else {
                 query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
             }
-            val numPages = Comments.selectAll().where((Comments.postId eq postId) and Comments.isReply eq Op.FALSE)
+            val totalPages = Comments.selectAll().where((Comments.postId eq postId) and Comments.isReply eq Op.FALSE)
                 .count() / pageSize.toLong()
 
             query.map {
@@ -303,7 +313,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     isCommentDisliked,
                     hasReplies,
                     it[Comments.commenterId] == userId,
-                    numPages
+                    totalPages
                 )
             }
         }
@@ -316,7 +326,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
     return try {
         transaction {
-            val numPages = Comments.selectAll().where(Comments.postId eq userId).count() / pageSize.toLong()
+            val totalPages = Comments.selectAll().where(Comments.postId eq userId).count() / pageSize.toLong()
             Comments.select(Comments.commenterId eq userId)
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
@@ -344,7 +354,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         isCommentDisliked,
                         hasReplies,
                         it[Comments.commenterId] == requesterId,
-                        numPages
+                        totalPages
                     )
                 }
         }
@@ -359,7 +369,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
         transaction {
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
-            val numPages =
+            val totalPages =
                 Comments.selectAll().where { parentCommentId eq commentId }.count() / pageSize.toLong()
             val parentCommentData = parentComment?.let {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
@@ -409,7 +419,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                         isCommentDisliked,
                         hasRepliesChild,
                         it[Comments.commenterId] == requesterId,
-                        numPages
+                        totalPages
                     )
                 }
 

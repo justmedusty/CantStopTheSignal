@@ -49,7 +49,7 @@ data class MessageConversationObject(
     val name: String?,
     val members: List<String>,
     val pgpKey: List<String>?, //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs
-    val numPages: Long
+    val totalPages: Long
 )
 
 
@@ -88,7 +88,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     name = it[Conversations.name],
                     members = getMembersOfConversation(conversationId)!! /* This should already be sanitized so we will assert it not null*/,
                     pgpKey = getPgpKeysInConversation(userId, conversationId),
-                    getNumPagesInConversation(conversationId, Length.MAX_PAGE_LIMIT.value.toInt())
+                    gettotalPagesInConversation(conversationId, Length.MAX_PAGE_LIMIT.value.toInt())
                 )
             }
 
@@ -312,7 +312,7 @@ fun verifyConversationId(id: Long, userId: Long): Boolean? {
 }
 
 //Pagination helper
-fun getNumPagesInConversation(conversationId: Long, limit: Int): Long {
+fun gettotalPagesInConversation(conversationId: Long, limit: Int): Long {
     return try {
         transaction {
             Messages.selectAll().where { Messages.conversationId eq conversationId }.count() / limit
@@ -359,7 +359,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                         getConversationName(conversationId),
                         userList,
                         publicKeys,
-                        getNumPagesInConversation(conversationId, limit)
+                        gettotalPagesInConversation(conversationId, limit)
                     )
 
                 }
