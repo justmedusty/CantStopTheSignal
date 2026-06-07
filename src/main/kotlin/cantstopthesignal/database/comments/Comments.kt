@@ -7,7 +7,6 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -33,7 +32,8 @@ data class Comment(
     val isCommentLikedByMe: Boolean,
     val isCommentDislikedByMe: Boolean,
     val hasReplies: Boolean,
-    val myComment: Boolean
+    val myComment: Boolean,
+    val totalPages: Long //This will be duplicated more than is needed but this makes it easier for me to insert it right in depending on the query being made
 )
 
 /*
@@ -215,7 +215,8 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     isCommentLiked,
                     isCommentDisliked,
                     hasReplies,
-                    it[Comments.commenterId] == userId
+                    it[Comments.commenterId] == userId,
+                    0 //no pages for a 1 comment query
                 )
             }
         }
@@ -273,6 +274,8 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
             } else {
                 query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
             }
+            val numPages = Comments.selectAll().where((Comments.postId eq postId) and Comments.isReply eq Op.FALSE)
+                .count() / pageSize.toLong()
 
             query.map {
                 val commentLikes: Long = getLikesForComment(it[Comments.id])
@@ -282,6 +285,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], userId)
                 val hasReplies = doesCommentHaveReplies(it[Comments.id])
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
+
 
                 Comment(
                     it[Comments.id],
@@ -298,7 +302,8 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     isCommentLiked,
                     isCommentDisliked,
                     hasReplies,
-                    it[Comments.commenterId] == userId
+                    it[Comments.commenterId] == userId,
+                    numPages
                 )
             }
         }
@@ -311,6 +316,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
     return try {
         transaction {
+            val numPages = Comments.selectAll().where(Comments.postId eq userId).count() / pageSize.toLong()
             Comments.select(Comments.commenterId eq userId)
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
@@ -321,6 +327,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         isCommentDisLikedByUser(it[Comments.id], requesterId)
                     val hasReplies = doesCommentHaveReplies(it[Comments.id])
                     val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
+
                     Comment(
                         it[Comments.id],
                         it[Comments.content],
@@ -336,7 +343,8 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         isCommentLiked,
                         isCommentDisliked,
                         hasReplies,
-                        it[Comments.commenterId] == requesterId
+                        it[Comments.commenterId] == requesterId,
+                        numPages
                     )
                 }
         }
@@ -351,6 +359,8 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
         transaction {
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
+            val numPages =
+                Comments.selectAll().where { parentCommentId eq commentId }.count() / pageSize.toLong()
             val parentCommentData = parentComment?.let {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
@@ -368,7 +378,8 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     hasReplies,
-                    it[Comments.commenterId] == requesterId
+                    it[Comments.commenterId] == requesterId,
+                    0
                 )
             }
 
@@ -397,7 +408,8 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                         isCommentLiked,
                         isCommentDisliked,
                         hasRepliesChild,
-                        it[Comments.commenterId] == requesterId
+                        it[Comments.commenterId] == requesterId,
+                        numPages
                     )
                 }
 
@@ -418,6 +430,7 @@ fun getPostIdFromComment(commentId: Long): Long? {
         null
     }
 }
+
 /*
     Sanity check helper function to make sure people aren't trying to interact with posts that dont exist
  */
