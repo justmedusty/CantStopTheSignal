@@ -2,6 +2,8 @@ package cantstopthesignal.database.users
 
 
 import cantstopthesignal.log.logger
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import org.jetbrains.exposed.v1.core.and
@@ -19,12 +21,13 @@ data class ProfileDataEntry(
     val bio: String?,
     val publicKey: String?,
     val profilePhoto: ByteArray?,
-    val autoEncrypt: Boolean,
     val createdAt: LocalDateTime,
     val lastLogin: LocalDateTime?,
     val isAdmin: Boolean,
     val isModerator: Boolean,
     val isSuspended: Boolean,
+    val totalPosts: Long,
+    val totalComments: Long,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -57,18 +60,6 @@ data class ProfileDataEntry(
     Users should always do it themselves, this is the most secure way to do it.
 
  */
-
-fun hasAutoEncryptionEnabled(userId: Long): Boolean {
-    return try {
-        transaction {
-            ProfileData.select((ProfileData.userId eq userId) and (ProfileData.autoEncrypt eq true))
-                .singleOrNull() != null
-        }
-    } catch (e: Exception) {
-        logger.error { e.message }
-        false
-    }
-}
 
 fun getPublicKey(userId: Long): String? {
     return try {
@@ -135,28 +126,6 @@ fun doesUserHavePublicKey(userId: Long): Boolean {
     }
 }
 
-fun changeAutoEncryptionFlag(userId: Long): Boolean {
-
-    return when {
-        doesUserHavePublicKey(userId) -> return try {
-            transaction {
-                val currentAutoEncrypt = ProfileData.selectAll().where { ProfileData.userId eq userId }
-                    .map { it[ProfileData.autoEncrypt] }
-                    .singleOrNull() ?: return@transaction false // If no user found, return false
-
-                ProfileData.update({ ProfileData.userId eq userId }) {
-                    it[autoEncrypt] = !currentAutoEncrypt
-                }
-                true
-            }
-        } catch (e: Exception) {
-            logger.error { e.message }
-            false
-        }
-
-        else -> false
-    }
-}
 
 fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
     var profileDataEntry: ProfileDataEntry? = null
@@ -166,6 +135,8 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                 val isAdmin = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isAdmin)
                 val isModerator = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isModerator)
                 val isSuspended = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isSuspended)
+                val totalPosts = Posts.selectAll().where{ Posts.posterId eq userId }.count()
+                val totalComments = Comments.selectAll().where{ Comments.commenterId eq userId }.count()
 
 
                 profileDataEntry = ProfileDataEntry(
@@ -173,13 +144,13 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     bio = it[ProfileData.bio] ?: "No bio for this user",
                     publicKey = it[ProfileData.publicKey] ?: "No public key for this user",
                     profilePhoto = it[ProfileData.profilePhoto]?.bytes,
-                    autoEncrypt = it[ProfileData.autoEncrypt],
                     createdAt = it[ProfileData.createdAt],
                     lastLogin = it[ProfileData.lastLogin],
                     isSuspended = isSuspended ?: false,
                     isAdmin = isAdmin ?: false,
                     isModerator = isModerator ?: false,
-
+                    totalPosts = totalPosts,
+                    totalComments = totalComments,
                     )
             }
         }

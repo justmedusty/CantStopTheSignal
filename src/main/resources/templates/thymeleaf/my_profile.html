@@ -361,6 +361,31 @@
         </div>
     </div>
 
+    <!-- Activity card -->
+    <div class="card">
+
+        <div class="section-title">Activity</div>
+
+        <div class="field-row">
+            <span class="field-label">Total comments:</span>
+            <div class="field-value">
+                <div class="field-label"
+                     th:if="${profile_data.totalComments != 0}"
+                     th:text="${profile_data.totalComments}"></div>
+                <span class="empty"
+                      th:if="${profile_data.totalComments == 0}">None</span>
+            </div>
+            <span class="field-label">Total posts:</span>
+            <div class="field-value">
+                <div class="field-label"
+                     th:if="${profile_data.totalPosts != 0}"
+                     th:text="${profile_data.totalPosts}"></div>
+                <span class="empty"
+                      th:if="${profile_data.totalPosts == 0}">None</span>
+            </div>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
