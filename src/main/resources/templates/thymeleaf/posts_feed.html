@@ -240,6 +240,9 @@
             font-size: 0.95rem;
             max-height: calc(1.7em * 6);
             overflow: hidden;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            min-width: 0;
         }
 
         .post-content-wrap.overflows::after {
@@ -470,7 +473,7 @@
                 <p class="post-meta">
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
-                    <span th:text="${post.timeStamp}">timestamp</span>
+                    <span th:text="|Posted at ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                 </p>
             </div>
 
@@ -525,18 +528,18 @@
          th:if="${total_pages > 0}">
 
         <a class="page-btn"
-           th:classappend="${current_page == 0} ? 'disabled'"
+           th:classappend="${current_page == 1} ? 'disabled'"
            th:href="|/feed?page=${current_page - 1}|">
             &#8592; Prev
         </a>
 
         <span class="page-info"
-              th:text="|Page ${current_page + 1} of ${total_pages}|">
+              th:text="|Page ${current_page} of ${total_pages}|">
         Page 1 of 1
     </span>
 
         <a class="page-btn"
-           th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
+           th:classappend="${current_page == total_pages} ? 'disabled'"
            th:href="|/feed?page=${current_page + 1}|">
             Next &#8594;
         </a>

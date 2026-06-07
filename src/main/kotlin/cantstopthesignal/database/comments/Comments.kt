@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.ceil
 
 data class Comment(
     val id: Long,
@@ -291,8 +292,9 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
             } else {
                 query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
             }
-            val totalPages = Comments.selectAll().where((Comments.postId eq postId) and Comments.isReply eq Op.FALSE)
-                .count() / pageSize.toLong()
+            val totalPages = ceil(Comments.selectAll().where {
+                (Comments.postId eq postId) and (Comments.isReply eq Op.FALSE)
+            }.count().toDouble() / pageSize.toDouble()).toLong()
 
             query.map {
                 val commentLikes: Long = getLikesForComment(it[Comments.id])
@@ -376,8 +378,10 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
         transaction {
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val hasReplies = doesCommentHaveReplies(commentId)
-            val totalPages =
-                Comments.selectAll().where { parentCommentId eq commentId }.count() / pageSize.toLong()
+            val totalPages = ceil(
+                Comments.selectAll().where { parentCommentId eq commentId }.count()
+                .toDouble() / pageSize.toDouble()
+            ).toLong()
             val parentCommentData = parentComment?.let {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(

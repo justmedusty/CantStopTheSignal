@@ -14,9 +14,8 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 fun getDislikesForPost(postId: Long): Long {
     return try {
         transaction {
-            PostDislikes.select(
-                (PostDislikes.postId eq postId)
-            ).count()
+            PostDislikes.selectAll().where { PostDislikes.postId eq postId }.count()
+
         }
     } catch (e: Exception) {
         logger.error { ("Error getting likes for post: ${e.message}") }

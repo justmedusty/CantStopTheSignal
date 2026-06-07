@@ -322,6 +322,9 @@
                     <a class="btn btn-secondary"
                        th:if="${!n.read}"
                        th:href="|/notifications/markRead/${n.id}|">Mark read</a>
+                    <a class="btn btn-secondary"
+                       th:if="${n.read}"
+                       th:href="|/notifications/markUnread/${n.id}|">Mark unread</a>
 
                     <!-- View button: comment-based types go to replies, post-based go to post -->
                     <a class="btn btn-primary"
@@ -339,18 +342,18 @@
              th:if="${total_pages > 0}">
 
             <a class="page-btn"
-               th:classappend="${current_page == 0} ? 'disabled'"
+               th:classappend="${current_page == 1} ? 'disabled'"
                th:href="|/notifications?page=${current_page - 1}|">
                 &#8592; Prev
             </a>
 
             <span class="page-info"
-                  th:text="|Page ${current_page + 1} of ${total_pages}|">
+                  th:text="|Page ${current_page} of ${total_pages}|">
         Page 1 of 1
     </span>
 
             <a class="page-btn"
-               th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
+               th:classappend="${current_page == total_pages} ? 'disabled'"
                th:href="|/notifications?page=${current_page + 1}|">
                 Next &#8594;
             </a>

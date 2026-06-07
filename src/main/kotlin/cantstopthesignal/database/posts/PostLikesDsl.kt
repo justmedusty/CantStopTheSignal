@@ -16,9 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 fun getLikesForPost(postId: Long): Long {
     return try {
         transaction {
-            PostLikes.select(
-                (PostLikes.postId eq postId)
-            ).count()
+            PostLikes.selectAll().where { PostLikes.postId eq postId }.count()
         }
 
     } catch (e: Exception) {

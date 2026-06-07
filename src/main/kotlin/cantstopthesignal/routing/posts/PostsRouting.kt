@@ -25,7 +25,7 @@ fun Application.configurePostRouting() {
     routing {
         authenticate("jwt") {
             get("/feed") {
-                val page = call.request.queryParameters["page"]?.toInt() ?: 0
+                val page = call.request.queryParameters["page"]?.toInt()?.coerceAtLeast(1) ?: 1
                 val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "Desc"
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
@@ -45,7 +45,7 @@ fun Application.configurePostRouting() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList?.get(0)?.totalPages ?: 1)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
@@ -76,7 +76,7 @@ fun Application.configurePostRouting() {
                     return@get call.respondRedirect("/logout")
                 }
 
-                val page = call.request.queryParameters["page"]?.toInt() ?: 0
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId!!)
                 val order = call.request.queryParameters["order"] ?: SortOrderValues.NEWEST.value

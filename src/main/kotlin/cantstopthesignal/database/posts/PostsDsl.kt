@@ -14,6 +14,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.ceil
 
 
 data class Post(
@@ -363,9 +364,9 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 query.groupBy(Posts.id, PostContents.title, PostContents.content).orderBy(Posts.id, sortOrder)
             }
 
-
+            val totalPages = ceil(query.count().toDouble() / limit.toDouble()).toLong()
             query.limit(limit).offset((page - 1) * limit.toLong())
-            val totalPages = query.distinct().count() / limit.toLong()
+
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]

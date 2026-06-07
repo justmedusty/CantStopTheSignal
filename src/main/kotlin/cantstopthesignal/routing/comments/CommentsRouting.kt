@@ -92,7 +92,7 @@ fun Application.configureCommentsRouting() {
                     return@get call.respondRedirect("/logout")
                 }
 
-                val page = call.request.queryParameters["page"]?.toInt() ?: 0
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId!!)
                 val order = call.request.queryParameters["order"] ?: SortOrderValues.NEWEST.value

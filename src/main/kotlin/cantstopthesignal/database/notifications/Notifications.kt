@@ -2,6 +2,7 @@ package cantstopthesignal.database.notifications
 
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
+import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -9,6 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import kotlin.math.ceil
 
 data class Notification(
     val id: Long,
@@ -42,9 +44,16 @@ fun insertNotification(postId: Long?, commentId: Long?, user: Long, notifType: L
 fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notification>? {
     return try {
         transaction {
-            val numPages = Notifications.selectAll().where{ Notifications.userId eq userId }.count() / limit
-            Notifications.selectAll().where { (Notifications.userId eq userId) }.limit(limit.toInt())
-                .offset((page - 1) * limit).sortedByDescending { it[Notifications.id] }.map {
+            val numPages = ceil(
+                Notifications.selectAll().where { Notifications.userId eq userId }.count()
+                .toDouble() / limit.toDouble()
+            ).toLong()
+            Notifications.selectAll()
+                .where { Notifications.userId eq userId }
+                .orderBy(Notifications.id, SortOrder.DESC)  // sort in DB, before pagination
+                .limit(limit.toInt())
+                .offset((page - 1) * limit)
+                .map {
                     Notification(
                         it[Notifications.id],
                         it[Notifications.read],

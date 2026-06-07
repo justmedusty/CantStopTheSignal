@@ -109,6 +109,9 @@
             line-height: 1.7;
             color: var(--text-secondary);
             margin-bottom: 1.25rem;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            min-width: 0;
         }
 
         .post-edited {
@@ -884,18 +887,18 @@
                  th:if="${total_pages > 0}">
 
                 <a class="page-btn"
-                   th:classappend="${current_page == 0} ? 'disabled'"
+                   th:classappend="${current_page == 1} ? 'disabled'"
                    th:href="|/posts/${posts.id}?page=${current_page - 1}|">
                     &#8592; Prev
                 </a>
 
                 <span class="page-info"
-                      th:text="|Page ${current_page + 1} of ${total_pages}|">
+                      th:text="|Page ${current_page} of ${total_pages}|">
         Page 1 of 1
     </span>
 
                 <a class="page-btn"
-                   th:classappend="${current_page + 1 == total_pages} ? 'disabled'"
+                   th:classappend="${current_page == total_pages} ? 'disabled'"
                    th:href="|/posts/${post.id}?page=${current_page + 1}|">
                     Next &#8594;
                 </a>

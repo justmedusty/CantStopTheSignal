@@ -4,6 +4,7 @@ package cantstopthesignal.routing.profile
 import cantstopthesignal.database.notifications.getAllNotifications
 import cantstopthesignal.database.notifications.markAllNotificationsRead
 import cantstopthesignal.database.notifications.markNotifRead
+import cantstopthesignal.database.notifications.markNotifUnread
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -19,12 +20,12 @@ fun Application.configureNotificationRoutes() {
         authenticate("jwt") {
             get("/notifications") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 0
+                val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 1
                 val limit: Long = Length.MAX_PAGE_LIMIT.value
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
-                val safePage = page.coerceAtLeast(0)
+                val safePage = page.coerceAtLeast(1)
 
                 if (userId == null) {
                     return@get call.respond(
@@ -84,7 +85,7 @@ fun Application.configureNotificationRoutes() {
 
             get("/notifications/markRead/{id}") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val id = call.queryParameters["id"]?.toLongOrNull()
+                val id = call.parameters["id"]?.toLongOrNull()
                     ?: return@get call.respondRedirect("/notifications?error=Invalid id passed")
                 val ret = markNotifRead(id, userId!!)
 
@@ -96,15 +97,15 @@ fun Application.configureNotificationRoutes() {
                 val success = "Successfully marked notification read"
                 call.respondRedirect("/notifications?success=$success")
             }
-            post("/notifications/markUnread/{id}") {
+            get("/notifications/markUnread/{id}") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val id = call.queryParameters["id"]?.toLongOrNull()
+                val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respondRedirect("/notifications?error=Invalid id passed")
 
-                val ret = markAllNotificationsRead(userId!!)
+                val ret = markNotifUnread(id!!,userId!!)
 
                 if (ret == null) {
                     val error = "Unable to mark all notifications read"
-                    return@post call.respondRedirect("/notifications?error=$error")
+                    return@get call.respondRedirect("/notifications?error=$error")
                 }
 
                 val success = "Successfully marked all notifications read"
