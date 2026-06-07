@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:            #0f1117;
+            --surface:       #181b24;
+            --surface-hover: #1e2130;
+            --border:        #272b3a;
+            --text-primary:  #e8eaf2;
+            --text-secondary:#7b82a0;
+            --accent:        #5b8af5;
+            --accent-soft:   #1e2d56;
+            --danger:        #e06060;
+            --danger-soft:   #2d1a1a;
+            --muted:         #4a5068;
+            --radius:        10px;
+            --shadow:        0 2px 12px rgba(0,0,0,0.25);
+            --font:          'DM Sans', sans-serif;
+            --font-serif:    'Lora', serif;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 760px; margin: 0 auto; }
+
+        /* ── Flash messages ── */
+        .error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #7a2020;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .success {
+            background: #1a2d1f;
+            color: #4ecb82;
+            border: 1px solid #207a40;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .topbar h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: var(--font);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.88; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-secondary:hover { background: var(--surface-hover); }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+        .btn-danger:hover { background: var(--danger-soft); }
+
+        /* ── Card ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--muted);
+            padding: 1rem 1.75rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-body {
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ── Form elements ── */
+        .field-group { display: flex; flex-direction: column; }
+
+        .field-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.45rem;
+            display: block;
+        }
+
+        .field-note {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.4rem;
+            line-height: 1.5;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.9rem;
+            padding: 0.6rem 0.875rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91,138,245,0.18);
+        }
+
+        textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 0.88rem;
+            padding: 0.6rem 0.875rem;
+            outline: none;
+            resize: vertical;
+            line-height: 1.6;
+            transition: border-color 0.15s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91,138,245,0.18);
+        }
+
+        textarea.bio-area    { min-height: 110px; }
+        textarea.pgp-area    { min-height: 160px; font-family: monospace; font-size: 0.78rem; color: var(--text-secondary); }
+
+        /* ── Actions row ── */
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+            padding-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="success" th:if="${success}" th:text="${success}"></div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <h1 th:text="${edit_field.title}">Edit Field</h1>
+        <div class="topbar-actions">
+            <a class="btn btn-secondary" href="/profile">← Back to Profile</a>
+        </div>
+    </div>
+
+    <!-- Edit card -->
+    <div class="card">
+        <div class="section-title" >Edit</div>
+
+        <form class="card-body" method="post">
+
+            <!-- USERNAME -->
+            <th:block th:if="${edit_field.type == 'username'}">
+                <div class="field-group">
+                    <label class="field-label" for="username">New Username</label>
+                    <input type="text" id="username" name="username"
+                           placeholder="Enter new username"
+                           th:value="${profile_data.username}" />
+                    <p class="field-note">Usernames must be 3–24 characters and may only contain letters, numbers, and underscores.</p>
+                </div>
+            </th:block>
+
+            <!-- PASSWORD -->
+            <th:block th:if="${edit_field.type == 'password'}">
+                <div class="field-group">
+                    <label class="field-label" for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password"
+                           placeholder="Enter current password" />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password"
+                           placeholder="Enter new password" />
+                    <p class="field-note">Must be at least 8 characters.</p>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password"
+                           placeholder="Re-enter new password" />
+                </div>
+            </th:block>
+
+            <!-- BIO -->
+            <th:block th:if="${edit_field.type == 'bio'}">
+                <div class="field-group">
+                    <label class="field-label" for="bio">Biography</label>
+                    <textarea id="bio" name="bio" class="bio-area"
+                              placeholder="Write a short bio about yourself…"
+                              th:text="${profile_data.bio}"></textarea>
+                    <p class="field-note">Max 500 characters. Shown on your public profile.</p>
+                </div>
+            </th:block>
+
+            <!-- PGP -->
+            <th:block th:if="${edit_field.type == 'pgp'}">
+                <div class="field-group">
+                    <label class="field-label" for="public_key">PGP Public Key</label>
+                    <textarea id="public_key" name="public_key" class="pgp-area"
+                              placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----&#10;…&#10;-----END PGP PUBLIC KEY BLOCK-----"
+                              th:text="${profile_data.publicKey}"></textarea>
+                    <p class="field-note">Paste your ASCII-armored PGP public key. This lets others send you encrypted messages.</p>
+                </div>
+            </th:block>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button type="submit" class="btn btn-primary" >Save</button>
+                <a class="btn btn-secondary" href="/profile">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

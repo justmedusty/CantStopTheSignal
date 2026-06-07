@@ -30,7 +30,7 @@ fun Application.configureRateLimiting() {
         route("/signup") {
             install(RateLimiting) {
                 rateLimiter {
-                    type = TokenBucket::class
+                    type = TokenBucket::class /* I assume you can use something other than the token bucket algorithim, maybe something to check out */
                     capacity = siteConfig?.rateLimitNumAllowedInWindowLoginSignup?.toInt() ?: 100
                     rate = siteConfig?.rateLimitWindowSecondsLoginSignup?.toInt()?.seconds ?: 10.seconds
                 }

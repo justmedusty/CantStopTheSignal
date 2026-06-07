@@ -52,6 +52,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     CURRENT_PAGE("current_page"),
     CURRENT_LIMIT("current_limit"),
     TOTAL_PAGES("total_pages"),
+    EDIT_FIELD("edit_field"),
 }
 
 enum class SortOrderValues(val value: String) {
