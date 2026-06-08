@@ -22,6 +22,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.ceil
 
 
 data class Message(
@@ -79,6 +80,11 @@ fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? 
 fun getConversation(userId: Long, conversationId: Long): MessageConversationObject? {
     return try {
         transaction {
+            val totalPages = ceil(
+                Messages.selectAll().where { Messages.conversationId eq conversationId }.count()
+                    .toDouble() / Length.MAX_CONVERSATION_MESSAGE_LIMIT.value.toDouble()
+            ).toLong()
+
             val convo = Conversations.selectAll().where { Conversations.id eq conversationId }.map {
                 MessageConversationObject(
                     id = it[Conversations.id],
@@ -88,7 +94,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     name = it[Conversations.name],
                     members = getMembersOfConversation(conversationId)!! /* This should already be sanitized so we will assert it not null*/,
                     pgpKey = getPgpKeysInConversation(userId, conversationId),
-                    gettotalPagesInConversation(conversationId, Length.MAX_PAGE_LIMIT.value.toInt())
+                    totalPages = totalPages
                 )
             }
 
@@ -311,17 +317,6 @@ fun verifyConversationId(id: Long, userId: Long): Boolean? {
     }
 }
 
-//Pagination helper
-fun gettotalPagesInConversation(conversationId: Long, limit: Int): Long {
-    return try {
-        transaction {
-            Messages.selectAll().where { Messages.conversationId eq conversationId }.count() / limit
-        }
-    } catch (e: Exception) {
-        logger.error { "$e.message " }
-        0
-    }
-}
 
 fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConversationObject>? {
     val offsetVal = ((page - 1) * limit).toLong()
@@ -330,9 +325,13 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
         try {
             transaction {
                 val conversationIdList: List<Long> =
-                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.map {
+                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.limit(limit).offset((((page - 1)) * limit).toLong()).map {
                         it[ConversationMembers.conversationId]
                     }
+
+                val totalConversations = ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.count()
+
+                val totalPages = ceil(totalConversations.toDouble() / limit.toDouble()).toLong()
                 conversationIdList.map { conversationId ->
 
                     val lastUserWhoSentAMessage = getLastMessageUsername(conversationId)
@@ -359,7 +358,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                         getConversationName(conversationId),
                         userList,
                         publicKeys,
-                        gettotalPagesInConversation(conversationId, limit)
+                        totalPages
                     )
 
                 }

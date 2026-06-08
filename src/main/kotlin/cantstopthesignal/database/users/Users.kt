@@ -239,7 +239,6 @@ fun updateUserCredentials(userId: Long, password: Boolean, newValue: String): Bo
 }
 
 
-
 /**
  * Delete user
  *
@@ -315,6 +314,35 @@ fun isUserAdmin(userId: Long): Boolean {
                     .selectAll()
                     .where { Users.id eq userId }.singleOrNull()?.get(Users.isAdmin) ?: false
             }
+
+
+        }
+    } catch (e: ExposedSQLException) {
+        logger.error { e.message }
+        return false
+    }
+}
+
+fun isUserAdminOrModerator(userId: Long): Boolean {
+    return try {
+        transaction {
+
+            val admin = Users
+                .selectAll()
+                .where { Users.id eq userId }.singleOrNull()?.get(Users.isAdmin) ?: false
+
+            if (admin) {
+                return@transaction true
+            }
+
+            val moderator = Users
+                .selectAll()
+                .where { Users.id eq userId }.singleOrNull()?.get(Users.isModerator) ?: false
+
+            if (moderator) {
+                return@transaction true
+            }
+            false
 
 
         }

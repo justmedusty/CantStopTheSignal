@@ -13,6 +13,7 @@ enum class Length(val value: Long) {
     MAX_PHOTO_SIZE_BYTES(1_048_576),
     MAX_DM_MESSAGE_LENGTH(10_000),
     MAX_PAGE_LIMIT(50),
+    MAX_CONVERSATION_MESSAGE_LIMIT(100), // We will give a larger value here since heavily paginated conversations will not be very nice with the design we have
     MAX_GROUPNAME_LENGTH(100),
     MAX_MEMBERS_IN_CONVERSATION(15),
     JWT_TOKEN_LIFETIME_MS(1000 * 60 * 20) //20 minutes, this mostly serves as a backup ins case the application.yaml value is taken out for some reason, don't do that. But I prepared just in case you do.

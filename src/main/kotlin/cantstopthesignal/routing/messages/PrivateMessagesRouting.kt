@@ -31,15 +31,20 @@ fun Application.configureMessageRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
 
-                val limit: Long = Length.MAX_PAGE_LIMIT.value
 
-                val messageList = getAllConversations(userId!!, page, limit.toInt()) ?: emptyList()
+                val messageList =
+                    getAllConversations(userId!!, page, Length.MAX_CONVERSATION_MESSAGE_LIMIT.value.toInt())
+                        ?: emptyList()
 
 
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION.value, messageList)
+                    put(
+                        ThymeLeafMapKeys.TOTAL_PAGES.value,
+                        if (messageList.isNullOrEmpty()) 1 else messageList[0].totalPages
+                    )
                 }
 
                 return@get call.respond(
@@ -66,18 +71,24 @@ fun Application.configureMessageRouting() {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                     ?: return@get call.respondRedirect { "/logout" }
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
-                val limit = Length.MAX_PAGE_LIMIT.value.toInt()
+                val limit = Length.MAX_CONVERSATION_MESSAGE_LIMIT.value.toInt()
                     ?: Length.MAX_PAGE_LIMIT.value.toInt()
                 val conversationId = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(
                     HttpStatusCode.BadRequest
                 )
 
-                val messagesList = getMessagesFromConversation(userId, conversationId, page, limit)
-                val conversation = getConversation(userId, conversationId)
+                val messagesList =
+                    getMessagesFromConversation(userId, conversationId, page, limit) ?: return@get call.respond(
+                        HttpStatusCode.BadRequest
+                    )
+                val conversation =
+                    getConversation(userId, conversationId) ?: return@get call.respond(HttpStatusCode.NotFound)
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_SINGLE_CONVERSATIONS.value, conversation)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_LIST.value, messagesList)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, conversation.totalPages)
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
                     *

@@ -83,9 +83,7 @@
             flex-shrink: 0;
         }
 
-        .topbar a.back:hover {
-            opacity: .8;
-        }
+        .topbar a.back:hover { opacity: .8; }
 
         .topbar-avatar {
             width: 36px;
@@ -134,12 +132,43 @@
             flex-shrink: 0;
         }
 
+        /* ── Pagination ── */
+
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.35rem 0.9rem;
+            border-radius: 6px;
+            text-decoration: none;
+            background: var(--border);
+            color: var(--text);
+            transition: background .15s;
+        }
+
+        .page-btn:hover:not(.disabled) {
+            background: var(--surface-hover);
+        }
+
+        .page-btn.disabled {
+            opacity: .35;
+            pointer-events: none;
+        }
+
+        .page-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
         /* ── Message list ── */
-        /*
-            flex-direction: column-reverse so newest messages sit at the bottom
-            without JS scrolling — the browser naturally starts at the end.
-            Pass messages newest-first from the controller.
-        */
         .messages-wrap {
             flex: 1;
             overflow-y: auto;
@@ -167,13 +196,8 @@
             background: var(--border);
         }
 
-        .date-divider::before {
-            left: 0;
-        }
-
-        .date-divider::after {
-            right: 0;
-        }
+        .date-divider::before { left: 0; }
+        .date-divider::after  { right: 0; }
 
         .msg-row {
             display: flex;
@@ -181,9 +205,7 @@
             gap: 0.55rem;
         }
 
-        .msg-row.me {
-            flex-direction: row-reverse;
-        }
+        .msg-row.me { flex-direction: row-reverse; }
 
         .msg-avatar {
             width: 28px;
@@ -205,9 +227,7 @@
             color: var(--accent);
         }
 
-        .msg-avatar.spacer {
-            visibility: hidden;
-        }
+        .msg-avatar.spacer { visibility: hidden; }
 
         .msg-content {
             max-width: 65%;
@@ -216,9 +236,7 @@
             gap: 0.2rem;
         }
 
-        .msg-row.me .msg-content {
-            align-items: flex-end;
-        }
+        .msg-row.me .msg-content { align-items: flex-end; }
 
         .msg-sender {
             font-size: 0.7rem;
@@ -244,12 +262,6 @@
         }
 
         .msg-time {
-            font-size: 0.68rem;
-            color: var(--text-secondary);
-            padding: 0 0.25rem;
-        }
-
-        .message_from {
             font-size: 0.68rem;
             color: var(--text-secondary);
             padding: 0 0.25rem;
@@ -284,13 +296,8 @@
             line-height: 1.5;
         }
 
-        .compose-input::placeholder {
-            color: var(--text-secondary);
-        }
-
-        .compose-input:focus {
-            border-color: var(--accent);
-        }
+        .compose-input::placeholder { color: var(--text-secondary); }
+        .compose-input:focus         { border-color: var(--accent); }
 
         .send-btn {
             width: 40px;
@@ -307,13 +314,8 @@
             text-decoration: none;
         }
 
-        .send-btn:hover {
-            opacity: .85;
-        }
-
-        .send-btn:active {
-            opacity: .7;
-        }
+        .send-btn:hover  { opacity: .85; }
+        .send-btn:active { opacity: .7; }
 
         .send-btn svg {
             width: 18px;
@@ -339,7 +341,6 @@
             justify-content: center;
         }
 
-
         .page-shell {
             width: 100%;
             max-width: 900px;
@@ -355,6 +356,8 @@
 </head>
 <body>
 <div class="page-shell">
+
+    <!-- ── Top bar ── -->
     <div class="topbar">
         <a class="back" href="/messages">← Back</a>
 
@@ -366,15 +369,45 @@
                       title="PGP Keys Available">🔒</span>
             </div>
             <div class="topbar-members"
-                 th:text="${#strings.listJoin(conversation.members, ', ')}">Members
-            </div>
+                 th:text="${#strings.listJoin(conversation.members, ', ')}">Members</div>
         </div>
     </div>
 
+    <!-- ── Alerts ── -->
     <div class="alerts-wrap">
-        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+        <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
         <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
     </div>
+
+    <!--
+        Pagination — only rendered when there is more than one page.
+        current_page is 0-based; total_pages is the total count.
+        Page links follow the pattern:
+            /messages/conversations/{id}?page={n}
+        Replace that href pattern with whatever your controller actually expects.
+    -->
+    <!-- ─── Pagination ─── -->
+    <div class="pagination"
+         th:if="${total_pages > 0}">
+
+        <a class="page-btn"
+           th:classappend="${current_page == 1} ? 'disabled'"
+           th:href="|/messages/conversations/${conversation.id}?page=${current_page - 1}|">
+            &#8592; Newer
+        </a>
+
+        <span class="page-info"
+              th:text="|Page ${current_page} of ${total_pages}|">
+        Page 1 of 1
+    </span>
+        <a class="page-btn"
+           th:classappend="${current_page == total_pages} ? 'disabled'"
+           th:href="|/messages/conversations/${conversation.id}?page=${current_page + 1}|">
+            Older &#8594;
+        </a>
+
+    </div>
+
 
     <!--
         Messages are rendered newest-first (controller sorts descending).
@@ -387,6 +420,7 @@
              th:if="${messages == null or #lists.isEmpty(messages)}">
             No messages yet. Say hello!
         </div>
+
         <th:block th:each="msg, iterStat : ${messages}">
 
             <div class="msg-row" th:classappend="${msg.isMe} ? 'me'">
@@ -400,10 +434,10 @@
                 </div>
 
                 <div class="msg-content">
-            <span class="msg-sender"
-                  th:if="${!msg.isMe and
-                           (iterStat.first or messages[iterStat.index - 1].sender != msg.sender)}"
-                  th:text="${msg.sender}">Sender</span>
+                    <span class="msg-sender"
+                          th:if="${!msg.isMe and
+                                   (iterStat.first or messages[iterStat.index - 1].sender != msg.sender)}"
+                          th:text="${msg.sender}">Sender</span>
 
                     <div class="bubble" th:text="${msg.message}"
                          style="white-space: pre-wrap; word-break: break-word;"></div>
@@ -422,22 +456,26 @@
                  th:text="${#temporals.format(msg.timeSent, 'MMMM d, yyyy')}">
                 Today
             </div>
+
         </th:block>
     </div>
+
+    <!-- ── Compose ── -->
     <form class="compose"
           th:action="|/messages/conversations/${conversation.id}/send|"
           method="post">
-    <textarea class="compose-input"
-              name="message"
-              placeholder="Message…"
-              rows="1"
-              required></textarea>
+        <textarea class="compose-input"
+                  name="message"
+                  placeholder="Message…"
+                  rows="1"
+                  required></textarea>
         <button class="send-btn" type="submit" aria-label="Send">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
             </svg>
         </button>
     </form>
+
 </div>
 </body>
 </html>
