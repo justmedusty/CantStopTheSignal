@@ -3,6 +3,7 @@ package cantstopthesignal.database.comments
 import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
+import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
@@ -81,6 +82,9 @@ fun getUserIdFromCommentId(commentId: Long): Long? {
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
     return try {
         transaction {
+            if(isUserSuspended(commenterId)){
+                return@transaction null
+            }
             if (isDuplicateComment(content, commenterId, postId, parentCommentId, false)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }

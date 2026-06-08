@@ -3,6 +3,7 @@ package com.freedom.cantstopthesignal.database.posts
 import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
+import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -60,6 +61,9 @@ fun isDuplicatePost(userId: Long, content: String, topic: String, title: String)
 fun createPost(userId: Long, content: String, topic: String, title: String): Long? {
     return try {
         transaction {
+            if (isUserSuspended(userId)) {
+                return@transaction null
+            }
             if (isDuplicatePost(userId, content, topic, title)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }

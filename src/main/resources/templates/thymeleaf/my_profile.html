@@ -358,6 +358,7 @@
                 ✉️
                 <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
             </a>
+            <a th:if="${profile_data.isAdmin}" class="btn btn-primary" th:href="|/admin|">Admin Panel</a>
             <a class="btn btn-primary" th:href="|/feed|">← Home Feed</a>
         </div>
     </div>

@@ -4,6 +4,7 @@ package cantstopthesignal.routing.profile
 import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
 import cantstopthesignal.database.users.getUserId
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -57,8 +58,6 @@ fun Application.configureProfileRoutes() {
 
                 self = userId == id
 
-                println("PROFILE ISADMIN ${profile.isAdmin} PROFILE ISMOD ${profile.isModerator} PROFILE ISSUSPENDED ${profile.isSuspended}")
-
                 if (!self) {
                     return@get call.respond(
                         ThymeleafContent("profile", model)
@@ -109,7 +108,7 @@ fun Application.configureProfileRoutes() {
                     )
                 }
 
-                println("PROFILE ISADMIN ${profile.isAdmin} PROFILE ISMOD ${profile.isModerator} PROFILE ISSUSPENDED ${profile.isSuspended}")
+                logger.debug{"PROFILE ISADMIN ${profile.isAdmin} PROFILE ISMOD ${profile.isModerator} PROFILE ISSUSPENDED ${profile.isSuspended}"}
 
                 return@get call.respond(
                     ThymeleafContent("my_profile", model)
