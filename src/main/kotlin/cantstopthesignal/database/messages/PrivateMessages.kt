@@ -1,5 +1,7 @@
 package cantstopthesignal.database.messages
 
+import cantstopthesignal.database.notifications.numUnreadMessages
+import cantstopthesignal.database.notifications.numUnreadMessagesInConversation
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
@@ -52,6 +54,7 @@ data class MessageConversationObject(
     val name: String?,
     val members: List<String>,
     val pgpKey: List<String>?, //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs
+    val numUnreadMessages: Long,
     val totalPages: Long
 )
 
@@ -110,6 +113,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     name = it[Conversations.name],
                     members = getMembersOfConversation(conversationId)!! /* This should already be sanitized so we will assert it not null*/,
                     pgpKey = getPgpKeysInConversation(userId, conversationId),
+                    numUnreadMessages = numUnreadMessagesInConversation(userId, conversationId),
                     totalPages = totalPages
                 )
             }
@@ -127,7 +131,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
             convo.firstOrNull()
         }
     } catch (e: Exception) {
-        logger.error { " Occurred while trying to fetch a single conversation." }
+        logger.error { "${e.message} Occurred while trying to fetch a single conversation." }
         null
     }
 }
@@ -386,6 +390,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                         getConversationName(conversationId),
                         userList,
                         publicKeys,
+                        numUnreadMessagesInConversation(userId, conversationId),
                         totalPages
                     )
 

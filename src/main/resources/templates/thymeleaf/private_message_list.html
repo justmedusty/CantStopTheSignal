@@ -259,6 +259,31 @@
             font-size: 0.8rem;
             color: var(--text-secondary);
         }
+
+        .unread-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 8px 2px rgba(91, 138, 245, 0.55);
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 6px 1px rgba(91, 138, 245, 0.45);
+            }
+            50% {
+                box-shadow: 0 0 14px 4px rgba(91, 138, 245, 0.75);
+            }
+        }
     </style>
 </head>
 <body>
@@ -305,7 +330,7 @@
                             <!-- Lock icon shown only when pgpKey list is present and non-empty -->
                             <span class="enc-icon"
                                   th:if="${convo.pgpKey != null and not #lists.isEmpty(convo.pgpKey)}"
-                                  title="PGP-Keys-Available">PGP Keys Available🔒</span>
+                                  title="PGP-Keys-Available">Always Encrypt With Member Keys🔒</span>
                         </span>
                         <span class="conv-time"
                               th:text="${#temporals.format(convo.timeOfLastMessage, 'MMM d, HH:mm')}">
@@ -326,8 +351,12 @@
 
                 <div class="conv-indicators">
                     <span class="type-pill">DM</span>
-                    <!-- Small "You" badge when the last sender is the current user -->
                     <span class="me-badge" th:if="${convo.isMe}">You sent last message</span>
+                    <!-- Unread badge — only shown when numUnreadMessages > 0 -->
+                    <span class="unread-badge"
+                          th:if="${convo.numUnreadMessages != null and convo.numUnreadMessages > 0}"
+                          th:text="${convo.numUnreadMessages}">
+                    </span>
                 </div>
 
             </a>

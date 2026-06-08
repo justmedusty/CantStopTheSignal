@@ -1,6 +1,8 @@
 package cantstopthesignal.routing.profile
 
 
+import cantstopthesignal.database.notifications.getUnreadNotificationsCount
+import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
 import cantstopthesignal.database.users.getUserId
@@ -45,6 +47,8 @@ fun Application.configureProfileRoutes() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
+                    put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId!!))
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId!!))
 
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
@@ -106,6 +110,9 @@ fun Application.configureProfileRoutes() {
                     put(
                         ThymeLeafMapKeys.PROFILE_DATA.value, profile
                     )
+                    put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId!!))
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId!!))
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                 }
 
                 logger.debug{"PROFILE ISADMIN ${profile.isAdmin} PROFILE ISMOD ${profile.isModerator} PROFILE ISSUSPENDED ${profile.isSuspended}"}

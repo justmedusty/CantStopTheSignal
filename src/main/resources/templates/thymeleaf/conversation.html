@@ -364,12 +364,13 @@
         <div class="topbar-info">
             <div class="topbar-name">
                 <span th:text="${conversation.name != null} ? ${conversation.name} : ${conversation.lastSender}">Conversation</span>
-                <span class="enc-icon"
-                      th:if="${conversation.pgpKey != null and not #lists.isEmpty(conversation.pgpKey)}"
-                      title="PGP Keys Available">🔒</span>
             </div>
+            <span class="topbar-members">Members:</span>
             <div class="topbar-members"
                  th:text="${#strings.listJoin(conversation.members, ', ')}">Members</div>
+            <br>
+            <div class="topbar-members" th:text="${server_config.pgpHelp}"></div>
+
         </div>
     </div>
 
@@ -388,7 +389,7 @@
     -->
     <!-- ─── Pagination ─── -->
     <div class="pagination"
-         th:if="${total_pages > 0}">
+         th:if="${total_pages > 1}">
 
         <a class="page-btn"
            th:classappend="${current_page == 1} ? 'disabled'"
