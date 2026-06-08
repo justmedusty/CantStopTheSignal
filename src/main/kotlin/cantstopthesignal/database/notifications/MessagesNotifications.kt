@@ -1,3 +1,5 @@
+package cantstopthesignal.database.notifications
+
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -13,7 +15,7 @@ fun insertMessageNotification(message: Long, user: Long): Boolean {
     return try {
         transaction {
             MessageNotifications.insert {
-                it[messageId] = message
+                it[conversationId] = message
                 it[userId] = user
             }
             true
