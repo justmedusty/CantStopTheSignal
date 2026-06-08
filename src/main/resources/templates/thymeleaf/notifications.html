@@ -186,6 +186,7 @@
             color: var(--text-secondary);
             font-size: 0.875rem;
         }
+
         /* ── Pagination ── */
         .pagination {
             display: flex;
@@ -277,13 +278,13 @@
 
                     <!-- Title line: what happened -->
                     <div class="notification-title">
-                        <span th:switch="${n.type}">
-                            <span th:case="1">💬 New comment on your post</span>
-                            <span th:case="2">↩️ Reply to your comment</span>
-                            <span th:case="3">❤️ Someone liked your comment</span>
-                            <span th:case="4">❤️ Someone liked your post</span>
-                            <span th:case="*">🔔 Notification</span>
-                        </span>
+                    <span th:switch="${n.type}">
+                    <span th:case="1" th:text="${n.usernameWhoInteracted} + ' commented on your post'">💬</span>
+                    <span th:case="2" th:text="${n.usernameWhoInteracted} + ' replied to your comment'">↩️</span>
+                        <span th:case="3" th:text="${n.usernameWhoInteracted} + ' liked your comment'">❤️</span>
+                    <span th:case="4" th:text="${n.usernameWhoInteracted} + ' liked your post'">❤️</span>
+                    <span th:case="*">🔔 Notification</span>
+                    </span>
                         <span class="badge-new" th:if="${!n.read}">New</span>
                     </div>
 

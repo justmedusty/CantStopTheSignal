@@ -1,7 +1,9 @@
 package cantstopthesignal.database.notifications
 
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
+import com.freedom.cantstopthesignal.enums.Notif
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -18,18 +20,61 @@ data class Notification(
     val postId: Long?,
     val commentId: Long?,
     val user: Long,
+    val usernameWhoInteracted: String,
     val type: Long,
     val numPages: Long //Again, duplicates things but its easier to m'
 
 )
 
+fun doesNotificationAlreadyExist(
+    post: Long?,
+    comment: Long?,
+    user: Long,
+    userWhoInteracted: Long,
+    notifType: Long
+): Boolean {
+    if ((user == userWhoInteracted)) {
+        /*
+            I am more worried about someone unliking and liking something getting multiple notifications, multiple replies or comments i think should
+            get notifications pushed
 
-fun insertNotification(postId: Long?, commentId: Long?, user: Long, notifType: Long): Boolean {
+            We are also going to skip notifs for liking or commenting on your own shit cause you dont need a notif for that
+          */
+        return true
+    }
+    return try {
+        transaction {
+            val count = Notifications.selectAll()
+                .where { (Notifications.postId eq post) and (Notifications.userWhoInteracted eq userWhoInteracted) and (Notifications.commentId eq comment) and (Notifications.userId eq user) and (Notifications.type eq notifType) }
+                .count()
+
+            if(count > 0 && notifType == Notif.COMMENT_LIKE.value || notifType == Notif.POST_LIKE.value) {
+                return@transaction true
+            }
+            count > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to check if a notification already exists" }
+        true
+    }
+}
+
+fun insertNotification(
+    postId: Long?,
+    commentId: Long?,
+    user: Long,
+    userWhoInteracted: Long,
+    notifType: Long
+): Boolean? {
     if (postId == null && commentId == null) return false
     return try {
+        if (doesNotificationAlreadyExist(postId, commentId, user, userWhoInteracted, notifType)) {
+            return null
+        }
         Notifications.insert {
             it[Notifications.postId] = postId
             it[Notifications.commentId] = commentId
+            it[Notifications.userWhoInteracted] = userWhoInteracted
             it[userId] = user
             it[type] = notifType
         }
@@ -46,7 +91,7 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
         transaction {
             val numPages = ceil(
                 Notifications.selectAll().where { Notifications.userId eq userId }.count()
-                .toDouble() / limit.toDouble()
+                    .toDouble() / limit.toDouble()
             ).toLong()
             Notifications.selectAll()
                 .where { Notifications.userId eq userId }
@@ -54,12 +99,14 @@ fun getAllNotifications(page: Long, limit: Long, userId: Long): List<Notificatio
                 .limit(limit.toInt())
                 .offset((page - 1) * limit)
                 .map {
+
                     Notification(
                         it[Notifications.id],
                         it[Notifications.read],
                         it[Notifications.postId],
                         it[Notifications.commentId],
                         userId,
+                        getUserName(it[Notifications.userWhoInteracted]) ?: "deleted user",
                         it[Notifications.type],
                         numPages
                     )

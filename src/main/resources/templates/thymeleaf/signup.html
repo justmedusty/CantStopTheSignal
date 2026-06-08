@@ -167,7 +167,7 @@
 
     <div class="error" th:if="${error}" th:text="${error}"></div>
 
-    <form action="signup" method="post">
+    <form action="/signup" method="post">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" minlength="3" maxlength="40" required/>
@@ -197,7 +197,7 @@
     </form>
 
     <div class="card-footer">
-        <a class="btn btn-secondary" href="index">Back</a>
+        <a class="btn btn-secondary" href="/index">Back</a>
     </div>
 </div>
 </body>

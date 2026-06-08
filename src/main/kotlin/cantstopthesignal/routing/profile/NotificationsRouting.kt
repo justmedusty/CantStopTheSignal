@@ -27,14 +27,6 @@ fun Application.configureNotificationRoutes() {
 
                 val safePage = page.coerceAtLeast(1)
 
-                if (userId == null) {
-                    return@get call.respond(
-                        ThymeleafContent(
-                            "login",
-                            mapOf(ThymeLeafMapKeys.ERROR.value to "Session expired or invalid, please log in again.")
-                        )
-                    )
-                }
 
                 //We need to convert this into something usable , its just ids so we will want to generate actual post titles, usernames from userids, etc. It will be for comment likes and post likes, no notifs for dislikes although that would be funny lol
                 val list = getAllNotifications(safePage, limit, userId!!)
@@ -47,7 +39,7 @@ fun Application.configureNotificationRoutes() {
                     /*TODO THIS NEEDS TO BE IMPLEMENTED AND NOT LEFT AS A HARDCODED VALUE REMEMBER THIS */
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, 1)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, list?.get(0)?.numPages ?: 1)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(list.isNullOrEmpty()) 1 else list[0].numPages)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page ?: 1)
 
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }

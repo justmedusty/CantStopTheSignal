@@ -1,10 +1,11 @@
 package cantstopthesignal.database.posts
 
+import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
+import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
-import cantstopthesignal.database.notifications.insertNotification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -49,7 +50,13 @@ fun likePost(likedById: Long, postId: Long): Boolean {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
-            insertNotification(postId, null, likedById, Notif.POST_LIKE.value)
+            insertNotification(
+                postId,
+                null,
+                getPostOwnerId(postId) ?: return@transaction false,
+                likedById,
+                Notif.POST_LIKE.value
+            )
             return@transaction true
         }
     } catch (e: Exception) {

@@ -97,6 +97,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                 postId,
                 null,
                 postOwnerId!! /* We will verify this at a higher layer */,
+                commenterId,
                 Notif.POST_COMMENT.value
             )
 
@@ -107,6 +108,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                     postId,
                     parentCommentId,
                     parentCommenterId!! /* We will also ALSO  sanitize this higher up  */,
+                    commenterId,
                     Notif.COMMENT_REPLY.value
                 )
             } else {
@@ -114,6 +116,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
                     postId,
                     ret,
                     postOwnerId,
+                    commenterId,
                     Notif.POST_COMMENT.value
                 )
             }
@@ -153,10 +156,11 @@ fun doesCommentHaveReplies(commentId: Long): Boolean {
 fun getCommentOwnerId(commentId: Long): Long? {
     return try {
 
-        val result = Comments.select(Comments.id eq commentId).singleOrNull()
+        val result = Comments.selectAll().where(Comments.id eq commentId).singleOrNull()
         result?.get(Comments.commenterId)
 
     } catch (e: Exception) {
+        logger.error { e.message }
         null
     }
 }

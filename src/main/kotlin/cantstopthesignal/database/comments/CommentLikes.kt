@@ -57,11 +57,13 @@ fun likeComment(likedById: Long, commentId: Long): Boolean {
                 it[CommentLikes.commentId] = commentId
                 it[CommentLikes.likedById] = likedById
             }
-            insertNotification(null, commentId, likedById, Notif.COMMENT_LIKE.value)
+            insertNotification(null, commentId, getCommentOwnerId(commentId)!! ,likedById, Notif.COMMENT_LIKE.value)
+
             true
         }
     } catch (e: Exception) {
-        logger.error { e.message }
+        logger.error { e.message + " occurred while trying to like comment"}
+        e.printStackTrace()
         false
     }
     if (!unDislikeComment(likedById, commentId)) return false
