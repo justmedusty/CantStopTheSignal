@@ -6,6 +6,7 @@ import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
@@ -16,6 +17,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -60,15 +62,29 @@ fun sendMessage(sender: Long, conversation: Long, messageString: String): Long? 
 
         transaction {
 
-            Messages.insert {
+            val id = Messages.insert {
                 it[senderId] = sender
                 it[conversationId] = conversation
                 it[message] = messageString
                 it[timeSent] = LocalDateTime.now(ZoneOffset.UTC)
+            }.get(Messages.id)
+
+            val otherUsersInChat =
+                ConversationMembers.selectAll().where { ConversationMembers.conversationId eq conversation }.filter {
+                    it[ConversationMembers.userId] != sender
+                }.map {
+                    it[ConversationMembers.userId]
+                }
+
+            for (otherUser in otherUsersInChat) {
+                MessageNotifications.insert {
+                    it[MessageNotifications.userId] = otherUser
+                    it[MessageNotifications.conversationId] = conversation
+                }
             }
 
-
-        } get Messages.id
+            return@transaction id
+        }
 
     } catch (e: Exception) {
         logger.error { e.message }
@@ -96,6 +112,16 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     pgpKey = getPgpKeysInConversation(userId, conversationId),
                     totalPages = totalPages
                 )
+            }
+
+            /*
+                I don't see any point in keeping these so I'll just remove them once a convo is read
+                I will remove the read field I dont care to keep track of read value, the lack of notif presence can be used to mark read anyway.
+             */
+            if(MessageNotifications.selectAll().where{ (MessageNotifications.conversationId eq conversationId) and (MessageNotifications.userId eq userId) }.count() > 0){
+                MessageNotifications.deleteWhere {
+                    (MessageNotifications.conversationId eq conversationId) and (MessageNotifications.userId eq userId)
+                }
             }
 
             convo.firstOrNull()
@@ -325,11 +351,13 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
         try {
             transaction {
                 val conversationIdList: List<Long> =
-                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.limit(limit).offset((((page - 1)) * limit).toLong()).map {
-                        it[ConversationMembers.conversationId]
-                    }
+                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.limit(limit)
+                        .offset((((page - 1)) * limit).toLong()).map {
+                            it[ConversationMembers.conversationId]
+                        }
 
-                val totalConversations = ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.count()
+                val totalConversations =
+                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.count()
 
                 val totalPages = ceil(totalConversations.toDouble() / limit.toDouble()).toLong()
                 conversationIdList.map { conversationId ->
