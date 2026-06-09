@@ -223,6 +223,21 @@ fun Application.configureMessageRouting() {
 
                 }
 
+                if(usernames.size > Length.MAX_MEMBERS_IN_CONVERSATION.value) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "Too many users in conversation, the maximum allowed is ${Length.MAX_MEMBERS_IN_CONVERSATION.value}."
+                        )
+                        put(
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
+                            convoDraft
+                        ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
+                    }
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
+                }
+
                 if ((groupName != null && groupName.length > Length.MAX_GROUPNAME_LENGTH.value)) {
                     val map = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)

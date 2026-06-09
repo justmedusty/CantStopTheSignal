@@ -424,38 +424,43 @@
 
         <th:block th:each="msg, iterStat : ${messages}">
 
-            <div class="msg-row" th:classappend="${msg.isMe} ? 'me'">
+            <!-- Date divider BEFORE the message if date changed -->
+            <div class="date-divider"
+                 th:if="${iterStat.first or
+              !#temporals.format(msg.timeSent, 'yyyy-MM-dd').equals(
+                #temporals.format(messages[iterStat.index - 1].timeSent, 'yyyy-MM-dd')
+              )}"
+                 th:text="${#temporals.format(msg.timeSent, 'MMMM d, yyyy')}">
+                Today
+            </div>
 
-                <div th:if="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
+            <div class="msg-row"
+                 th:classappend="${msg.isMe} ? 'me'"
+                 th:style="${!iterStat.first and messages[iterStat.index - 1].sender != msg.sender} ? 'margin-top: 1rem;' : 'margin-top: 0.2rem;'">
+
+                <!-- Avatar: show when first in a run, spacer otherwise -->
+                <div th:if="${!iterStat.first and messages[iterStat.index - 1].sender == msg.sender}"
                      class="msg-avatar spacer"></div>
-                <div th:unless="${!iterStat.first and messages[iterStat.index - 1].isMe == msg.isMe}"
+                <div th:unless="${!iterStat.first and messages[iterStat.index - 1].sender == msg.sender}"
                      class="msg-avatar"
                      th:classappend="${msg.isMe} ? 'me-avatar'"
                      th:text="${(msg.sender != null) ? msg.sender.substring(0,1) : '?'}">?
                 </div>
 
                 <div class="msg-content">
+
                     <span class="msg-sender"
-                          th:if="${!msg.isMe and
-                                   (iterStat.first or messages[iterStat.index - 1].sender != msg.sender)}"
+                          th:if="${!msg.isMe}"
                           th:text="${msg.sender}">Sender</span>
 
-                    <div class="bubble" th:text="${msg.message}"
+                    <div class="bubble"
+                         th:text="${msg.message}"
                          style="white-space: pre-wrap; word-break: break-word;"></div>
 
                     <span class="msg-time"
                           th:text="${#temporals.format(msg.timeSent, 'HH:mm')}">12:00</span>
                 </div>
 
-            </div>
-
-            <div class="date-divider"
-                 th:if="${iterStat.last or
-                  !#temporals.format(msg.timeSent, 'yyyy-MM-dd').equals(
-                    #temporals.format(messages[iterStat.index + 1].timeSent, 'yyyy-MM-dd')
-                  )}"
-                 th:text="${#temporals.format(msg.timeSent, 'MMMM d, yyyy')}">
-                Today
             </div>
 
         </th:block>
