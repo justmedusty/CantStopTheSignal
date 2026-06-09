@@ -13,6 +13,7 @@ enum class Length(val value: Long) {
     MAX_PHOTO_SIZE_BYTES(1_048_576),
     MAX_DM_MESSAGE_LENGTH(10_000),
     MAX_PAGE_LIMIT(50),
+    POPULAR_TOPIC_COUNT(200), //how many topics to fetch in popular topic fetching
     MAX_CONVERSATION_MESSAGE_LIMIT(100), // We will give a larger value here since heavily paginated conversations will not be very nice with the design we have
     MAX_GROUPNAME_LENGTH(100),
     MAX_MEMBERS_IN_CONVERSATION(15),
@@ -42,6 +43,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_LOG("admin_log"),
     POST_LIKES("post_likes"),
     POST_DISLIKES("post_dislikes"),
+    TOPICS("topics"),
     PRIVATE_MESSAGE_DRAFT("draft_message"),
     PRIVATE_MESSAGE_CONVERSATION_DRAFT("conversation_draft"),
     PRIVATE_MESSAGE_LIST("messages"),

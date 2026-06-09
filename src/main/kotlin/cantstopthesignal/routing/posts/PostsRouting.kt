@@ -3,8 +3,10 @@ package cantstopthesignal.routing.posts
 import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
+import com.freedom.cantstopthesignal.database.posts.fetchPopularTopicNames
 import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.fetchPosts
+import com.freedom.cantstopthesignal.database.posts.totalTopicPages
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.SortOrderValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
@@ -35,7 +37,6 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
-
                 val postList = fetchPosts(page, limit, callingUser!!, sortOrder)
 
                 if (postList == null) {
@@ -52,7 +53,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages)
-                    put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
 
@@ -109,7 +110,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, post)
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(comments.isNullOrEmpty()) 0 else comments[0].totalPages )
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if (comments.isNullOrEmpty()) 0 else comments[0].totalPages)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId))
@@ -126,6 +127,40 @@ fun Application.configurePostRouting() {
 
                 return@get call.respond(
                     ThymeleafContent("post", model)
+                )
+            }
+
+            get("/posts/topics") {
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respondRedirect("/logout")
+
+
+                val page = call.request.queryParameters["page"]?.toInt() ?: 1
+
+
+                val topics = fetchPopularTopicNames(page.toLong())
+
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.TOPICS.value, topics)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, totalTopicPages())
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
+                    put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId))
+
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
+                }
+
+                return@get call.respond(
+                    ThymeleafContent("popular_topics", model)
                 )
             }
 

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Popular Topics</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0f1117;
+            --surface: #181b24;
+            --surface-hover: #1e2130;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #ffffff;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #ffffff;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2.5rem 1rem 4rem;
+            min-height: 100vh;
+        }
+
+        /* ── Site Banner ── */
+        .site_banner {
+            max-width: 760px;
+            margin: 0 auto 2rem;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-family: var(--font-serif);
+        }
+
+        .site_banner h1 { margin: 0 0 0.6rem; font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+        .site_banner h2 { margin: 0 0 0.8rem; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; opacity: 0.95; }
+        .site_banner h3 { margin: 0; font-size: 1rem; font-weight: 400; line-height: 1.5; opacity: 0.9; font-family: var(--font); }
+
+        .container {
+            max-width: 50vw;
+            min-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-family: var(--font);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+            line-height: 1;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.88; }
+
+        .btn-icon {
+            position: relative;
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            padding: 0.42rem 0.7rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.15s;
+        }
+
+        .btn-icon:hover { background: var(--border); }
+
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.4);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, 0.35); }
+            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224, 96, 96, 0.6); }
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px; right: -6px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ── Topic grid ── */
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .topic-pill:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .topic-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .topic-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── Pagination ── */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-bottom: 2rem;
+        }
+
+        .pagination a, .pagination span {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.42rem 0.875rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+        }
+
+        .pagination a { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .pagination a:hover { opacity: 0.88; }
+        .pagination .current { background: var(--surface-hover); color: var(--text-secondary); cursor: default; }
+        .pagination .disabled { background: var(--surface); color: var(--border); cursor: not-allowed; pointer-events: none; opacity: 0.5; }
+
+        /* ── Empty state ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-body { padding: 1.5rem 1.75rem 1.25rem; }
+    </style>
+</head>
+<body>
+
+<div class="site_banner">
+    <h1 th:text="${server_config.name}">Server Name</h1>
+    <h2 th:text="${server_config.topic}">Server Topic</h2>
+    <h3 th:text="${server_config.motd}">Message of the Day</h3>
+</div>
+
+<div class="container">
+
+    <div class="topbar">
+        <h1>Popular Topics</h1>
+        <div class="topbar-actions">
+            <a class="btn-icon"
+               href="/notifications"
+               th:classappend="${notification_count > 0} ? 'has-alert' : ''">
+                🔔
+                <span class="badge" th:if="${notification_count > 0}" th:text="${notification_count}"></span>
+            </a>
+
+            <a class="btn-icon"
+               href="/messages"
+               th:classappend="${unread_message_count > 0} ? 'has-alert' : ''">
+                ✉️
+                <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
+            </a>
+            <a class="btn btn-primary" href="/feed" title="Back to feed">Home Feed</a>
+            <a class="btn btn-primary" href="/profile">My Profile</a>
+            <a class="btn btn-primary" href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <!-- Topic grid -->
+    <div class="topics-grid" th:if="${topics != null and !#lists.isEmpty(topics)}">
+        <a class="topic-pill"
+           th:each="topic : ${topics}"
+           th:href="|/posts/search?queryType=topic&searchTerm=${topic}|">
+            <span class="topic-icon">🗂️</span>
+            <span class="topic-name" th:text="${topic}">topic name</span>
+        </a>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${topics == null or #lists.isEmpty(topics)}" class="card">
+        <div class="card-body" style="text-align:center; padding: 2.5rem;">
+            <p style="color:#64748b;">No topics yet. Topics appear once posts are created.</p>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" th:if="${total_pages > 1}">
+        <a th:classappend="${current_page == 1} ? 'disabled'"
+           th:href="|/topics?page=${current_page - 1}|">&#8592; Prev</a>
+
+        <span class="current"
+              th:text="|Page ${current_page} of ${total_pages}|">Page 1 of 1</span>
+
+        <a th:classappend="${current_page == total_pages} ? 'disabled'"
+           th:href="|/topics?page=${current_page + 1}|">Next &#8594;</a>
+    </div>
+
+</div>
+</body>
+</html>

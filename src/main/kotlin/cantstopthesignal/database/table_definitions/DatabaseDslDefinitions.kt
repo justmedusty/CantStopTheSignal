@@ -207,11 +207,9 @@ object SuspendLog : Table(name = "SuspendLog") {
     val timestamp: Column<LocalDateTime> = datetime("suspend_time")
     val adminId: Column<Long> = long("admin_id").references(Users.id)
     val suspendedUserId: Column<Long> = long("suspended_user_id")
-
     //true for suspend, false for unsuspend
     val suspend: Column<Boolean> = bool("suspend")
     val reason: Column<String> = text("reason")
-
     override val primaryKey = PrimaryKey(id)
 }
 //my idea for creating this table is something that can be done by admins dynamically to create an entry that essentially turns off account creation,
@@ -227,3 +225,4 @@ object InviteCodes : Table(name = "InviteCodes") {
     val id: Column<Long> = long("id").autoIncrement()
     val inviteCode: Column<String> = text("invite_code").uniqueIndex()
 }
+

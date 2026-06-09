@@ -685,7 +685,7 @@
         <h1>Posts</h1>
         <div class="topbar-actions">
 
-            <a class="btn-icon" href="/feed">🏠</a>
+
 
             <a class="btn-icon"
                href="/notifications"
@@ -700,7 +700,7 @@
                 ✉️
                 <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
             </a>
-
+            <a class="btn btn-primary" href="/feed">Home Feed</a>
             <a class="btn btn-primary" href="/profile">My Profile</a>
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
             <a class="btn btn-primary" href="/logout">Logout</a>

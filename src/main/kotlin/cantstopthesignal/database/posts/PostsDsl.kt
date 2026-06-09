@@ -6,6 +6,7 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
+import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -133,6 +134,37 @@ fun deletePost(userId: Long, postId: Long): Boolean {
 
     } else {
         false
+    }
+}
+fun totalTopicPages() : Long{
+    return try {
+        transaction {
+            val topics = ceil(Posts
+                .select(Posts.topic, Posts.topic.count())
+                .groupBy(Posts.topic)
+                .orderBy(Posts.topic.count(), SortOrder.DESC).distinct().count().toDouble() / Length.POPULAR_TOPIC_COUNT.value.toDouble()).toLong()
+            topics
+        }
+    }catch (e: Throwable){
+        logger.error { "An error occurred ${e.message} while trying to fetch topic pages" }
+        0
+    }
+}
+fun fetchPopularTopicNames(page : Long) : List<String>? {
+    return try {
+        transaction {
+            val topics = Posts
+                .select(Posts.topic, Posts.topic.count())
+                .groupBy(Posts.topic)
+                .orderBy(Posts.topic.count(), SortOrder.DESC).offset((page - 1) * Length.POPULAR_TOPIC_COUNT.value)
+                .limit(Length.POPULAR_TOPIC_COUNT.value.toInt())
+                .map { it[Posts.topic] }
+                .toList()
+            topics
+        }
+    }catch (e: Throwable){
+        logger.error { "An error occurred ${e.message} while trying to fetch topics" }
+        null
     }
 }
 

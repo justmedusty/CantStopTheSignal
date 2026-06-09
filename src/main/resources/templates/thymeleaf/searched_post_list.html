@@ -478,7 +478,8 @@
             margin-bottom: 1.25rem;
         }
 
-        #searchToggle:checked ~ .topbar label[for="searchToggle"] {
+        #searchToggle:checked ~ .topbar .btn-icon[for="searchToggle"],
+        label[for="searchToggle"]:has(~ #searchToggle:checked) {
             background: var(--accent-soft);
             border-color: var(--accent);
             color: var(--accent);
@@ -587,16 +588,12 @@
 </div>
 
 <div class="container">
-    <!-- checkbox must be BEFORE topbar AND search-wrapper, all direct children of .container -->
-    <input type="checkbox" id="searchToggle" style="display:none">
 
+    <!-- Top bar -->
     <div class="topbar">
         <h1>Posts</h1>
         <div class="topbar-actions">
 
-            <label class="btn-icon" for="searchToggle" title="Search posts">🔎</label>
-
-            <a class="btn-icon" href="/posts/topics" title="Browse by topic">🗂️</a>
 
             <a class="btn-icon"
                href="/notifications"
@@ -611,32 +608,10 @@
                 ✉️
                 <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
             </a>
-
+            <a class="btn btn-primary" href="/feed">Home Feed</a>
             <a class="btn btn-primary" href="/profile">My Profile</a>
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
             <a class="btn btn-primary" href="/logout">Logout</a>
-        </div>
-    </div>
-
-    <div class="search-wrapper">
-        <div class="search-inner">
-            <form class="search-bar" th:action="|/posts/search|" method="get">
-                <select class="search-type" name="queryType" aria-label="Search by">
-                    <option value="title">Title</option>
-                    <option value="content">Content</option>
-                    <option value="topic">Topic</option>
-                </select>
-                <input class="search-input" type="text" name="searchTerm"
-                       placeholder="Search posts…" autocomplete="off"/>
-                <button class="search-submit" type="submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
-                    Search
-                </button>
-            </form>
         </div>
     </div>
 
@@ -651,8 +626,6 @@
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
                 <p class="post-meta">
-                    topic: <a th:href="|/posts/search?searchField=topic?searchText=${post.topic}|" th:text="${post.topic}">topic</a>
-                    &nbsp;·&nbsp;
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
                     <span th:text="|Posted at ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
