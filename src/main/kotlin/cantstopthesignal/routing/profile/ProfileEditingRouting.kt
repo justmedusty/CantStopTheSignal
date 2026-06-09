@@ -7,6 +7,7 @@ import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.updateBio
 import cantstopthesignal.database.users.updatePublicKey
 import cantstopthesignal.database.users.updateUserCredentials
+import cantstopthesignal.database.users.userNameAlreadyExists
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
@@ -216,6 +217,11 @@ fun Application.configureEditProfileRoutes() {
                 if (newUsername.length > Length.MAX_USERNAME_LENGTH.value || newUsername.length < Length.MIN_USERNAME_LENGTH.value) {
                     val error =
                         "Invalid username length, must be between ${Length.MIN_USERNAME_LENGTH.value} and ${Length.MAX_USERNAME_LENGTH.value}"
+                    return@post call.respondRedirect("/profile/edit/username?error=${error}")
+                }
+
+                if(userNameAlreadyExists(newUsername)) {
+                    val error = "Username already in use, please choose another"
                     return@post call.respondRedirect("/profile/edit/username?error=${error}")
                 }
 

@@ -56,6 +56,11 @@ enum class ThymeLeafMapKeys(val value: String) {
     EDIT_FIELD("edit_field"),
     NOTIFICATION_COUNT("notification_count"),
     UNREAD_MESSAGE_COUNT("unread_message_count"),
+    SORT_ORDER("sort"),
+    SORT_ORDER_DISLIKED("disliked"),
+    SORT_ORDER_LIKED("liked"),
+    SORT_ORDER_OLD("old"),
+    SORT_ORDER_COMMENTS("comments"),
 }
 
 enum class SortOrderValues(val value: String) {

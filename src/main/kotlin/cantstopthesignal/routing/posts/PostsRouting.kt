@@ -26,13 +26,18 @@ fun Application.configurePostRouting() {
     routing {
         authenticate("jwt") {
             get("/feed") {
+
+
                 val page = call.request.queryParameters["page"]?.toInt()?.coerceAtLeast(1) ?: 1
                 val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
-                val sortOrder = call.request.queryParameters["orderBy"] ?: "Desc"
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
+
+
                 val postList = fetchPosts(page, limit, callingUser!!, sortOrder)
+
                 if (postList == null) {
                     val model = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
@@ -50,6 +55,13 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value,page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
+
+                    when (sortOrder) {
+                        "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
+                        "disliked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
+                        "old" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
+                        "comments" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_COMMENTS.value)
+                    }
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
                     *

@@ -350,13 +350,15 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             "new" -> sortOrder = SortOrder.DESC
             "liked" -> orderByCount = PostLikes.postId.count()
             "disliked" -> orderByCount = PostDislikes.postId.count()
+            "comments" -> orderByCount = Comments.postId.count()
+            else -> sortOrder = SortOrder.DESC
         }
 
         return transaction {
             val relevantPostIds = Posts.selectAll().map { it[Posts.id] }
 
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
-                .leftJoin(PostLikes).select(
+                .leftJoin(PostLikes).leftJoin(Comments).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
                 ).where { Posts.id inList relevantPostIds }
 

@@ -423,6 +423,49 @@
             border-color: #7a2020;
         }
 
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .sort-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.25rem;
+        }
+
+        .sort-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .sort-pill:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .sort-pill.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -479,6 +522,26 @@
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
             <a class="btn btn-primary" href="/logout">Logout</a>
         </div>
+    </div>
+
+    <div class="sort-bar">
+        <span class="sort-label">Sort:</span>
+        <a class="sort-pill"
+           th:classappend="${sort == null or sort == ''} ? 'active'"
+           href="/feed">🕐 Newest</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'old'} ? 'active'"
+           href="/feed?orderBy=old">📅 Oldest</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'liked'} ? 'active'"
+           href="/feed?orderBy=liked">👍 Most Liked</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'disliked'} ? 'active'"
+           href="/feed?orderBy=disliked">👎 Most Disliked</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'comments'} ? 'active'"
+           href="/feed?orderBy=comments">💬 Most Comments</a>
+
     </div>
 
     <div class="error" th:if="${error}" th:text="${error}"></div>
