@@ -18,7 +18,7 @@
             --accent: #5b8af5;
             --accent-dim: #1e2d56;
             --text: #e8eaf2;
-            --text-secondary: #ffffff;
+            --text-secondary: #7b82a0;
             --dm-avatar: #1e3a2f;
             --dm-pill: #1a3324;
             --dm-pill-text: #4ecb82;
@@ -39,7 +39,6 @@
             margin: 0 auto;
         }
 
-        /* ── Alerts ── */
         .alert {
             padding: 0.75rem 1rem;
             border-radius: var(--radius);
@@ -59,7 +58,6 @@
             color: #80d09e;
         }
 
-        /* ── Top bar ── */
         .topbar {
             display: flex;
             align-items: center;
@@ -93,9 +91,7 @@
             transition: opacity .15s;
         }
 
-        .btn:hover {
-            opacity: .85;
-        }
+        .btn:hover { opacity: .85; }
 
         .btn-secondary {
             background: var(--surface);
@@ -108,7 +104,6 @@
             color: #fff;
         }
 
-        /* ── Card ── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -116,7 +111,6 @@
             overflow: hidden;
         }
 
-        /* ── Card header ── */
         .card-header {
             display: flex;
             align-items: center;
@@ -149,7 +143,6 @@
             margin-top: 0.1rem;
         }
 
-        /* ── Form ── */
         .form-body {
             padding: 1.25rem;
             display: flex;
@@ -171,10 +164,9 @@
             text-transform: uppercase;
         }
 
-        /* To: field row — icon prefix */
         .input-wrap {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -193,12 +185,10 @@
             font-size: 0.82rem;
             font-weight: 600;
             border-right: 1px solid var(--border);
-            height: 100%;
             display: flex;
             align-items: center;
             white-space: nowrap;
             background: var(--surface);
-            align-self: stretch;
         }
 
         .input-wrap input,
@@ -213,7 +203,12 @@
             padding: 0.65rem 0.85rem;
         }
 
-        /* Plain input (no prefix) */
+        .input-wrap textarea {
+            min-height: 300px;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
         .input-plain {
             width: 100%;
             background: var(--bg);
@@ -225,7 +220,6 @@
             font-size: 0.875rem;
             padding: 0.65rem 0.85rem;
             transition: border-color .15s, box-shadow .15s;
-            resize: none;
         }
 
         .input-plain:focus {
@@ -233,39 +227,31 @@
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
         }
 
-        textarea.input-plain,
-        .input-wrap textarea {
-            min-height: 180px;
-            line-height: 1.6;
-        }
-
-        .input-wrap textarea {
-            padding: 0.65rem 0.85rem;
-        }
-
         .field-hint {
             font-size: 0.73rem;
             color: var(--text-secondary);
         }
 
-        /* ── Footer / actions ── */
         .form-footer {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             padding: 0.9rem 1.25rem;
             border-top: 1px solid var(--border);
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .footer-meta {
             font-size: 0.75rem;
             color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 380px;
         }
 
         .footer-actions {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .btn-send {
@@ -274,8 +260,6 @@
             padding: 0.5rem 1.25rem;
             font-size: 0.85rem;
         }
-
-
     </style>
 </head>
 <body>
@@ -284,7 +268,6 @@
     <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
     <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-    <!-- Top bar -->
     <div class="topbar">
         <h1>New Message</h1>
         <div class="topbar-actions">
@@ -294,7 +277,6 @@
 
     <div class="card">
 
-        <!-- Card header -->
         <div class="card-header">
             <div class="card-header-icon">✉</div>
             <div>
@@ -303,11 +285,10 @@
             </div>
         </div>
 
-        <!-- Form -->
         <form method="post" th:action="|/messages/conversation/create|">
             <div class="form-body">
 
-                <!-- To field -->
+                <!-- To -->
                 <div class="field">
                     <label class="field-label" for="recipients">To</label>
                     <div class="input-wrap">
@@ -322,44 +303,58 @@
                                 spellcheck="false"
                                 minlength="3"
                                 maxlength="5000"
-                                th:value="${conversation_draft != null ? conversation_draft.recipients : ''}"
+                                th:value="${conversation_draft != null} ? ${conversation_draft.members} : ''"}
                                 required/>
-
                     </div>
                     <span class="field-hint">Separate multiple usernames with commas.</span>
                 </div>
-                <!-- Conversation Name Field -->
+
+                <!-- Group Name -->
                 <div class="field">
                     <label class="field-label" for="groupName">Group Name</label>
                     <div class="input-wrap">
-                        <span class="input-prefix">(Groups only)</span>
+                        <span class="input-prefix">Optional</span>
                         <input
                                 type="text"
                                 id="groupName"
                                 name="groupName"
-                                placeholder="The A-Team.."
+                                placeholder="The A-Team..."
                                 autocomplete="off"
                                 autocapitalize="none"
                                 spellcheck="false"
-                                th:value="${conversation_draft != null} ? ${conversation_draft.groupName}"
-                                />
-
-                    </div><!-- /form-body -->
-
-                    <div class="form-footer">
-                        <span class="footer-meta">Messages are private between you and the recipient. You should ALWAYS encrypt with the users public key if they have one uploaded. Go to their profile to look for a key, or open a conversation and get a list of uploaded keys. Encrypt locally before pasting into the text box.</span>
-                        <div class="footer-actions">
-                            <a class="btn btn-secondary" href="/messages">Cancel</a>
-                            <button type="submit" class="btn btn-send">Create New Conversation →</button>
-                        </div>
+                                th:value="${conversation_draft != null} ? ${conversation_draft.groupName} : ''"/>
                     </div>
                 </div>
+
+                <!-- Message -->
+                <div class="field">
+                    <label class="field-label" for="firstMessage">Message</label>
+                    <div class="input-wrap">
+                        <textarea
+                                id="firstMessage"
+                                name="firstMessage"
+                                placeholder="You should encrypt anything personal or sensitive with the recipient's public key..."
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                minlength="1"
+                                maxlength="10000"
+                                th:text="${conversation_draft != null} ? ${conversation_draft.message} : ''" required></textarea>
+                    </div>
+                </div>
+
             </div>
 
+            <div class="form-footer">
+                <span class="footer-meta">Messages are private between you and the recipient. Always encrypt with the user's public key if they have one uploaded — find it on their profile or within an open conversation. Encrypt locally before pasting.</span>
+                <div class="footer-actions">
+                    <a class="btn btn-secondary" href="/messages">Cancel</a>
+                    <button type="submit" class="btn btn-send">Create →</button>
+                </div>
+            </div>
         </form>
-    </div><!-- /card -->
+
+    </div>
 </div>
-
-
 </body>
 </html>

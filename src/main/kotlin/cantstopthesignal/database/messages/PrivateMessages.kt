@@ -1,6 +1,5 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.database.notifications.numUnreadMessagesInConversation
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
@@ -15,10 +14,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.sen
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
-import org.jetbrains.exposed.v1.core.SortOrder
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -122,7 +118,10 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                 I don't see any point in keeping these so I'll just remove them once a convo is read
                 I will remove the read field I dont care to keep track of read value, the lack of notif presence can be used to mark read anyway.
              */
-            if(MessageNotifications.selectAll().where{ (MessageNotifications.conversationId eq conversationId) and (MessageNotifications.userId eq userId) }.count() > 0){
+            if (MessageNotifications.selectAll()
+                    .where { (MessageNotifications.conversationId eq conversationId) and (MessageNotifications.userId eq userId) }
+                    .count() > 0
+            ) {
                 MessageNotifications.deleteWhere {
                     (MessageNotifications.conversationId eq conversationId) and (MessageNotifications.userId eq userId)
                 }
@@ -265,7 +264,7 @@ fun getLastMessageUsername(conversation: Long): String? {
     return try {
         val userId = Messages.selectAll().where { Messages.conversationId eq conversation }
             .orderBy(Messages.id to SortOrder.DESC)
-            .firstOrNull()?.get(Messages.conversationId)
+            .firstOrNull()?.get(Messages.senderId)
 
         if (userId == null) {
             return null
@@ -355,10 +354,15 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
         try {
             transaction {
                 val conversationIdList: List<Long> =
-                    ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.limit(limit)
-                        .offset((((page - 1)) * limit).toLong()).map {
-                            it[ConversationMembers.conversationId]
-                        }
+                    ConversationMembers
+                        .join(Messages, JoinType.INNER, ConversationMembers.conversationId, Messages.conversationId)
+                        .select(ConversationMembers.conversationId)
+                        .where { ConversationMembers.userId eq userId }
+                        .groupBy(ConversationMembers.conversationId)
+                        .orderBy(Messages.id.max(), SortOrder.DESC)
+                        .limit(limit)
+                        .offset((((page - 1)) * limit).toLong())
+                        .map { it[ConversationMembers.conversationId] }
 
                 val totalConversations =
                     ConversationMembers.selectAll().where { ConversationMembers.userId eq userId }.count()

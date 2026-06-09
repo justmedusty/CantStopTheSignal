@@ -323,13 +323,15 @@
                 </div>
 
                 <div class="conv-body">
+
                     <div class="conv-header">
                         <span class="conv-name">
-                            <!-- Sender name -->
-                            <span th:text="${convo.lastSender}">Sender</span>
-                            <!-- Lock icon shown only when pgpKey list is present and non-empty -->
+                             <div class="conv-name"
+                                  th:text="${convo.name}">
+                        Name
+                    </div>
+
                             <span class="enc-icon"
-                                  th:if="${convo.pgpKey != null and not #lists.isEmpty(convo.pgpKey)}"
                                   title="PGP-Keys-Available">Always Encrypt With Member Keys🔒</span>
                         </span>
                         <span class="conv-time"
@@ -337,13 +339,14 @@
                             now
                         </span>
                     </div>
-                    <div class="conv-name"
-                         th:text="${convo.name}">
-                        Name
+
+                    <div class="conv-members">
+                        <span th:text="'Last sender: ' + ${convo.lastSender}">Sender</span>
                     </div>
+
                     <!-- Members list, excluding the current user if isMe is true -->
                     <div class="conv-members"
-                         th:text="${#strings.listJoin(convo.members, ', ')}">
+                         th:text="'Members: ' + ${#strings.listJoin(convo.members, ', ') + ', you'}">
                         Members
                     </div>
 

@@ -22,6 +22,7 @@ import io.ktor.server.thymeleaf.*
 data class ConversationDraft(
     val members: String?,
     val groupName: String?,
+    val message: String?,
 )
 
 fun Application.configureMessageRouting() {
@@ -42,8 +43,7 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION.value, messageList)
                     put(
-                        ThymeLeafMapKeys.TOTAL_PAGES.value,
-                        if (messageList.isNullOrEmpty()) 1 else messageList[0].totalPages
+                        ThymeLeafMapKeys.TOTAL_PAGES.value, if (messageList.isEmpty()) 1 else messageList[0].totalPages
                     )
                 }
 
@@ -168,10 +168,12 @@ fun Application.configureMessageRouting() {
 
                 val usersToAdd = parameters["recipients"]
                 val groupName = parameters["groupName"]
+                val firstMessage = parameters["firstMessage"]
 
                 val convoDraft = ConversationDraft(
                     usersToAdd,
-                    groupName
+                    groupName,
+                    firstMessage
                 )
                 //These should ONLY be a comma separating usernames
                 val usernames = usersToAdd?.replace(" ", "")?.split(",")
@@ -185,7 +187,7 @@ fun Application.configureMessageRouting() {
                 }
 
                 val userRegex = RegexPatterns.USERNAME.value
-                for (user in usernames!! /* We can assert not null because we just checked it*/) {
+                for (user in usernames) {
 
                     //Make sure the username is even valid to begin with
                     if (!userRegex.matches(user) || user.length > Length.MAX_USERNAME_LENGTH.value || user.length < Length.MIN_USERNAME_LENGTH.value) {
@@ -196,7 +198,7 @@ fun Application.configureMessageRouting() {
                                 "User $user is not valid and thus cannot be a genuine username. Please double check it."
                             )
                             put(
-                                ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                                ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
                                 convoDraft
                             ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                         }
@@ -212,7 +214,7 @@ fun Application.configureMessageRouting() {
                                 "User $user was not found in the database, please double check it."
                             )
                             put(
-                                ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                                ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
                                 convoDraft
                             ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                         }
@@ -229,7 +231,22 @@ fun Application.configureMessageRouting() {
                             "Group name $groupName is too long. Please enter a valid group name. It cannot be longer than ${Length.MAX_GROUPNAME_LENGTH.value} characters."
                         )
                         put(
-                            ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
+                            convoDraft
+                        ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
+                    }
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                if (firstMessage == null || (firstMessage.isEmpty() || (firstMessage.length > Length.MAX_DM_MESSAGE_LENGTH.value))) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "Your message must be between 1 and ${Length.MAX_DM_MESSAGE_LENGTH.value} characters."
+                        )
+                        put(
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
@@ -248,7 +265,7 @@ fun Application.configureMessageRouting() {
                             "This conversation already exists, go to conversation view to send messages in it."
                         )
                         put(
-                            ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
@@ -263,12 +280,15 @@ fun Application.configureMessageRouting() {
                             "An unspecified error occurred while trying to create your new conversation"
                         )
                         put(
-                            ThymeLeafMapKeys.PRIVATE_MESSAGE_DRAFT.value,
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
                             convoDraft
                         ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
                     }
                     return@post call.respond(ThymeleafContent("create_new_message", map))
                 }
+
+                val sent = sendMessage(userId, ret, firstMessage)
+
 
                 //Open the conversation
                 return@post call.respondRedirect("/messages/conversations/${ret}")
