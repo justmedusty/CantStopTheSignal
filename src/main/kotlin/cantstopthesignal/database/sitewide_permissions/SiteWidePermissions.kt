@@ -2,6 +2,7 @@ package com.freedom.cantstopthesignal.database.sitewide_permissions
 
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.enums.SiteWidePermissions
+import com.freedom.cantstopthesignal.siteConfig
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -16,10 +17,18 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.SiteWidePerm
 
 fun areSignupsSuspended(): Boolean {
     return try {
+        /*
+            The site config will supercede a database entry
+         */
+        if(siteConfig?.signupsDisabled ?: false){
+            return true
+        }
         transaction {
-            SiteWidePermissionsDb.selectAll()
+            val ret = SiteWidePermissionsDb.selectAll()
                 .where { SiteWidePermissionsDb.eventId eq SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong() }.count()
                 .toInt() == 1
+
+            ret
         }
     } catch (e: Exception) {
         logger.error { "${e.message} occurred while trying to check if signups were suspended" }
