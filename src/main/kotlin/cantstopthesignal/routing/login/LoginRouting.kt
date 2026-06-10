@@ -110,7 +110,7 @@ fun Application.configureLoginRoutes() {
                 ),
             ))
             call.response.cookies.append(
-                Cookie(name = "jwt", value = token, httpOnly = true, secure = true, path = "/"),
+                Cookie(name = "jwt", value = token, httpOnly = true, secure = false /* THIS IS FOR I2P ONLY YOU MUST CHANGE THIS IF YOU RUN IT THROUGH TOR OR CLEARNET */ , path = "/"),
             )
             //Redirect user to the home page
             return@post call.respondRedirect("/feed")
