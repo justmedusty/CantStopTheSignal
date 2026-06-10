@@ -4,7 +4,7 @@
 
 # Features
 CantStopTheSignal is a total NO JAVASCRIPT server side rendered Kotlin webservice built with ktor and thymeleaf. It supports creating posts with titles topics and 
-contents. Lists of all popular topics can be viewed from the file icon from the feed fiew. Post contents and topics can  also be search with the magnifying glass 
+contents. Lists of all popular topics can be viewed from the file icon from the feed fiew. Post contents and topics can  also be searched with the magnifying glass 
 icon in the main feed. It can be made invite only in which case you will need an admin generated UUID invite code to join otherwise you just require
 a username and password and optional public key that will go on your profile for others to see so they can import it locally and encrypt messages to you. 
 Private message conversations  are supported with up to 15 members and a configurable group name. Message conversations have timestamps so you can see when 
