@@ -11,7 +11,7 @@ enum class Length(val value: Long) {
     MAX_PASSWORD_LENGTH(75),
     MAX_BIO_LENGTH(250),
     MAX_DM_MESSAGE_LENGTH(10_000),
-    MAX_PAGE_LIMIT(50),
+    MAX_PAGE_LIMIT(1),
     POPULAR_TOPIC_COUNT(200), //how many topics to fetch in popular topic fetching
     MAX_CONVERSATION_MESSAGE_LIMIT(100), // We will give a larger value here since heavily paginated conversations will not be very nice with the design we have
     MAX_GROUPNAME_LENGTH(100),
@@ -62,6 +62,8 @@ enum class ThymeLeafMapKeys(val value: String) {
     SORT_ORDER_LIKED("liked"),
     SORT_ORDER_OLD("old"),
     SORT_ORDER_COMMENTS("comments"),
+    SEARCH_TEXT("search_text"),
+    SEARCH_FIELD("search_field")
 }
 
 enum class SortOrderValues(val value: String) {

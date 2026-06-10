@@ -190,7 +190,7 @@ fun fetchPostsByTopic(
         return transaction {
             val queryParam = "%$postTopic%"
             val relevantPostIds = Posts.selectAll().where(Posts.topic like queryParam).map { it[Posts.id] }
-
+            val totalPages = ceil(relevantPostIds.count().toDouble() / limit.toDouble()).toLong()
             val query = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
@@ -204,7 +204,7 @@ fun fetchPostsByTopic(
 
             query.limit(limit).offset((page - 1) * limit.toLong())
 
-            val totalPages = ceil(query.count().toDouble() / limit.toDouble()).toLong()
+
 
             query.map {
                 val postId = it[Posts.id]

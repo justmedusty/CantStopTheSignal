@@ -24,9 +24,9 @@ fun Application.configurePostSearchRouting() {
                 val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
                 val searchText = call.request.queryParameters["searchText"] ?: return@get call.respondRedirect("/feed?error=You must specify a search term")
                 val searchField = call.request.queryParameters["searchField"] ?: return@get call.respondRedirect("/feed?error=You must specify a search field (topic,title, or contents")
-                var sortOrder = call.request.queryParameters["sortOrder"] ?: "newest"
+                var sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
 
-                if(sortOrder != "newest" && sortOrder != "oldest" && sortOrder != "liked" && sortOrder != "disliked" && sortOrder != "comments") {
+                if(sortOrder != "newest" && sortOrder != "old" && sortOrder != "liked" && sortOrder != "disliked" && sortOrder != "comments") {
                     sortOrder = "newest"
                 }
 
@@ -53,6 +53,15 @@ fun Application.configurePostSearchRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser!!))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser!!))
+                    put(ThymeLeafMapKeys.SEARCH_FIELD.value, searchField)
+                    put(ThymeLeafMapKeys.SEARCH_TEXT.value, searchText)
+
+                    when (sortOrder) {
+                        "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
+                        "disliked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
+                        "old" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
+                        "comments" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_COMMENTS.value)
+                    }
 
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
@@ -67,7 +76,7 @@ fun Application.configurePostSearchRouting() {
                     }
                 }
                 return@get call.respond(
-                    ThymeleafContent("posts_feed", model)
+                    ThymeleafContent("posts_search_feed", model)
                 )
             }
 

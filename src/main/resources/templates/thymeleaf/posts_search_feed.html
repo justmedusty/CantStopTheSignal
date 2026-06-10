@@ -673,27 +673,27 @@
         <span class="sort-label">Sort:</span>
         <a class="sort-pill"
            th:classappend="${sort == null or sort == ''} ? 'active'"
-           th:href="${'/feed?page=1' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+           th:href="${'/posts/search?page=1' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             🕐 Newest
         </a>
         <a class="sort-pill"
            th:classappend="${sort == 'old'} ? 'active'"
-           th:href="${'/feed?page=1&orderBy=old' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+           th:href="${'/posts/search?page=1&orderBy=old' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             📅 Oldest
         </a>
         <a class="sort-pill"
            th:classappend="${sort == 'liked'} ? 'active'"
-           th:href="${'/feed?page=1&orderBy=liked' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+           th:href="${'/posts/search?page=1&orderBy=liked' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             👍 Most Liked
         </a>
         <a class="sort-pill"
            th:classappend="${sort == 'disliked'} ? 'active'"
-           th:href="${'/feed?page=1&orderBy=disliked' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+           th:href="${'/posts/search?page=1&orderBy=disliked' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             👎 Most Disliked
         </a>
         <a class="sort-pill"
            th:classappend="${sort == 'comments'} ? 'active'"
-           th:href="${'/feed?page=1&orderBy=comments' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+           th:href="${'/posts/search?page=1&orderBy=comments' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             💬 Most Comments
         </a>
     </div>
@@ -777,28 +777,29 @@
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
         </div>
     </div>
+
     <div class="pagination"
-             th:if="${total_pages > 0}"
-             th:with="prevPage=${current_page - 1}, nextPage=${current_page + 1}">
+         th:if="${total_pages > 0}"
+         th:with="prevPage=${current_page - 1}, nextPage=${current_page + 1},
+              searchParams=${search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : ''}">
 
-    <a class="page-btn"
-       th:classappend="${current_page == 1} ? 'disabled'"
-       th:href="${'/feed?page=' + prevPage}">
-        &#8592; Prev
-    </a>
+        <a class="page-btn"
+           th:classappend="${current_page == 1} ? 'disabled'"
+           th:href="${'/posts/search?page=' + prevPage + searchParams}">
+            &#8592; Prev
+        </a>
 
-    <span class="page-info"
-          th:text="|Page ${current_page} of ${total_pages}|">
+        <span class="page-info"
+              th:text="|Page ${current_page} of ${total_pages}|">
         Page 1 of 1
     </span>
 
-    <a class="page-btn"
-       th:classappend="${current_page == total_pages} ? 'disabled'"
-       th:href="${'/feed?page=' + nextPage}">
-        Next &#8594;
-    </a>
-
-</div>
+        <a class="page-btn"
+           th:classappend="${current_page == total_pages} ? 'disabled'"
+           th:href="${'/posts/search?page=' + nextPage + searchParams}">
+            Next &#8594;
+        </a>
+    </div>
 </div>
 </body>
 </html>
