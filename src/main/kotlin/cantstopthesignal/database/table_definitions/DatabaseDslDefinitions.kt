@@ -191,11 +191,9 @@ object CommentDislikes : Table(name = "CommentDislikes") {
 object AdminLogs : Table(name = "AdminLogs") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("timestamp")
-    val userId: Column<Long> = long("message_id").references(Users.id)
-    val doneById: Column<Long> = long("done_by_id")
-
-    //true for added, false for removed
-    val added: Column<Boolean> = bool("added")
+    val doneById: Column<Long> = long("done_by_id").references(Users.id)
+    val action_string: Column<String> = text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
+    //cont. ^ I would tie it to ids but if a post is removed then there will no longer be an id to link to. This is mostly so that admins can just do whatever other staff can see what theyre doing
     val reason: Column<String> = text("reason")
 
     override val primaryKey = PrimaryKey(id)
@@ -205,9 +203,7 @@ object SuspendLog : Table(name = "SuspendLog") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("suspend_time")
     val adminId: Column<Long> = long("admin_id").references(Users.id)
-    val suspendedUserId: Column<Long> = long("suspended_user_id")
-    //true for suspend, false for unsuspend
-    val suspend: Column<Boolean> = bool("suspend")
+    val suspendedUserId: Column<Long> = long("suspended_user_id").references(Users.id)
     val reason: Column<String> = text("reason")
     override val primaryKey = PrimaryKey(id)
 }
