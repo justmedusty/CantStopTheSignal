@@ -115,15 +115,13 @@ fun Application.configurePostCreationRouting() {
                 val success = createPost(userId!!, contents, topic, title)
 
                 if (success == RetValues.ALREADY_EXISTS.value) {
+                    val error = "This exact post already exists. You cannot create duplicates."
+                    return@post call.respondRedirect("/posts/create?error=$error")
+                }
 
-                    val model = buildMap {
-                        put(
-                            ThymeLeafMapKeys.ERROR.value,
-                            "This post already exists, cannot post again"
-                        )
-                    }
-
-                    return@post call.respond(ThymeleafContent("create_post", model))
+                if (success == RetValues.SUSPENDED.value) {
+                    val error = "You have been suspended and cannot post. Message a moderator or admin for info."
+                    return@post call.respondRedirect("/posts/create?error=$error")
                 }
 
 

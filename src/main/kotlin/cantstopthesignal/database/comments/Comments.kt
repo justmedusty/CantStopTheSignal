@@ -83,7 +83,7 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
     return try {
         transaction {
             if(isUserSuspended(commenterId)){
-                return@transaction null
+                return@transaction RetValues.SUSPENDED.value
             }
             if (isDuplicateComment(content, commenterId, postId, parentCommentId, false)) {
                 return@transaction RetValues.ALREADY_EXISTS.value

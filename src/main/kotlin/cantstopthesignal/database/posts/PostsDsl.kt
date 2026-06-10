@@ -63,11 +63,12 @@ fun createPost(userId: Long, content: String, topic: String, title: String): Lon
     return try {
         transaction {
             if (isUserSuspended(userId)) {
-                return@transaction null
+                return@transaction RetValues.SUSPENDED.value
             }
             if (isDuplicatePost(userId, content, topic, title)) {
                 return@transaction RetValues.ALREADY_EXISTS.value
             }
+
             val postId = insertAndGetId(userId, topic)
             postId != (-1).toLong() && addPostContents(content, postId, title)
             postId

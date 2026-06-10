@@ -76,7 +76,8 @@ enum class SortOrderValues(val value: String) {
 
 
 enum class RetValues(val value: Long) {
-    ALREADY_EXISTS(-50)
+    ALREADY_EXISTS(-50),
+    SUSPENDED(-49)
 }
 
 enum class RegexPatterns(val value: Regex) {

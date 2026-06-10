@@ -71,6 +71,10 @@ fun Application.configureCommentsRouting() {
                     val error = "The comment you tried to post already exists."
                     return@post call.respondRedirect("/comments/$postId?error=$error")
                 }
+                if (result == RetValues.SUSPENDED.value) {
+                    val error = "You have been suspended and cannot post. Message a moderator or admin for info."
+                    return@post call.respondRedirect("/comments/$postId?error=$error")
+                }
 
                 if (result == null) {
                     val error = "An error occurred while posting your comment"
