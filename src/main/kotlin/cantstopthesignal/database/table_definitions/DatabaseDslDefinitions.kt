@@ -29,7 +29,6 @@ object ProfileData : Table(name = "ProfileData") {
     val userId: Column<Long> = long("user_id").references(Users.id, ReferenceOption.CASCADE)
     val bio = text("bio").nullable().default(null)
     val publicKey = text("public_key").nullable().default(null)
-    val profilePhoto: Column<ExposedBlob?> = blob("profile_photo").nullable().default(null)
     val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
     val lastLogin: Column<LocalDateTime?> = datetime("last_login").nullable().default(null)
 

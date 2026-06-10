@@ -10,7 +10,6 @@ enum class Length(val value: Long) {
     MIN_PASSWORD_LENGTH(8),
     MAX_PASSWORD_LENGTH(75),
     MAX_BIO_LENGTH(250),
-    MAX_PHOTO_SIZE_BYTES(1_048_576),
     MAX_DM_MESSAGE_LENGTH(10_000),
     MAX_PAGE_LIMIT(50),
     POPULAR_TOPIC_COUNT(200), //how many topics to fetch in popular topic fetching

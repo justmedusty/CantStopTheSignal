@@ -20,7 +20,6 @@ data class ProfileDataEntry(
     val userName: String,
     val bio: String?,
     val publicKey: String?,
-    val profilePhoto: ByteArray?,
     val createdAt: LocalDateTime,
     val lastLogin: LocalDateTime?,
     val isAdmin: Boolean,
@@ -38,10 +37,6 @@ data class ProfileDataEntry(
         if (userName != other.userName) return false
         if (bio != other.bio) return false
         if (publicKey != other.publicKey) return false
-        if (profilePhoto != null) {
-            if (other.profilePhoto == null) return false
-            if (!profilePhoto.contentEquals(other.profilePhoto)) return false
-        } else if (other.profilePhoto != null) return false
 
         return true
     }
@@ -50,7 +45,6 @@ data class ProfileDataEntry(
         var result = userName.hashCode()
         result = 31 * result + (bio?.hashCode() ?: 0)
         result = 31 * result + (publicKey?.hashCode() ?: 0)
-        result = 31 * result + (profilePhoto?.contentHashCode() ?: 0)
         return result
     }
 }
@@ -101,20 +95,6 @@ fun updatePublicKey(userId: Long, keyContents: String): Boolean {
 }
 
 
-fun updateProfilePhoto(userId: Long, photo: ByteArray): Boolean {
-    return try {
-        transaction {
-            ProfileData.update({ ProfileData.userId eq userId }) {
-                it[profilePhoto] = ExposedBlob(photo)
-            }
-            true
-        }
-    } catch (e: Exception) {
-        logger.error { e.message }
-        false
-    }
-}
-
 fun doesUserHavePublicKey(userId: Long): Boolean {
     return try {
         ProfileData.selectAll().where { ProfileData.userId eq userId }
@@ -143,7 +123,6 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     userName = getUserName(userId) ?: "Could not get username",
                     bio = it[ProfileData.bio] ?: "No bio for this user",
                     publicKey = it[ProfileData.publicKey] ?: "No public key for this user",
-                    profilePhoto = it[ProfileData.profilePhoto]?.bytes,
                     createdAt = it[ProfileData.createdAt],
                     lastLogin = it[ProfileData.lastLogin],
                     isSuspended = isSuspended ?: false,
