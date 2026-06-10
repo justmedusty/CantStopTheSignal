@@ -622,6 +622,15 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+        .info {
+            background: var(--accent-soft);
+            color: #ffffff;
+            border: 1px solid #0a30a9;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
@@ -720,6 +729,7 @@
 
     <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+    <div class="info" th:if="${info}" th:text="${info}"></div>
 
     <!-- Post list -->
     <div class="card" th:each="post : ${posts}">
@@ -781,11 +791,11 @@
     <div class="pagination"
          th:if="${total_pages > 0}"
          th:with="prevPage=${current_page - 1}, nextPage=${current_page + 1},
-              searchParams=${search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : ''}">
-
+              searchParams=${search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : ''},
+              sortOrder=${sort != null and sort != '' ? '&orderBy=' + sort : ''}">
         <a class="page-btn"
            th:classappend="${current_page == 1} ? 'disabled'"
-           th:href="${'/posts/search?page=' + prevPage + searchParams}">
+           th:href="${'/posts/search?page=' + prevPage + searchParams + sortOrder}">
             &#8592; Prev
         </a>
 
@@ -796,7 +806,7 @@
 
         <a class="page-btn"
            th:classappend="${current_page == total_pages} ? 'disabled'"
-           th:href="${'/posts/search?page=' + nextPage + searchParams}">
+           th:href="${'/posts/search?page=' + nextPage + searchParams + sortOrder}">
             Next &#8594;
         </a>
     </div>

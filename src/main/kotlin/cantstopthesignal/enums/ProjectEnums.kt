@@ -63,7 +63,8 @@ enum class ThymeLeafMapKeys(val value: String) {
     SORT_ORDER_OLD("old"),
     SORT_ORDER_COMMENTS("comments"),
     SEARCH_TEXT("search_text"),
-    SEARCH_FIELD("search_field")
+    SEARCH_FIELD("search_field"),
+    SEARCH_INFO("info")
 }
 
 enum class SortOrderValues(val value: String) {

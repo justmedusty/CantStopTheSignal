@@ -46,6 +46,12 @@ fun Application.configurePostSearchRouting() {
                     val error = "An error occurred while fetching posts for field ${searchField} with query ${searchText}"
                     return@get call.respondRedirect { call.respondRedirect("/feed?error=$error") }
                 }
+
+                val info = when (searchField) {
+                    "topic" -> "You are viewing posts by topic ${searchText}"
+                    "content" -> "You are viewing posts by content search query \"${searchText}\""
+                    else -> null
+                }
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
@@ -55,6 +61,7 @@ fun Application.configurePostSearchRouting() {
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser!!))
                     put(ThymeLeafMapKeys.SEARCH_FIELD.value, searchField)
                     put(ThymeLeafMapKeys.SEARCH_TEXT.value, searchText)
+                    put(ThymeLeafMapKeys.SEARCH_INFO.value, info)
 
                     when (sortOrder) {
                         "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
