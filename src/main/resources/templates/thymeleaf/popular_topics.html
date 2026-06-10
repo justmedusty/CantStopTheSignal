@@ -282,13 +282,13 @@
     <!-- Pagination -->
     <div class="pagination" th:if="${total_pages > 1}">
         <a th:classappend="${current_page == 1} ? 'disabled'"
-           th:href="|/topics?page=${current_page - 1}|">&#8592; Prev</a>
+           th:href="|/posts/topics?page=${current_page - 1}|">&#8592; Prev</a>
 
         <span class="current"
               th:text="|Page ${current_page} of ${total_pages}|">Page 1 of 1</span>
 
         <a th:classappend="${current_page == total_pages} ? 'disabled'"
-           th:href="|/topics?page=${current_page + 1}|">Next &#8594;</a>
+           th:href="|/posts/topics?page=${current_page + 1}|">Next &#8594;</a>
     </div>
 
 </div>
