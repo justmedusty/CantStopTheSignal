@@ -184,14 +184,15 @@ fun fetchPostsByTopic(
             "new" -> sortOrder = SortOrder.DESC
             "liked" -> orderByCount = PostLikes.postId.count()
             "disliked" -> orderByCount = PostDislikes.postId.count()
+            "comments" -> orderByCount = Comments.postId.count()
         }
 
         return transaction {
             val queryParam = "%$postTopic%"
-            val relevantPostIds = Posts.select(Posts.topic like queryParam).map { it[Posts.id] }
+            val relevantPostIds = Posts.selectAll().where(Posts.topic like queryParam).map { it[Posts.id] }
 
-            val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
-                .leftJoin(PostLikes).select(
+            val query = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).leftJoin(PostDislikes)
+                .leftJoin(PostLikes).leftJoin(Comments).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
                 ).where { Posts.id inList relevantPostIds }
 
@@ -203,7 +204,7 @@ fun fetchPostsByTopic(
 
             query.limit(limit).offset((page - 1) * limit.toLong())
 
-            val totalPages = query.count() / limit.toLong()
+            val totalPages = ceil(query.count().toDouble() / limit.toDouble()).toLong()
 
             query.map {
                 val postId = it[Posts.id]
@@ -448,7 +449,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content
             ).where { (PostContents.title like query) or (PostContents.content like query) }
 
-            val totalPages = postsWithContents.count() / limit
+            val totalPages = ceil(postsWithContents.count().toDouble() / limit.toDouble()).toLong()
 
             val paginatedQuery =
                 postsWithContents.limit(limit).offset((page - 1) * limit.toLong()).orderBy(Posts.id, SortOrder.DESC)

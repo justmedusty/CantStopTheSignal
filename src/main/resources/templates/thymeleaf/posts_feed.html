@@ -9,6 +9,11 @@
             margin: 0;
             padding: 0;
         }
+        a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
 
         :root {
             --bg: #0f1117;
@@ -555,6 +560,48 @@
             stroke-width: 2.5;
             stroke-linecap: round; stroke-linejoin: round;
         }
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .sort-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.25rem;
+        }
+
+        .sort-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .sort-pill:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .sort-pill.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -591,7 +638,11 @@
     <input type="checkbox" id="searchToggle" style="display:none">
 
     <div class="topbar">
-        <h1>Posts</h1>
+        <a href="/feed">
+            <h1>Posts</h1>
+        </a>
+
+
         <div class="topbar-actions">
 
             <label class="btn-icon" for="searchToggle" title="Search posts">🔎</label>
@@ -618,15 +669,33 @@
         </div>
     </div>
 
+    <div class="sort-bar">
+        <span class="sort-label">Sort:</span>
+        <a class="sort-pill"
+           th:classappend="${sort == null or sort == ''} ? 'active'"
+           href="/feed">🕐 Newest</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'old'} ? 'active'"
+           href="/feed?orderBy=old">📅 Oldest</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'liked'} ? 'active'"
+           href="/feed?orderBy=liked">👍 Most Liked</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'disliked'} ? 'active'"
+           href="/feed?orderBy=disliked">👎 Most Disliked</a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'comments'} ? 'active'"
+           href="/feed?orderBy=comments">💬 Most Comments</a>
+
+    </div>
     <div class="search-wrapper">
         <div class="search-inner">
             <form class="search-bar" th:action="|/posts/search|" method="get">
-                <select class="search-type" name="queryType" aria-label="Search by">
-                    <option value="title">Title</option>
-                    <option value="content">Content</option>
+                <select class="search-type" name="searchField" aria-label="Search by">
+                    <option value="content">Content/Title</option>
                     <option value="topic">Topic</option>
                 </select>
-                <input class="search-input" type="text" name="searchTerm"
+                <input class="search-input" type="text" name="searchText"
                        placeholder="Search posts…" autocomplete="off"/>
                 <button class="search-submit" type="submit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -651,7 +720,7 @@
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
                 <p class="post-meta">
-                    topic: <a th:href="|/posts/search?searchField=topic?searchText=${post.topic}|" th:text="${post.topic}">topic</a>
+                    topic: <a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}">topic</a>
                     &nbsp;·&nbsp;
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
@@ -674,7 +743,6 @@
                 <div class="post-reaction-bar">
                     <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
                     <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
-                    <a th:href="|/posts/${post.id}|">See Other Comments</a>
                 </div>
                 <span class="comment-count">
                     💬 <span th:text="${post.commentCount}">0</span>
@@ -701,13 +769,12 @@
         </div>
     </div>
 
-    <!-- ─── Pagination ─── -->
     <div class="pagination"
          th:if="${total_pages > 0}">
 
         <a class="page-btn"
            th:classappend="${current_page == 1} ? 'disabled'"
-           th:href="|/feed?page=${current_page - 1}|">
+           th:href="|/feed?page=${current_page - 1}${(searchText != null and searchText != '' and searchField != null and searchField != '') ? '|?searchField=${searchField}&searchText=${searchText}' : ''}|">
             &#8592; Prev
         </a>
 
@@ -718,7 +785,7 @@
 
         <a class="page-btn"
            th:classappend="${current_page == total_pages} ? 'disabled'"
-           th:href="|/feed?page=${current_page + 1}|">
+           th:href="|/feed?page=${current_page + 1}${(searchText != null and searchText != '' and searchField != null and searchField != '') ? '|?searchField=${searchField}&searchText=${searchText}' : ''}|">
             Next &#8594;
         </a>
 

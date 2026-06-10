@@ -2,7 +2,10 @@ package com.freedom.cantstopthesignal.routing.posts
 
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
+import com.freedom.cantstopthesignal.database.posts.Post
 import com.freedom.cantstopthesignal.database.posts.fetchPosts
+import com.freedom.cantstopthesignal.database.posts.fetchPostsByTopic
+import com.freedom.cantstopthesignal.database.posts.searchPostByTitleOrContents
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -19,31 +22,37 @@ fun Application.configurePostSearchRouting() {
             get("/posts/search") {
                 val page = call.request.queryParameters["page"]?.toInt()?.coerceAtLeast(1) ?: 1
                 val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
-                val searchText = call.request.queryParameters["searchText"]
-                val searchField = call.request.queryParameters["searchField"]
+                val searchText = call.request.queryParameters["searchText"] ?: return@get call.respondRedirect("/feed?error=You must specify a search term")
+                val searchField = call.request.queryParameters["searchField"] ?: return@get call.respondRedirect("/feed?error=You must specify a search field (topic,title, or contents")
+                var sortOrder = call.request.queryParameters["sortOrder"] ?: "newest"
+
+                if(sortOrder != "newest" && sortOrder != "oldest" && sortOrder != "liked" && sortOrder != "disliked" && sortOrder != "comments") {
+                    sortOrder = "newest"
+                }
+
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
+                var postList : List<Post>? = emptyList()
 
-                val postList = null
+                when (searchField) {
+                    "topic" -> postList = fetchPostsByTopic(searchText, page, limit,callingUser!!,sortOrder)
+                    "content" -> postList = searchPostByTitleOrContents(callingUser,searchText,limit,page)
+                }
+
 
                 if (postList == null) {
-                    val model = buildMap {
-                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                        put(ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching posts.")
-                    }
-                    return@get call.respond(
-                        ThymeleafContent("posts_feed", model)
-                    )
-
+                    val error = "An error occurred while fetching posts for field ${searchField} with query ${searchText}"
+                    return@get call.respondRedirect { call.respondRedirect("/feed?error=$error") }
                 }
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
-                  //  put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(postList.isNotEmpty()){postList[0].totalPages} else 1)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
-                  //  put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
-                  //  put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser!!))
+                    put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser!!))
 
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot

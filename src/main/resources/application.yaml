@@ -27,6 +27,7 @@ ktor:
       - com.freedom.cantstopthesignal.routing.comments.CommentLikesRoutingKt.configureCommentLikesRouting
       - cantstopthesignal.routing.profile.ProfileEditingRoutingKt.configureEditProfileRoutes
       - com.freedom.cantstopthesignal.routing.admin.AdminPanelRoutingKt.configureAdminRoutes
+      - com.freedom.cantstopthesignal.routing.posts.PostSearchRoutingKt.configurePostSearchRouting
 
 
 

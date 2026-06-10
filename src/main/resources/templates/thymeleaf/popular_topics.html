@@ -221,6 +221,11 @@
             margin-bottom: 2rem;
             overflow: hidden;
         }
+        a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
 
         .card-body { padding: 1.5rem 1.75rem 1.25rem; }
     </style>
@@ -261,7 +266,7 @@
     <div class="topics-grid" th:if="${topics != null and !#lists.isEmpty(topics)}">
         <a class="topic-pill"
            th:each="topic : ${topics}"
-           th:href="|/posts/search?queryType=topic&searchTerm=${topic}|">
+           th:href="|/posts/search?searchField=topic&searchText=${topic}|">
             <span class="topic-icon">🗂️</span>
             <span class="topic-name" th:text="${topic}">topic name</span>
         </a>
