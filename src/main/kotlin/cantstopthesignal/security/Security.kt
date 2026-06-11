@@ -16,6 +16,7 @@ data class Token(
     val subject: String,
     val time: LocalDateTime
 )
+
 fun Application.configureSecurity() {
     authentication {
         jwt(name = "jwt") {

@@ -2,16 +2,10 @@ package cantstopthesignal.routing.profile
 
 import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
-import cantstopthesignal.database.users.getProfileDataEntry
-import cantstopthesignal.database.users.getUserName
-import cantstopthesignal.database.users.updateBio
-import cantstopthesignal.database.users.updatePublicKey
-import cantstopthesignal.database.users.updateUserCredentials
-import cantstopthesignal.database.users.userNameAlreadyExists
+import cantstopthesignal.database.users.*
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.helper.verifyCredentials
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -56,10 +50,10 @@ fun Application.configureEditProfileRoutes() {
                     put(ThymeLeafMapKeys.EDIT_FIELD.value, profileEditField)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
-                    if(error != null) {
+                    if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
                     }
-                    if(success != null) {
+                    if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
@@ -89,10 +83,10 @@ fun Application.configureEditProfileRoutes() {
                     put(ThymeLeafMapKeys.EDIT_FIELD.value, profileEditField)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
-                    if(error != null) {
+                    if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
                     }
-                    if(success != null) {
+                    if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
@@ -122,10 +116,10 @@ fun Application.configureEditProfileRoutes() {
                     put(ThymeLeafMapKeys.EDIT_FIELD.value, profileEditField)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
-                    if(error != null) {
+                    if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
                     }
-                    if(success != null) {
+                    if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
@@ -155,10 +149,10 @@ fun Application.configureEditProfileRoutes() {
                     put(ThymeLeafMapKeys.EDIT_FIELD.value, profileEditField)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.PROFILE_DATA.value, profile)
-                    if(error != null) {
+                    if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
                     }
-                    if(success != null) {
+                    if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
@@ -172,7 +166,6 @@ fun Application.configureEditProfileRoutes() {
                 val profile = getProfileDataEntry(userId!!)
 
                 val params = call.receiveParameters()
-
 
 
                 val newPassword = params.getOrFail("new_password")
@@ -215,7 +208,7 @@ fun Application.configureEditProfileRoutes() {
                     return@post call.respondRedirect("/profile/edit/username?error=${error}")
                 }
 
-                if(userNameAlreadyExists(newUsername)) {
+                if (userNameAlreadyExists(newUsername)) {
                     val error = "Username already in use, please choose another"
                     return@post call.respondRedirect("/profile/edit/username?error=${error}")
                 }
@@ -239,7 +232,7 @@ fun Application.configureEditProfileRoutes() {
                 val params = call.receiveParameters()
                 val newPgpKey = params.getOrFail("public_key")
 
-                if(!isValidOpenPGPPublicKey(newPgpKey)) {
+                if (!isValidOpenPGPPublicKey(newPgpKey)) {
                     val error = "Invalid public key, please enter a valid PGP key"
                     return@post call.respondRedirect("/profile/edit/pgp?error=${error}")
                 }
@@ -281,7 +274,12 @@ fun Application.configureEditProfileRoutes() {
 
             }
 
-            delete("/profile/edit/pgp") {}
+            get("/profile/delete/pgp") {
+
+            }
+            get("/profile/delete/password") {
+
+            }
         }
 
     }

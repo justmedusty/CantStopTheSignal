@@ -43,11 +43,11 @@ site:
   audience: "cantstopthesignal"
   issuer: "cantstopthesignal.i2p"
   baseUrl: "http://cantstopthesignal.i2p"
-  token_lifetime_minutes: "15"
+  token_lifetime_minutes: "25"
   invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums
   rate_limit_window_seconds: "20"
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
   signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it
-  pgp_login_only: "true" # If this is enabled, there are no passwords and users must sign via PGP signature challenge
+  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge
