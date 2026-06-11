@@ -54,12 +54,12 @@ fun verifySignature(username: String, message: String): Boolean {
     if (!metadata.isVerifiedSigned()) {
         return false
     }
-    logger.info { "Signature verification complete, valid signature" }
+    logger.debug { "Signature verification complete, valid signature" }
 
 
 
-    logger.info { "Signature verification against public key on file ..." }
-    logger.info { "signing key : ${metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()} public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}" }
+    logger.debug { "Signature verification against public key on file ..." }
+    logger.debug { "signing key : ${metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()} public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}" }
     val publicFingerprint = publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()
     val privateFingerPrint = metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
 
@@ -67,8 +67,9 @@ fun verifySignature(username: String, message: String): Boolean {
         return false
     }
     val recovered = outputStream.toString(Charsets.UTF_8.name())
-    logger.info { "Signature verification against expected challenge string..." }
+    logger.debug { "Signature verification against expected challenge string..." }
     val expectedMessage = pgpChallengeHashSet[username]?.challengeString ?: return false
+    logger.debug { "Signature verification success : ${expectedMessage == recovered }" }
     return recovered == expectedMessage
 }
 
