@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 object Users : Table(name = "Users") {
     val id: Column<Long> = long("id").autoIncrement()
     val userName: Column<String> = varchar("user_name", 45).uniqueIndex()
-    val passwordHash = text("password_hash")
+    val passwordHash = text("password_hash").nullable() // Making this nullable in the case a user wishes to disable password login for better account security
     val isAdmin = bool("is_admin").default(false)
     val isModerator = bool("is_moderator").default(false)
     val isSuspended = bool("is_suspended").default(false)

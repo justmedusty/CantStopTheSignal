@@ -174,15 +174,10 @@ fun Application.configureEditProfileRoutes() {
                 val params = call.receiveParameters()
 
 
-                val currentPassword = params.getOrFail("current_password")
+
                 val newPassword = params.getOrFail("new_password")
                 val newPasswordConfirm = params.getOrFail("confirm_password")
-                val username = getUserName(userId)!!
-                if (!verifyCredentials(username, currentPassword)) {
-                    logger.debug { "Passed username is ${getUserName(userId)} and password is $currentPassword" }
-                    val error = "Current password does not match your actual current password"
-                    return@post call.respondRedirect("/profile/edit/password?error=${error}")
-                }
+
 
                 if (newPassword != newPasswordConfirm) {
                     val error = "Your new password entries are not matching"
@@ -285,6 +280,8 @@ fun Application.configureEditProfileRoutes() {
                 return@post call.respondRedirect("/profile/edit/bio?success=${success}")
 
             }
+
+            delete("/profile/edit/pgp") {}
         }
 
     }

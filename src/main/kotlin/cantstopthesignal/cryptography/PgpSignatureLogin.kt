@@ -4,7 +4,7 @@ import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.applicationScope
-import io.ktor.util.toUpperCasePreservingASCIIRules
+import io.ktor.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.bouncycastle.openpgp.api.OpenPGPCertificate
@@ -56,20 +56,23 @@ fun verifySignature(username: String, message: String): Boolean {
     }
     logger.debug { "Signature verification complete, valid signature" }
 
-
-
     logger.debug { "Signature verification against public key on file ..." }
-    logger.debug { "signing key : ${metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()} public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}" }
+    logger.debug {
+        "signing key : ${
+            metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
+        } public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}"
+    }
     val publicFingerprint = publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()
-    val privateFingerPrint = metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
+    val privateFingerPrint =
+        metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
 
-    if(!publicFingerprint.equals(privateFingerPrint)){
+    if (!publicFingerprint.equals(privateFingerPrint)) {
         return false
     }
     val recovered = outputStream.toString(Charsets.UTF_8.name())
     logger.debug { "Signature verification against expected challenge string..." }
     val expectedMessage = pgpChallengeHashSet[username]?.challengeString ?: return false
-    logger.debug { "Signature verification success : ${expectedMessage == recovered }" }
+    logger.debug { "Signature verification success : ${expectedMessage == recovered}" }
     return recovered == expectedMessage
 }
 

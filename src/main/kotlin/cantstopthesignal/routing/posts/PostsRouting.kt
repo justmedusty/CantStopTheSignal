@@ -52,7 +52,7 @@ fun Application.configurePostRouting() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, postList[0].totalPages)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(postList.isEmpty()) 0 else postList[0].totalPages)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))

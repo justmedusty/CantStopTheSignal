@@ -1,5 +1,9 @@
 package cantstopthesignal.cryptography
 
+import cantstopthesignal.log.logger
+import kotlinx.io.IOException
+import org.pgpainless.PGPainless
+
 /*
     This doesn't actually verify the contents of the key just the format , if the format is good it's likely a good key. Someone could put a nonsense key there but that
     will be easily recognizable when someone tries to import the key from their profile
@@ -34,7 +38,16 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
 
     // Check for actual content between header and footer
     val content = trimmedKey.substringAfter(header).substringBeforeLast(footer).trim()
-    return content.isNotEmpty()
+    if (content.isEmpty()) return false
+
+    try {
+        val parsedKey = PGPainless.getInstance().readKey().parseCertificate(convertedKey)
+    } catch (e: IOException) {
+        logger.info { "${e.message} Could not parse PGP public key: $convertedKey" }
+        return false
+    }
+
+    return true
 }
 
 /*
@@ -114,19 +127,21 @@ fun convertSignedPgpMessage(message: String): String {
         for (marker in markers) {
             val markerTokens = marker.split(" ")
             if (i + markerTokens.size <= tokens.size &&
-                tokens.subList(i, i + markerTokens.size) == markerTokens) {
+                tokens.subList(i, i + markerTokens.size) == markerTokens
+            ) {
 
                 result.appendLine(marker)
 
                 //GPG is picky about this stuff so have to append a line after the begin pgp signature block
-                if (marker == markers[1]){
+                if (marker == markers[1]) {
                     result.appendLine()
                 }
 
                 // After BEGIN SIGNED MESSAGE, expect "Hash:" + value, then blank line
                 if (marker == "-----BEGIN PGP SIGNED MESSAGE-----") {
                     if (i + markerTokens.size < tokens.size &&
-                        tokens[i + markerTokens.size] == "Hash:") {
+                        tokens[i + markerTokens.size] == "Hash:"
+                    ) {
                         val hashValue = tokens[i + markerTokens.size + 1]
                         result.appendLine("Hash: $hashValue")
                         result.appendLine()

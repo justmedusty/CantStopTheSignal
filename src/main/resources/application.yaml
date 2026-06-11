@@ -51,4 +51,4 @@ site:
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
   signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it
-  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge
+  pgp_login_only: "true" # If this is enabled, there are no passwords and users must sign via PGP signature challenge

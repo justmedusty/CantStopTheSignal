@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirm Deletion</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #181b24;
+      --surface-hover: #1e2130;
+      --border: #272b3a;
+      --text-primary: #e8eaf2;
+      --text-secondary: #7b82a0;
+      --accent: #5b8af5;
+      --accent-soft: #1e2d56;
+      --danger: #e06060;
+      --danger-soft: #2d1a1a;
+      --muted: #4a5068;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+      --font: 'DM Sans', sans-serif;
+      --font-serif: 'Lora', serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-primary);
+      margin: 0;
+      padding: 2.5rem 1rem 4rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .error {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid #7a2020;
+      border-radius: var(--radius);
+      padding: 0.6rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-header .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--danger-soft);
+      color: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .card-header h1 {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .card-body {
+      padding: 1.5rem 1.75rem;
+    }
+
+    .card-body p.lead {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+
+    .item-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .item-preview .field-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+    }
+
+    .item-preview .field-row + .field-row {
+      border-top: 1px solid var(--border);
+    }
+
+    .item-preview .field-label {
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .item-preview .field-value {
+      color: var(--text-primary);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .item-preview .field-value.snippet {
+      font-style: italic;
+      color: var(--text-secondary);
+      text-align: left;
+      margin-top: 0.25rem;
+      line-height: 1.5;
+    }
+
+    .warning-text {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .warning-text strong {
+      color: var(--danger);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+      line-height: 1;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-secondary);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      opacity: 0.88;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="error" th:if="${error}" th:text="${error}"></div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">⚠️</div>
+      <h1>Confirm Deletion</h1>
+    </div>
+
+    <div class="card-body">
+      <p class="lead">
+        Are you sure you want to delete the following
+        <strong th:text="${item_type}">item</strong>?
+      </p>
+
+      <div class="item-preview">
+        <div class="field-row" th:if="${item_title}">
+          <span class="field-label">Title</span>
+          <span class="field-value" th:text="${item_title}">Item title</span>
+        </div>
+        <div class="field-row" th:if="${item_author}">
+          <span class="field-label">Author</span>
+          <span class="field-value" th:text="${item_author}">username</span>
+        </div>
+        <div class="field-row" th:if="${item_created}">
+          <span class="field-label">Created</span>
+          <span class="field-value"
+                th:text="${#temporals.format(item_created, 'MMMM d yyyy HH:mm')}+'UTC'">date</span>
+        </div>
+        <div class="field-row" th:if="${item_snippet}">
+          <span class="field-value snippet" th:text="${item_snippet}">Content preview goes here…</span>
+        </div>
+      </div>
+
+      <p class="warning-text">
+        <strong>This action cannot be undone.</strong> The
+        <span th:text="${item_type}">item</span> and any associated data will be permanently removed.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn-secondary" th:href="${cancel_url}">Cancel</a>
+        <form th:action="${delete_url}" method="post" style="display: contents;">
+          <button type="submit" class="btn btn-danger">🗑 Delete Permanently</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

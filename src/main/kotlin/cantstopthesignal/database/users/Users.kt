@@ -1,5 +1,6 @@
 package cantstopthesignal.database.users
 
+import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.log.logger
 import cantstopthesignal.security.hashPassword
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
@@ -25,7 +26,7 @@ import java.time.ZoneOffset
 data class User(
     val userName: String,
     val publicKey: String?,
-    val passwordHash: String,
+    val passwordHash: String?,
     val isAdmin: Boolean,
     val isModerator: Boolean,
     val isSuspended: Boolean
@@ -134,12 +135,13 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
  * @param user
  */ // Functions to perform CRUD operations on Users table
 fun createUser(user: User): Boolean {
+    if(user.passwordHash == null) return false
     try {
         transaction {
             if (userAndPasswordValidation(user.userName, "") && userAndPasswordValidation("", user.passwordHash)) {
                 val id: Long = Users.insert {
                     it[userName] = user.userName
-                    it[passwordHash] = hashPassword(user.passwordHash)
+                    it[passwordHash] = hashPassword(user.passwordHash!!)
                 } get Users.id
 
                 ProfileData.insert {
@@ -148,6 +150,37 @@ fun createUser(user: User): Boolean {
 
 
                 }
+            }
+        }
+        return true
+    } catch (e: Exception) {
+        logger.error { "Error creating user $e" }
+        return false
+    }
+}
+
+
+/**
+ * Create user
+ *
+ * @param user
+ */ // Functions to perform CRUD operations on Users table WITHOUT password login
+fun createUserWithoutPassword(user: User): Boolean {
+    try {
+        /*
+            This will be checked at a higher level but just in case because the user cannot log in if the key is wrong
+         */
+        if(user.publicKey == null) return false
+        if(!isValidOpenPGPPublicKey(user.publicKey)) return false
+        transaction {
+
+            val id: Long = Users.insert {
+                it[userName] = user.userName
+            } get Users.id
+
+            ProfileData.insert {
+                it[userId] = id
+                it[publicKey] = user.publicKey
             }
         }
         return true

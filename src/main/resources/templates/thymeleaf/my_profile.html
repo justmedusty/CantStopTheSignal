@@ -320,6 +320,7 @@
             color: var(--text-secondary);
             font-size: 1.1rem;
         }
+
         .role-badge-admin {
             background: #1e2d56;
             color: #7aa4f7;
@@ -393,13 +394,18 @@
         <span class="role-badge role-badge-mod" th:if="${profile_data.isModerator}">🔨 Moderator</span>
         <span class="role-badge role-badge-suspended" th:if="${profile_data.isSuspended}">🚫 Suspended</span>
     </span>
-            <a class="btn btn-secondary btn-sm" href="profile/edit/username">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm" href="/profile/edit/username">✏ Edit</a>
         </div>
 
         <div class="field-row">
             <span class="field-label">Password</span>
             <span class="field-value password-dots">••••••••</span>
-            <a class="btn btn-secondary btn-sm" href="profile/edit/password">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm" href="/profile/edit/password">✏ Edit</a>
+        </div>
+        <div class="field-row">
+            <span class="field-label"></span>
+            <span class="field-value empty">Remove your password if you wish to only allow PGP login.</span>
+            <a class="btn btn-danger btn-sm" href="/profile/edit/password/remove">Remove password</a>
         </div>
 
 
@@ -416,7 +422,7 @@
                   th:text="${profile_data.bio}">Bio goes here.</span>
             <span class="field-value empty"
                   th:if="${#strings.isEmpty(profile_data.bio)}">No biography set.</span>
-            <a class="btn btn-secondary btn-sm" href="profile/edit/bio">✏ Edit</a>
+            <a class="btn btn-secondary btn-sm" href="/profile/edit/bio">✏ Edit</a>
         </div>
     </div>
 
@@ -434,14 +440,14 @@
                       th:if="${#strings.isEmpty(profile_data.publicKey)}">No PGP key set.</span>
             </div>
             <a class="btn btn-secondary btn-sm"
-               href="profile/edit/pgp"
+               href="/profile/edit/pgp"
                th:text="${#strings.isEmpty(profile_data.publicKey)} ? '+ Add' : '✏ Edit'">✏ Edit</a>
         </div>
 
         <div class="field-row" th:if="${not #strings.isEmpty(profile_data.publicKey)}">
             <span class="field-label"></span>
             <span class="field-value empty">Remove your PGP key if you no longer need encrypted messaging.</span>
-            <a class="btn btn-danger btn-sm" href="profile/edit/pgp/remove">Remove Key</a>
+            <a class="btn btn-danger btn-sm" href="/profile/edit/pgp/remove">Remove Key</a>
         </div>
     </div>
 
