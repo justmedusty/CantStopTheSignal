@@ -36,16 +36,6 @@
             color: var(--text-primary);
         }
 
-        .card {
-            background: var(--surface);
-            padding: 2rem 2.25rem;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 360px;
-        }
-
         .card h1 {
             font-family: var(--font-serif);
             font-size: 1.6rem;
@@ -126,30 +116,43 @@
             display: flex;
             justify-content: center;
         }
+        .card {
+            background: var(--surface);
+            padding: 2rem 2.25rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 560px;
+        }
+
         h2 {
-            font-family: 'Segoe UI', sans-serif;
-            color: #2c3e50;
+            font-family: var(--font-serif);
+            color: var(--text-primary);
             text-align: center;
-            margin: 0.25em 0;
+            margin: 0.4em 0;
             word-break: break-all;
         }
 
         h2:first-of-type {
             font-size: 1.4rem;
             font-weight: 600;
-            color: #34495e;
+            color: var(--text-primary);
         }
 
         h2:nth-of-type(2) {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 400;
-            background: #f4f4f4;
-            border: 1px solid #ddd;
+            background: var(--bg);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 8px 12px;
+            padding: 10px 14px;
             font-family: monospace;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+            overflow-wrap: break-word;
         }
-
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -179,7 +182,9 @@
     <div class="success" th:if="${success}" th:text="${success}"></div>
     <h2 th:text="${chllange_username}"></h2>
     <h2 th:text="${challenge_string}"></h2>
+    <br><br>
     <h3>You must sign the challenge string with your PGP key on file, it will be verified and if the signature matches, you will be granted access. You have 5 minutes before the challenge expires.</h3>
+    <br><br>
     <form action="/login/attemptchallenge" method="post">
         <div class="form-group">
             <label for="challenge">Signed Challenge String</label>

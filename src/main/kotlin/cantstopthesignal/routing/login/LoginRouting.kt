@@ -1,16 +1,15 @@
 package com.freedom.cantstopthesignal.routing
 
-import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.convertSignedPgpMessage
 import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
-import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.userNameAlreadyExists
 import cantstopthesignal.database.users.verifyCredentials
 import cantstopthesignal.log.logger
 import cantstopthesignal.security.JWTConfig
 import cantstopthesignal.security.createJWT
+import com.freedom.cantstopthesignal.cryptography.pgpChallengeHashSet
 import com.freedom.cantstopthesignal.cryptography.registerNewChallenge
 import com.freedom.cantstopthesignal.cryptography.verifySignature
 import com.freedom.cantstopthesignal.enums.Length
@@ -28,9 +27,12 @@ fun Application.configureLoginRoutes() {
     routing {
 
         get("/login") {
+
             val error = call.request.queryParameters["error"]
             val success = call.request.queryParameters["success"]
-
+            if (siteConfig?.pgpLoginOnly == true) {
+                return@get call.respondRedirect("/login/pgpchallenge${if (success == null) "" else "?success=$success"}${if (error == null) "" else "?error=$error"}")
+            }
 
             val map = buildMap {
                 put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
@@ -69,25 +71,27 @@ fun Application.configureLoginRoutes() {
             val error = call.request.queryParameters["error"]
             val success = call.request.queryParameters["success"]
             val parameters = call.receiveParameters()
-            val username = parameters["username"] ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a username")
+            val username = parameters["username"]
+                ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a username")
 
-            if(!userNameAlreadyExists(username)){
+            if (!userNameAlreadyExists(username)) {
                 val error = "No user with this username: $username was found"
                 call.respondRedirect("/login/pgpchallenge?error=$error")
             }
 
-            if(getPublicKey(getUserId(username)!! /* We can assert null because the username exists from the check above, it will have an ID */) == null){
+            if (getPublicKey(getUserId(username)!! /* We can assert null because the username exists from the check above, it will have an ID */) == null) {
                 val error = "This account does not have a PGP key uploaded, so a challenge is not possible"
                 call.respondRedirect("/login/pgpchallenge?error=$error")
             }
 
-            logger.debug { "registering a new challenge"}
+            logger.debug { "registering a new challenge" }
 
-            val challengeString = registerNewChallenge(username)
+            val challengeString =
+                if (pgpChallengeHashSet[username] == null) registerNewChallenge(username) else pgpChallengeHashSet[username]?.challengeString
 
-            logger.debug { "registered a new challenge" }
-            if(challengeString == null){
-                val error = "An unexpected error occurred while generating your challenge"
+            logger.debug { "preparing PGP challenge" }
+            if (challengeString == null) {
+                val error = "An unexpected error occurred while generating or fetching your challenge"
                 call.respondRedirect("/login/pgpchallenge?error=$error")
             }
 
@@ -114,16 +118,18 @@ fun Application.configureLoginRoutes() {
             val error = call.request.queryParameters["error"]
             val success = call.request.queryParameters["success"]
             val params = call.receiveParameters()
-            val username = params["username"] ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a username")
-            val signedChallenge = params["challenge"] ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a signed challenge")
+            val username = params["username"]
+                ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a username")
+            val signedChallenge = params["challenge"]
+                ?: return@post call.respondRedirect("/login/pgpchallenge?error=You must provide a signed challenge")
 
-            if(!isPgpMessageOrPgpKey(signedChallenge)){
+            if (!isPgpMessageOrPgpKey(signedChallenge)) {
                 val error = "The challenge doesn't have the required format"
                 call.respondRedirect("/login/pgpchallenge?error=$error")
             }
             val fixedMessage = convertSignedPgpMessage(signedChallenge)
 
-            if(!verifySignature(username, fixedMessage)) {
+            if (!verifySignature(username, fixedMessage)) {
                 val error = "Your challenge is either incorrectly signed, expired, or does not exist."
                 call.respondRedirect("/login/pgpchallenge?error=$error")
             }
@@ -139,7 +145,13 @@ fun Application.configureLoginRoutes() {
                 ),
             ))
             call.response.cookies.append(
-                Cookie(name = "jwt", value = token, httpOnly = true, secure = false /* THIS IS FOR I2P ONLY YOU MUST CHANGE THIS IF YOU RUN IT THROUGH TOR OR CLEARNET */ , path = "/"),
+                Cookie(
+                    name = "jwt",
+                    value = token,
+                    httpOnly = true,
+                    secure = false /* THIS IS FOR I2P ONLY YOU MUST CHANGE THIS IF YOU RUN IT THROUGH TOR OR CLEARNET */,
+                    path = "/"
+                ),
             )
             //Redirect user to the home page
             return@post call.respondRedirect("/feed")
@@ -149,33 +161,21 @@ fun Application.configureLoginRoutes() {
 
             get("/logout") {
                 val error = call.request.queryParameters["error"]
-                var success = call.request.queryParameters["success"]
-
-                if (success == null && error == null) {
-                    success = "Logged out successfully!"
-                }
-                //We should probably do some invalidation , but it's short lived enough so maybe this is fine
-                val model = buildMap {
-                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
-                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
-                    if (error != null) {
-                        put(ThymeLeafMapKeys.ERROR.value, error)
-                    }
-
-                    if (success != null) {
-                        put(ThymeLeafMapKeys.SUCCESS.value, success)
-                    }
-
-                }
-
-                return@get call.respond(
-                    ThymeleafContent("login", model)
-                )
+                val success = call.request.queryParameters["success"]
+                /*
+                 This will not work properly if both are defined but that shouldnt happen
+                 "Ive got some good news and some bad news" type shit
+                 */
+                call.respondRedirect("/login${if (error == null) "" else "?error=$error"}${if (success == null) "" else "?success=$success"}")
             }
         }
 
 
         post("/login") {
+            if (siteConfig?.pgpLoginOnly == true) {
+                return@post call.respondRedirect("/login/pgpchallenge")
+            }
+
             val params = call.receiveParameters()
 
             //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
@@ -217,7 +217,13 @@ fun Application.configureLoginRoutes() {
                 ),
             ))
             call.response.cookies.append(
-                Cookie(name = "jwt", value = token, httpOnly = true, secure = false /* THIS IS FOR I2P ONLY YOU MUST CHANGE THIS IF YOU RUN IT THROUGH TOR OR CLEARNET */ , path = "/"),
+                Cookie(
+                    name = "jwt",
+                    value = token,
+                    httpOnly = true,
+                    secure = false /* THIS IS FOR I2P ONLY YOU MUST CHANGE THIS IF YOU RUN IT THROUGH TOR OR CLEARNET */,
+                    path = "/"
+                ),
             )
             //Redirect user to the home page
             return@post call.respondRedirect("/feed")

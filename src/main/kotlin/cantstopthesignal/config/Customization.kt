@@ -22,6 +22,7 @@ data class SiteConfig(
     val rateLimitWindowSecondsLoginSignup: Long,
     val rateLimitNumAllowedInWindowLoginSignup: Long,
     val signupsDisabled: Boolean,
+    val pgpLoginOnly: Boolean,
 
 )
 
@@ -48,5 +49,6 @@ fun Application.loadSiteConfig() {
         rateLimitNumAllowedInWindowLoginSignup = config.property("rate_limit_num_allowed_in_window_login_signup")
             .getString().toLong(),
         signupsDisabled = config.property("signups_disabled").getString().toBoolean(),
+        pgpLoginOnly = config.property("pgp_login_only").getString().toBoolean(),
     )
 }

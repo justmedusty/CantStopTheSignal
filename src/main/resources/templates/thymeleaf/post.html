@@ -724,7 +724,7 @@
         <div class="post-body">
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
-                <span class="post-topic" th:text="${post.topic}">Topic</span>
+                <span class="post-topic" ><a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}"></a></span>
             </div>
 
             <p class="post-meta">
