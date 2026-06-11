@@ -2,11 +2,12 @@ package com.freedom.cantstopthesignal.cryptography
 
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.applicationScope
+import io.ktor.util.toUpperCasePreservingASCIIRules
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
-import org.bouncycastle.openpgp.api.OpenPGPKey
+import org.bouncycastle.openpgp.api.OpenPGPCertificate
 import org.bouncycastle.util.io.Streams
 import org.pgpainless.PGPainless
 import org.pgpainless.decryption_verification.ConsumerOptions
@@ -24,17 +25,21 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 
 data class PgpSignatureLoginChallenge(
-    val userPublicKey: OpenPGPKey,
+    val userPublicKey: OpenPGPCertificate,
     val challengeString: String,
 )
 
 val pgpChallengeHashSet: MutableMap<String, PgpSignatureLoginChallenge> = HashMap()
 
-fun verifySignature(publicKey: String, message: String, expectedMessage: String): Boolean {
+fun verifySignature(username: String, message: String): Boolean {
+
     val api = PGPainless.getInstance()
+
+    print(message)
     val inputStream: InputStream = ByteArrayInputStream(message.toByteArray())
     val outputStream = ByteArrayOutputStream()
-    val publicKey = PGPainless.getInstance().readKey().parseKey(publicKey)
+    val publicKey = pgpChallengeHashSet[username]?.userPublicKey ?: return false
+
     val decryptionStream: DecryptionStream =
         PGPainless.getInstance().processMessage().onInputStream(inputStream).withOptions(
             ConsumerOptions.get(api)
@@ -49,9 +54,21 @@ fun verifySignature(publicKey: String, message: String, expectedMessage: String)
     if (!metadata.isVerifiedSigned()) {
         return false
     }
+    logger.info { "Signature verification complete, valid signature" }
 
-    if (metadata.verifiedSignatures.none { it.signingKey == publicKey.fingerprint }) return false
+
+
+    logger.info { "Signature verification against public key on file ..." }
+    logger.info { "signing key : ${metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()} public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}" }
+    val publicFingerprint = publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()
+    val privateFingerPrint = metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
+
+    if(!publicFingerprint.equals(privateFingerPrint)){
+        return false
+    }
     val recovered = outputStream.toString(Charsets.UTF_8.name())
+    logger.info { "Signature verification against expected challenge string..." }
+    val expectedMessage = pgpChallengeHashSet[username]?.challengeString ?: return false
     return recovered == expectedMessage
 }
 
@@ -59,12 +76,13 @@ fun verifySignature(publicKey: String, message: String, expectedMessage: String)
     Register a challenge, generates a random UUID
  */
 fun registerNewChallenge(user: String): String? /* Successful creation or not */ {
-    val challengeString = (UUID.randomUUID().toString() + UUID.randomUUID().toString() + java.time.LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+    val challengeString = (UUID.randomUUID().toString() + UUID.randomUUID().toString() + java.time.LocalDateTime.now()
+        .toEpochSecond(ZoneOffset.UTC))
     val userId = getUserId(user) ?: return null
     val publicKey = getPublicKey(userId) ?: return null
 
     val signatureLoginChallenge = PgpSignatureLoginChallenge(
-        PGPainless.getInstance().readKey().parseKey(publicKey),
+        PGPainless.getInstance().readKey().parseCertificate(publicKey),
         challengeString,
     )
 

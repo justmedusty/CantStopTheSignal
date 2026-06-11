@@ -126,6 +126,29 @@
             display: flex;
             justify-content: center;
         }
+        h2 {
+            font-family: 'Segoe UI', sans-serif;
+            color: #2c3e50;
+            text-align: center;
+            margin: 0.25em 0;
+            word-break: break-all;
+        }
+
+        h2:first-of-type {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        h2:nth-of-type(2) {
+            font-size: 1.1rem;
+            font-weight: 400;
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: monospace;
+        }
 
         /* ── Flash messages ── */
         .error {
@@ -150,21 +173,23 @@
 </head>
 <body>
 <div class="card">
-    <h1>Login</h1>
+    <h1>PGP Login</h1>
 
     <div class="error"   th:if="${error}"   th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+    <h2 th:text="${chllange_username}"></h2>
+    <h2 th:text="${challenge_string}"></h2>
+    <h3>You must sign the challenge string with your PGP key on file, it will be verified and if the signature matches, you will be granted access. You have 5 minutes before the challenge expires.</h3>
+    <form action="/login/attemptchallenge" method="post">
+        <div class="form-group">
+            <label for="challenge">Signed Challenge String</label>
+            <input type="text" id="challenge" name="challenge" required />
+        </div>
+        <div class="form-group">
+            <input type="text" id="username" name="username" th:value="${challenge_username}" hidden="hidden" required />
+        </div>
 
-    <form action="login" method="post">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required />
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required />
-        </div>
-        <button class="btn btn-submit" type="submit">Login</button>
+        <button class="btn btn-submit" type="submit">Attempt Challenge</button>
     </form>
 
     <div class="card-footer">

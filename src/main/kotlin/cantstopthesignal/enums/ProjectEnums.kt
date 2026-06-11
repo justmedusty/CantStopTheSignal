@@ -64,7 +64,9 @@ enum class ThymeLeafMapKeys(val value: String) {
     SORT_ORDER_COMMENTS("comments"),
     SEARCH_TEXT("search_text"),
     SEARCH_FIELD("search_field"),
-    SEARCH_INFO("info")
+    SEARCH_INFO("info"),
+    PGP_CHALLENGE_STRING("challenge_string"),
+    PGP_CHALLENGE_USERNAME("challenge_username"),
 }
 
 enum class SortOrderValues(val value: String) {
