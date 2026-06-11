@@ -32,48 +32,54 @@ data class PgpSignatureLoginChallenge(
 val pgpChallengeHashSet: MutableMap<String, PgpSignatureLoginChallenge> = HashMap()
 
 fun verifySignature(username: String, message: String): Boolean {
+    try {
+        val api = PGPainless.getInstance()
 
-    val api = PGPainless.getInstance()
+        val inputStream: InputStream = ByteArrayInputStream(message.toByteArray())
+        val outputStream = ByteArrayOutputStream()
+        val publicKey = pgpChallengeHashSet[username]?.userPublicKey ?: return false
 
-    print(message)
-    val inputStream: InputStream = ByteArrayInputStream(message.toByteArray())
-    val outputStream = ByteArrayOutputStream()
-    val publicKey = pgpChallengeHashSet[username]?.userPublicKey ?: return false
+        val decryptionStream: DecryptionStream =
+            PGPainless.getInstance().processMessage().onInputStream(inputStream).withOptions(
+                ConsumerOptions.get(api)
+                    .addVerificationCert(publicKey)
+            )
 
-    val decryptionStream: DecryptionStream =
-        PGPainless.getInstance().processMessage().onInputStream(inputStream).withOptions(
-            ConsumerOptions.get(api)
-                .addVerificationCert(publicKey)
-        )
+        Streams.pipeAll(decryptionStream, outputStream)
+        decryptionStream.close()
 
-    Streams.pipeAll(decryptionStream, outputStream)
-    decryptionStream.close()
+        val metadata = decryptionStream.metadata
 
-    val metadata = decryptionStream.metadata
+        if (!metadata.isVerifiedSigned()) {
+            return false
+        }
+        logger.debug { "Signature verification complete, valid signature" }
 
-    if (!metadata.isVerifiedSigned()) {
-        return false
-    }
-    logger.debug { "Signature verification complete, valid signature" }
+        logger.debug { "Signature verification against public key on file ..." }
+        logger.debug {
+            "signing key : ${
+                metadata.verifiedSignatures[0].signingKey.toString().trim()
+                    .split(" ")[0].toUpperCasePreservingASCIIRules()
+            } public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}"
+        }
 
-    logger.debug { "Signature verification against public key on file ..." }
-    logger.debug {
-        "signing key : ${
+        val publicFingerprint = publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()
+
+        val privateFingerPrint =
             metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
-        } public key fingerprint ${publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()}"
-    }
-    val publicFingerprint = publicKey.fingerprint.toHexString().toUpperCasePreservingASCIIRules()
-    val privateFingerPrint =
-        metadata.verifiedSignatures[0].signingKey.toString().trim().split(" ")[0].toUpperCasePreservingASCIIRules()
 
-    if (!publicFingerprint.equals(privateFingerPrint)) {
+        if (!publicFingerprint.equals(privateFingerPrint)) {
+            return false
+        }
+        val recovered = outputStream.toString(Charsets.UTF_8.name())
+        logger.debug { "Signature verification against expected challenge string..." }
+        val expectedMessage = pgpChallengeHashSet[username]?.challengeString ?: return false
+        logger.debug { "Signature verification success : ${expectedMessage == recovered}" }
+        return recovered == expectedMessage
+    } catch (e: Exception) {
+        logger.info(e) { "Signature verification failed" }
         return false
     }
-    val recovered = outputStream.toString(Charsets.UTF_8.name())
-    logger.debug { "Signature verification against expected challenge string..." }
-    val expectedMessage = pgpChallengeHashSet[username]?.challengeString ?: return false
-    logger.debug { "Signature verification success : ${expectedMessage == recovered}" }
-    return recovered == expectedMessage
 }
 
 /*

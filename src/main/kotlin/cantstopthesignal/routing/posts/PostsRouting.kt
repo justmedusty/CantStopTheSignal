@@ -29,7 +29,6 @@ fun Application.configurePostRouting() {
         authenticate("jwt") {
             get("/feed") {
 
-
                 val page = call.request.queryParameters["page"]?.toInt()?.coerceAtLeast(1) ?: 1
                 val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"

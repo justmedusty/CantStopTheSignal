@@ -166,6 +166,7 @@ fun Application.configureLoginRoutes() {
                  This will not work properly if both are defined but that shouldnt happen
                  "Ive got some good news and some bad news" type shit
                  */
+
                 call.respondRedirect("/login${if (error == null) "" else "?error=$error"}${if (success == null) "" else "?success=$success"}")
             }
         }

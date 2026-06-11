@@ -1,19 +1,21 @@
 package cantstopthesignal.security
 
-import cantstopthesignal.log.logger
-import io.ktor.server.application.*
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.helper.verifyCredentials
 import com.freedom.cantstopthesignal.siteConfig
-import io.ktor.http.auth.parseAuthorizationHeader
+import io.ktor.http.auth.*
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondRedirect
-import io.ktor.server.thymeleaf.ThymeleafContent
+import io.ktor.server.response.*
+import java.time.LocalDateTime
 
+val tokenBlackList: HashMap<String, Token> = mutableMapOf<String, Token>() as HashMap<String, Token>
+
+data class Token(
+    val subject: String,
+    val time: LocalDateTime
+)
 fun Application.configureSecurity() {
     authentication {
         jwt(name = "jwt") {
@@ -37,10 +39,12 @@ fun Application.configureSecurity() {
                 if (credential.payload.subject != null) JWTPrincipal(credential.payload) else null
             }
 
+
+
             challenge { _, _ ->
                 val error = "Your token has expired or is invalid."
-              return@challenge call.respondRedirect("/index?error=${error}")
+                return@challenge call.respondRedirect("/index?error=${error}")
             }
         }
     }
-    }
+}
