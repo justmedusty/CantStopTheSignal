@@ -6,8 +6,9 @@
 CantStopTheSignal is a total NO JAVASCRIPT server side rendered Kotlin webservice built with ktor and thymeleaf. It supports creating posts with titles topics and 
 contents. Lists of all popular topics can be viewed from the file icon from the feed fiew. Post contents and topics can  also be searched with the magnifying glass 
 icon in the main feed. It can be made invite only in which case you will need an admin generated UUID invite code to join otherwise you just require
-a username and password and optional public key that will go on your profile for others to see so they can import it locally and encrypt messages to you. 
-Private message conversations  are supported with up to 15 members and a configurable group name. Message conversations have timestamps so you can see when 
+a username and password and optional public key that will go on your profile for others to see so they can import it locally and encrypt messages to you. You can log in via your PGP
+key on file, and the site owner can make PGP login mandatory, entirely disallowing password login altogether. PGP challenge based login brings a lot of extra security that password login can 
+not bring. Private message conversations  are supported with up to 15 members and a configurable group name. Message conversations have timestamps so you can see when 
 messages were sent, by who etc. YOu will receive notifications when people message you, you will receive notifications anytime someone comments on your post, 
 likes your post, likes your comment, and replies to your comment. You can upload a bio once signed up that users will see when they click your name in the 
 comment section or on a post as the author. You can independently sort through topic posts so you can filter posts by topic and then by likes dislikes comment count
