@@ -65,7 +65,7 @@ fun encryptMessageForMany(publicKeys: List<String>, message: String): ByteArray?
             encryptionOptions.addRecipient(publicKey)
         }
         encryptionOptions.overrideEncryptionMechanism(
-            MessageEncryptionMechanism.librePgp(SymmetricKeyAlgorithm.AES_256.ordinal)
+            MessageEncryptionMechanism.librePgp(SymmetricKeyAlgorithm.AES_256.algorithmId)
         )
 
         val encryptionStream = api.generateMessage().onOutputStream(outputStream).withOptions(
