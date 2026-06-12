@@ -1,5 +1,6 @@
 package com.freedom.cantstopthesignal.database.dsl.table_definitions
 
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes.dislikedById
 import com.freedom.cantstopthesignal.siteConfig
 import org.jetbrains.exposed.v1.javatime.datetime
 import org.jetbrains.exposed.v1.core.Column
@@ -90,6 +91,9 @@ object Posts : Table(name = "Posts") {
     val posterId: Column<Long> = long("posterId").references(Users.id)
     val topic: Column<String> = varchar("topic", 60)
     val timestamp: Column<LocalDateTime> = datetime("timestamp").defaultExpression(CurrentDateTime)
+    val deleted: Column<Boolean> = bool("deleted").default(false)
+    val deletedReason: Column<Long?> = long("deleted_reason").nullable().default(null) /* soft deletion */
+
 
 
     override val primaryKey = PrimaryKey(id)
@@ -101,6 +105,9 @@ object PostLikes : Table(name = "Likes") {
     val likedById: Column<Long> = long("likedById").references(Users.id)
 
 
+    init {
+        index(true, PostLikes.postId, likedById)
+    }
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -144,6 +151,8 @@ object Comments : Table(name = "Comments") {
     val parentCommentId: Column<Long?> =
         long("parentCommentId").references(id, onDelete = ReferenceOption.CASCADE).nullable().default(null)
     val timeStamp: Column<LocalDateTime> = datetime("time_posted").defaultExpression(CurrentDateTime)
+    val deleted: Column<Boolean> = bool("deleted").default(false)
+    val deletedReason: Column<Long?> = long("deleted_reason").nullable().default(null) /* soft deletion */
 
 
     override val primaryKey = PrimaryKey(id)
@@ -192,7 +201,7 @@ object AdminLogs : Table(name = "AdminLogs") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("timestamp")
     val doneById: Column<Long> = long("done_by_id").references(Users.id)
-    val action_string: Column<String> = text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
+    val actionString: Column<String> = text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
     //cont. ^ I would tie it to ids but if a post is removed then there will no longer be an id to link to. This is mostly so that admins can just do whatever other staff can see what theyre doing
     val reason: Column<String> = text("reason")
 

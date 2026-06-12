@@ -28,7 +28,7 @@ data class AdminLogEntry(
     val reason: String
 )
 
-fun insertAdminLogEntry(user: Long, doneBy: Long, reasonString: String, actionString: String): Boolean {
+fun insertAdminLogEntry(user: Long, reasonString: String, action: String): Boolean {
 
     if (!isUserAdmin(user)) {
         return false
@@ -38,8 +38,9 @@ fun insertAdminLogEntry(user: Long, doneBy: Long, reasonString: String, actionSt
         transaction {
             AdminLogs.insert {
                 it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
-                it[doneById] = doneBy
+                it[doneById] = user
                 it[reason] = reasonString
+                it[actionString] = action
             }.insertedCount > 0
         }
 
@@ -67,7 +68,7 @@ fun getAdminLogEntries(page: Int, limit: Int, userId: Long, order: String?): Lis
                         it[AdminLogs.id],
                         it[AdminLogs.timestamp],
                         getUserName(it[AdminLogs.doneById]) ?: return@transaction null,
-                        it[AdminLogs.action_string],
+                        it[AdminLogs.actionString],
                         it[AdminLogs.reason]
                     )
                 }

@@ -86,6 +86,7 @@ fun verifySignature(username: String, message: String): Boolean {
     Register a challenge, generates a random UUID
  */
 fun registerNewChallenge(user: String): String? /* Successful creation or not */ {
+
     val challengeString = (UUID.randomUUID().toString() + UUID.randomUUID().toString() + java.time.LocalDateTime.now()
         .toEpochSecond(ZoneOffset.UTC))
     val userId = getUserId(user) ?: return null

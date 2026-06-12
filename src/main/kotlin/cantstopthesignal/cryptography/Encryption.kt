@@ -51,23 +51,7 @@ fun encryptMessage(publicKey: String, message: String): ByteArray? {
     }
 
 }
-/*
-    At some point this will be used for password recovery in lieu of no email, send the user a message and tell them to sign it within a certain timeframe, verify that it is signed. This will need modification to make
-    it work 100% but this is the jist of it.
- */
-fun verifySignature(publicKey: String, signature: String): Boolean {
-    return try {
-        val sop = SOPImpl()
-        val signingCert = publicKey.toByteArray()
-        val signedMessage = signature.toByteArray()
-        val readyWithResult =
-            sop.inlineVerify().cert(publicKey.toByteArray()).data(signature.toByteArray()).toByteArrayAndResult()
-        return readyWithResult.result.isNotEmpty()
-    } catch (e: SOPGPException.UnsupportedSubcommand) {
-        logger.error { "An error occurred while verifiyng a PGP signature : ${e.message}" }
-        false
-    }
-}
+
 
 fun encryptMessageForMany(publicKeys: List<String>, message: String): ByteArray? {
     return try {

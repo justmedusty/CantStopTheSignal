@@ -90,3 +90,10 @@ enum class SiteWidePermissions(val value: Int) {
     SUSPENDED_SIGNUPS(1), // This will disable signups until the entry is removed from the database
     SERVER_MAINTENANCE(2), //This will prevent logins until you are done doing your database backup or whatever you want to do, this will be checked for in the auth flow so existing sessions can be logged out
 }
+
+enum class DeletionReason(val value: Long) {
+    DELETED_BY_USER(1),
+    ADMIN_SPAM(2),
+    ADMIN_BAD_FAITH(3),
+    ADMIN_SENSITIVE_INFO(4)
+}

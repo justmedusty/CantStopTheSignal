@@ -4,11 +4,13 @@ import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
+import cantstopthesignal.helper.getDeletionReasonString
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -35,6 +37,8 @@ data class Comment(
     val isCommentDislikedByMe: Boolean,
     val hasReplies: Boolean,
     val myComment: Boolean,
+    val deleted: Boolean,
+    val deletedReason: String?,
     val totalPages: Long //This will be duplicated more than is needed but this makes it easier for me to insert it right in depending on the query being made
 )
 
@@ -242,6 +246,8 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     isCommentDisliked,
                     hasReplies,
                     it[Comments.commenterId] == userId,
+                    it[Comments.deleted],
+                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     0 //no pages for a 1 comment query
                 )
             }
@@ -330,6 +336,8 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     isCommentDisliked,
                     hasReplies,
                     it[Comments.commenterId] == userId,
+                    it[Comments.deleted],
+                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     totalPages
                 )
             }
@@ -371,6 +379,8 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         isCommentDisliked,
                         hasReplies,
                         it[Comments.commenterId] == requesterId,
+                        it[Comments.deleted],
+                        if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                         totalPages
                     )
                 }
@@ -408,6 +418,8 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     hasReplies,
                     it[Comments.commenterId] == requesterId,
+                    it[Comments.deleted],
+                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     0
                 )
             }
@@ -438,6 +450,8 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                         isCommentDisliked,
                         hasRepliesChild,
                         it[Comments.commenterId] == requesterId,
+                        it[Comments.deleted],
+                        if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                         totalPages
                     )
                 }

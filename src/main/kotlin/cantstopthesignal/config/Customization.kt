@@ -6,7 +6,8 @@ import io.ktor.server.application.*
 data class SiteConfig(
     val name: String,
     val topic: String,
-    val motd: String,
+    var motd: String,
+    var infoMessage: String?,
     val pgpHelp: String,
     val pgpWarning : String,
     val noEncryptWarningGroup: String,
@@ -23,8 +24,8 @@ data class SiteConfig(
     val rateLimitNumAllowedInWindowLoginSignup: Long,
     val signupsDisabled: Boolean,
     val pgpLoginOnly: Boolean,
-
 )
+
 
 fun Application.loadSiteConfig() {
     val config = environment.config.config("site")
@@ -32,6 +33,7 @@ fun Application.loadSiteConfig() {
         name = config.property("name").getString(),
         topic = config.property("topic").getString(),
         motd = config.property("motd").getString(),
+        infoMessage = null /* This will be for admins to set in case theres any alerts or announcements*/,
         pgpHelp = config.property("pgp_help").getString(),
         pgpWarning = config.property("pgp_warning").getString(),
         noEncryptWarningGroup = config.property("no_encrypt_warning_group").getString(),

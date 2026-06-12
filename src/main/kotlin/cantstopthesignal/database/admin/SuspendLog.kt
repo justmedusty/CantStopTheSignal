@@ -32,14 +32,23 @@ data class SuspendLog(
 fun insertSuspendEntry(userId: Long, reasonString: String, suspendedUser: Long): Boolean {
     return try {
         transaction {
-            SuspendLog.insert {
+            val ret = SuspendLog.insert {
                 it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
                 it[adminId] = userId
                 it[suspendedUserId] = suspendedUser
                 it[reason] = reasonString
             }.insertedCount > 0
 
+            if(!ret) {return@transaction false}
+
+            insertAdminLogEntry(
+                userId,
+                reasonString,
+                "${getUserName(userId)} suspended ${getUserName(suspendedUser)}",
+            )
+
         }
+
     } catch (e: Exception) {
         logger.error { e.message }
         false

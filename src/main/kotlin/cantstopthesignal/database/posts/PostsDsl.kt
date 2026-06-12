@@ -4,6 +4,7 @@ import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
+import cantstopthesignal.helper.getDeletionReasonString
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.enums.Length
@@ -33,6 +34,8 @@ data class Post(
     val dislikedByMe: Boolean,
     val lastEdited: String?,
     val commentCount: Long,
+    val deleted: Boolean,
+    val deletedReason: String?,
     val myPost: Boolean, //this can be used to toggle the edit and delete buttons
     val totalPages: Long //Again this causes duplication but this makes life easier with the way things are set up at the time of adding this field
 )
@@ -230,6 +233,8 @@ fun fetchPostsByTopic(
                     isPostDislikedByMe,
                     lastEdited.toString(),
                     commentCount,
+                    it[Posts.deleted],
+                    if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     userId == it[Posts.posterId],
                     totalPages,
 
@@ -278,6 +283,8 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         isPostDislikedByMe,
                         lastEdited.toString(),
                         commentCount,
+                        it[Posts.deleted],
+                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == callerId,
                         totalPages,
 
@@ -321,6 +328,8 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         dislikedByMe,
                         lastEdited.toString(),
                         commentCount,
+                        it[Posts.deleted],
+                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         totalPages,
 
@@ -362,6 +371,8 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         dislikedByMe,
                         lastEdited.toString(),
                         commentCount,
+                        it[Posts.deleted],
+                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         0 //Just one post so no point
 
@@ -430,6 +441,8 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     isPostDislikedByMe,
                     lastEdited.toString(),
                     commentCount,
+                    it[Posts.deleted],
+                    if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     it[Posts.posterId] == userId,
                     totalPages,
                 )
@@ -478,6 +491,8 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     isDislikedByMe,
                     lastEdited.toString(),
                     commentCount,
+                    row[Posts.deleted],
+                    if(row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),
                     row[Posts.id] == userId,
                     totalPages
 
