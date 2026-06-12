@@ -297,7 +297,9 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 Comments.commenterId,
                 Comments.isReply,
                 parentCommentId,
-                Comments.timeStamp
+                Comments.timeStamp,
+                Comments.deleted,
+                Comments.deletedReason
             ).where { (Comments.postId eq postId) and (Comments.isReply eq false) }
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
 
@@ -352,7 +354,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
     return try {
         transaction {
             val totalPages = Comments.selectAll().where(Comments.postId eq userId).count() / pageSize.toLong()
-            Comments.select(Comments.commenterId eq userId)
+            Comments.selectAll().where(Comments.commenterId eq userId)
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
                     val commentLikes: Long = getLikesForComment(it[Comments.id])
                     val commentDislikes: Long = getDislikesForComment(it[Comments.id])
