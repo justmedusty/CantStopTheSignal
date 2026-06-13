@@ -48,9 +48,6 @@ fun doesNotificationAlreadyExist(
                 .where { (Notifications.postId eq post) and (Notifications.userWhoInteracted eq userWhoInteracted) and (Notifications.commentId eq comment) and (Notifications.userId eq user) and (Notifications.type eq notifType) }
                 .count()
 
-            if(count > 0 && notifType == Notif.COMMENT_LIKE.value || notifType == Notif.POST_LIKE.value) {
-                return@transaction true
-            }
             count > 0
         }
     } catch (e: Exception) {
@@ -68,20 +65,23 @@ fun insertNotification(
 ): Boolean? {
     if (postId == null && commentId == null) return false
     return try {
-        if (doesNotificationAlreadyExist(postId, commentId, user, userWhoInteracted, notifType)) {
-            return null
+        transaction {
+            if (doesNotificationAlreadyExist(postId, commentId, user, userWhoInteracted, notifType)) {
+                logger.info { "Notification already exists post ${postId} comment ${commentId} user ${user} userwhointeracted ${userWhoInteracted} notiftype ${notifType}" }
+                return@transaction false
+            }
+            Notifications.insert {
+                it[Notifications.postId] = postId
+                it[Notifications.commentId] = commentId
+                it[Notifications.userWhoInteracted] = userWhoInteracted
+                it[Notifications.userId] = user
+                it[Notifications.type] = notifType
+            }
+            true
         }
-        Notifications.insert {
-            it[Notifications.postId] = postId
-            it[Notifications.commentId] = commentId
-            it[Notifications.userWhoInteracted] = userWhoInteracted
-            it[userId] = user
-            it[type] = notifType
-        }
-        true
     } catch (e: Exception) {
         logger.error { e.message }
-        false
+        null
     }
 
 }

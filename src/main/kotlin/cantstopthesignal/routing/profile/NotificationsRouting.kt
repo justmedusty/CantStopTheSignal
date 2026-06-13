@@ -66,7 +66,7 @@ fun Application.configureNotificationRoutes() {
 
                 val ret = markAllNotificationsRead(userId!!)
 
-                if (ret == null) {
+                if (!ret) {
                     val error = "Unable to mark all notifications read"
                     return@get call.respondRedirect("/notifications?error=$error")
                 }
@@ -95,7 +95,7 @@ fun Application.configureNotificationRoutes() {
 
                 val ret = markNotifUnread(id,userId!!)
 
-                if (ret == null) {
+                if (!ret) {
                     val error = "Unable to mark all notifications read"
                     return@get call.respondRedirect("/notifications?error=$error")
                 }

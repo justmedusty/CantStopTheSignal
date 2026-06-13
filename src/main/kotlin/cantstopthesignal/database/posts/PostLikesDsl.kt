@@ -50,13 +50,17 @@ fun likePost(likedById: Long, postId: Long): Boolean {
                 it[PostLikes.postId] = postId
                 it[PostLikes.likedById] = likedById
             }
-            insertNotification(
+            val ret = insertNotification(
                 postId,
                 null,
                 getPostOwnerId(postId) ?: return@transaction false,
                 likedById,
                 Notif.POST_LIKE.value
             )
+            if(ret == null || !ret){
+                logger.error { "Error adding notification to post: ${postId} of type ${Notif.POST_LIKE.value} ret is $ret" }
+            }
+
             return@transaction true
         }
     } catch (e: Exception) {

@@ -20,10 +20,6 @@ fun Application.configurePostLikesRouting() {
                 if (postId == null) return@post call.respondRedirect("/posts/$postId?error=Nice try")
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
-                if (postId == null) {
-                    val error = "The post ID you passed was not correct"
-                    return@post call.respondRedirect { "/feed?error=${error}" }
-                }
                 val validPostId = verifyPostId(postId)
                 if (!validPostId) {
                     return@post call.respond(HttpStatusCode.BadRequest)

@@ -68,7 +68,7 @@ object Messages : Table(name = "Messages") {
 object Notifications : Table(name = "Notifications") {
     val id: Column<Long> = long("id").autoIncrement()
     val read: Column<Boolean> = bool("read").default(false)
-    val postId: Column<Long?> = long("event_id").references(Posts.id, onDelete = ReferenceOption.CASCADE).nullable()
+    val postId: Column<Long?> = long("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE).nullable()
     val commentId: Column<Long?> = long("comment_id").references(Comments.id).nullable().default(null)  // only if a comment reply
     val userId: Column<Long> = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val userWhoInteracted: Column<Long> = long("user_who_interacted").references(Users.id, onDelete = ReferenceOption.CASCADE)
@@ -106,7 +106,7 @@ object PostLikes : Table(name = "Likes") {
 
 
     init {
-        index(true, PostLikes.postId, likedById)
+        index(true, postId, likedById)
     }
     override val primaryKey = PrimaryKey(id)
 }
