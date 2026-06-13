@@ -5,6 +5,7 @@ import cantstopthesignal.log.logger
 import cantstopthesignal.security.hashPassword
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.ProfileData
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
+import com.freedom.cantstopthesignal.enums.Length
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
@@ -111,12 +112,12 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
                 if (userNameAlreadyExists(userName)) {
                     false
                 } else {
-                    userName.length in 6..45
+                    userName.length in Length.MIN_USERNAME_LENGTH.value..Length.MAX_USERNAME_LENGTH.value
                 }
             }
 
             password.isNotEmpty() && userName.isEmpty() -> {
-                password.length >= 8
+                password.length >= Length.MIN_USERNAME_LENGTH.value
             }
 
             else -> {
@@ -135,24 +136,27 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
  * @param user
  */ // Functions to perform CRUD operations on Users table
 fun createUser(user: User): Boolean {
-    if(user.passwordHash == null) return false
-    try {
+    logger.info { "creating user" }
+    if (user.passwordHash == null) return false
+    return try {
         transaction {
+            logger.info { "in user creation tx" }
             if (userAndPasswordValidation(user.userName, "") && userAndPasswordValidation("", user.passwordHash)) {
                 val id: Long = Users.insert {
                     it[userName] = user.userName
-                    it[passwordHash] = hashPassword(user.passwordHash!!)
+                    it[passwordHash] = hashPassword(user.passwordHash)
                 } get Users.id
 
                 ProfileData.insert {
                     it[userId] = id
                     it[publicKey] = user.publicKey
 
-
                 }
+                return@transaction true
+            } else {
+                return@transaction false
             }
         }
-        return true
     } catch (e: Exception) {
         logger.error { "Error creating user $e" }
         return false
@@ -170,8 +174,8 @@ fun createUserWithoutPassword(user: User): Boolean {
         /*
             This will be checked at a higher level but just in case because the user cannot log in if the key is wrong
          */
-        if(user.publicKey == null) return false
-        if(!isValidOpenPGPPublicKey(user.publicKey)) return false
+        if (user.publicKey == null) return false
+        if (!isValidOpenPGPPublicKey(user.publicKey)) return false
         transaction {
 
             val id: Long = Users.insert {

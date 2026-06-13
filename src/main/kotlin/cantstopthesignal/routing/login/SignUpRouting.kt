@@ -122,24 +122,48 @@ fun Application.configureSignupRoutes() {
                 userNameAlreadyExists(username) -> {
                     return@post call.respondRedirect("/signupUsername already exists, please choose another one")
                 }
+            }
+            when (siteConfig?.pgpLoginOnly) {
+                true -> {
+                    if (!createUserWithoutPassword(user)) {
+                        val error = "Could not create a passwordless user, error occurred"
+                        return@post call.respondRedirect("/signup?error=$error")
+                    }
+                }
+
+                false -> {
+                    if (!createUser(user)) {
+                        val error = "Could not create your user account, error occurred"
+                        return@post call.respondRedirect("/signup?error=$error")
+
+                    }
+                }
 
                 else -> {
-                    if ((siteConfig?.pgpLoginOnly == true && !createUserWithoutPassword(user)) || (siteConfig?.pgpLoginOnly == false && !createUser(
-                            user
-                        )) || (siteConfig?.inviteOnly == true && !consumeInviteCode(/* We can assert since this has to be evaluted only after invite only is true*/
-                            inviteCode!!
-                        ))
-                    ) {
-                        return@post call.respondRedirect("/signupAn error occurred while creating your user")
-                    }
+                    /*
+                        This should not happen but we will just try to create a regular user/password account
+                     */
+                    if (!createUser(user)) {
+                        val error = "Could not create your user account, error occurred"
+                        return@post call.respondRedirect("/signup?error=$error")
 
-                    val success = "Your account was created successfully."
-                    return@post call.respondRedirect("/login?success=$success")
+                    }
                 }
             }
+
+            if (siteConfig?.inviteOnly == true) {
+                if (!consumeInviteCode(inviteCode!!)) {
+                    val error = "Unable to consume invite code, an error occrred"
+                    return@post call.respondRedirect("/signup?error=$error")
+                }
+            }
+            val success = "Your account was created successfully."
+            return@post call.respondRedirect("/login?success=$success")
         }
-
-
     }
-
 }
+
+
+
+
+
