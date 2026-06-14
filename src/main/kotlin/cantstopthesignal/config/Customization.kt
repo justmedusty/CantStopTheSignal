@@ -17,7 +17,7 @@ data class SiteConfig(
     val issuer: String,
     val baseUrl: String,
     val tokenLifetimeMinutes: Long,
-    val inviteOnly: Boolean,
+    var inviteOnly: Boolean,
     val rateLimitWindowSeconds: Long,
     val rateLimitNumAllowedInWindow: Long,
     val rateLimitWindowSecondsLoginSignup: Long,

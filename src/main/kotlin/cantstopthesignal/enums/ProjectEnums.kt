@@ -67,6 +67,18 @@ enum class ThymeLeafMapKeys(val value: String) {
     SEARCH_INFO("info"),
     PGP_CHALLENGE_STRING("challenge_string"),
     PGP_CHALLENGE_USERNAME("challenge_username"),
+    ADMIN_SITE_STATS("site_stats"),
+    ADMIN_LOG_PAGE(""),
+    ADMIN_LOG_TOTAL_PAGES("admin_log_total_pages"),
+    ADMIN_SUSPEND_LOG_PAGE("admin_suspension_log_page"),
+    ADMIN_SUSPEND_LOG_TOTAL_PAGES("admin_suspension_log_total_pages"),
+    ADMIN_LOG_ENTRIES("admin_log_entries"),
+    ADMIN_SUSPEND_LOG_ENTRIES("suspend_log_entries"),
+    ADMIN_MOTD_MESSAGE("motd_message"),
+    ADMIN_INFO_MESSAGE("info_message"),
+    ADMIN_ARE_SIGNUPS_SUSPENDED("signups_open"),
+    ADMIN_INVITE_ONLY("invite_only"),
+
 }
 
 enum class SortOrderValues(val value: String) {

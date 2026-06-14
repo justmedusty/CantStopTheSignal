@@ -232,19 +232,19 @@
         <div class="stats-grid">
             <div class="stat-block">
                 <div class="stat-label">Total users</div>
-                <div class="stat-value" th:text="${admin_stats.totalUsers}">—</div>
+                <div class="stat-value" th:text="${site_stats.totalUsers}">—</div>
+            </div>
+            <div class="stat-block">
+                <div class="stat-label">Total Comments</div>
+                <div class="stat-value" th:text="${site_stats.totalComments}">—</div>
             </div>
             <div class="stat-block">
                 <div class="stat-label">Suspended users</div>
-                <div class="stat-value danger" th:text="${admin_stats.suspendedUsers}">—</div>
+                <div class="stat-value danger" th:text="${site_stats.totalSuspendedUsers}">—</div>
             </div>
             <div class="stat-block">
-                <div class="stat-label">Posts today</div>
-                <div class="stat-value" th:text="${admin_stats.postsToday}">—</div>
-            </div>
-            <div class="stat-block">
-                <div class="stat-label">Open reports</div>
-                <div class="stat-value warning" th:text="${admin_stats.openReports}">—</div>
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value" th:text="${site_stats.totalPosts}">—</div>
             </div>
         </div>
     </div>
@@ -288,170 +288,17 @@
         </div>
     </div>
 
-    <!-- User management -->
-    <div class="card">
-        <div class="section-title">User management</div>
-
-        <!-- Search row -->
-        <div class="field-row">
-            <span class="field-label">Find user</span>
-            <form th:action="'/admin/users/search'" method="get" class="form-inline" style="flex:1;">
-                <input class="input-sm" style="flex:1;" type="text" name="q"
-                       th:value="${user_search_query}" placeholder="Username or email…" />
-                <button type="submit" class="btn btn-secondary btn-sm">Search</button>
-            </form>
-        </div>
-
-        <table class="user-table">
-            <thead>
-            <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="u : ${users}">
-                <td>
-                    <div class="user-cell">
-                        <div class="avatar-sm" th:text="${#strings.substring(u.username, 0, 1)}">U</div>
-                        <span th:text="${u.username}">username</span>
-                    </div>
-                </td>
-                <td>
-                    <span class="role-tag role-admin" th:if="${u.role == 'ADMIN'}">Admin</span>
-                    <span class="role-tag role-mod"   th:if="${u.role == 'MOD'}">Mod</span>
-                    <span class="role-tag role-user"  th:if="${u.role == 'USER'}">User</span>
-                </td>
-                <td>
-                        <span class="status-pill pill-green" th:if="${!u.suspended}">
-                            <span class="dot"></span> Active
-                        </span>
-                    <span class="status-pill pill-red" th:if="${u.suspended}">
-                            <span class="dot"></span> Suspended
-                        </span>
-                </td>
-                <td th:text="${#temporals.format(u.createdAt, 'MMM d yyyy')}">—</td>
-                <td>
-                    <div class="btn-group">
-                        <!-- Promote / demote role -->
-                        <form th:action="|/admin/users/${u.id}/role|" method="post" style="display:inline;">
-                            <input type="hidden" name="action" value="promote-admin" />
-                            <button type="submit" class="btn btn-secondary btn-sm"
-                                    th:if="${u.role != 'ADMIN'}">→ Admin</button>
-                        </form>
-                        <form th:action="|/admin/users/${u.id}/role|" method="post" style="display:inline;">
-                            <input type="hidden" name="action" value="promote-mod" />
-                            <button type="submit" class="btn btn-secondary btn-sm"
-                                    th:if="${u.role == 'USER'}">→ Mod</button>
-                        </form>
-                        <form th:action="|/admin/users/${u.id}/role|" method="post" style="display:inline;">
-                            <input type="hidden" name="action" value="demote" />
-                            <button type="submit" class="btn btn-warning btn-sm"
-                                    th:if="${u.role != 'USER'}">Demote</button>
-                        </form>
-                        <!-- Suspend / unsuspend -->
-                        <form th:action="|/admin/users/${u.id}/suspend|" method="post" style="display:inline;">
-                            <button type="submit"
-                                    th:class="${u.suspended} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'"
-                                    th:text="${u.suspended} ? 'Unsuspend' : 'Suspend'">
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <!-- Pagination -->
-        <div class="field-row" th:if="${total_pages > 1}">
-            <span class="field-label" style="color:var(--muted); font-weight:400;"
-                  th:text="|Page ${current_page} of ${total_pages}|"></span>
-            <div class="btn-group">
-                <a class="btn btn-secondary btn-sm"
-                   th:if="${current_page > 1}"
-                   th:href="|/admin/users?page=${current_page - 1}&q=${user_search_query}|">← Prev</a>
-                <a class="btn btn-secondary btn-sm"
-                   th:if="${current_page < total_pages}"
-                   th:href="|/admin/users?page=${current_page + 1}&q=${user_search_query}|">Next →</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Suspended users quick list -->
-    <div class="card">
-        <div class="section-title">Suspended users</div>
-        <div th:if="${#lists.isEmpty(suspended_users)}">
-            <div class="field-row">
-                <span class="field-value empty">No users are currently suspended.</span>
-            </div>
-        </div>
-        <table class="user-table" th:unless="${#lists.isEmpty(suspended_users)}">
-            <thead>
-            <tr>
-                <th>User</th>
-                <th>Suspended at</th>
-                <th>Reason</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="u : ${suspended_users}">
-                <td>
-                    <div class="user-cell">
-                        <div class="avatar-sm" th:text="${#strings.substring(u.username, 0, 1)}">U</div>
-                        <span th:text="${u.username}">username</span>
-                    </div>
-                </td>
-                <td th:text="${#temporals.format(u.suspendedAt, 'MMM d yyyy HH:mm')}">—</td>
-                <td>
-                    <span class="field-value" th:if="${not #strings.isEmpty(u.suspendReason)}" th:text="${u.suspendReason}"></span>
-                    <span class="field-value empty" th:if="${#strings.isEmpty(u.suspendReason)}">No reason given</span>
-                </td>
-                <td>
-                    <form th:action="|/admin/users/${u.id}/suspend|" method="post">
-                        <button type="submit" class="btn btn-success btn-sm">Unsuspend</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Admin activity log -->
-    <div class="card">
-        <div class="section-title">Admin activity log</div>
-        <div th:if="${#lists.isEmpty(activity_log)}">
-            <div class="field-row">
-                <span class="field-value empty">No admin activity recorded yet.</span>
-            </div>
-        </div>
-        <div th:each="entry : ${activity_log}" class="log-entry">
-            <span class="log-time" th:text="${#temporals.format(entry.timestamp, 'MMM d HH:mm')}">—</span>
-            <span class="log-actor" th:text="${entry.adminUsername}">admin</span>
-            <span class="log-action">
-                <span th:text="${entry.action}">—</span>
-                <span th:if="${not #strings.isEmpty(entry.targetUsername)}">
-                    on <span th:text="${entry.targetUsername}" style="color:var(--text-primary); font-weight:600;">user</span>
-                </span>
-                <span th:if="${not #strings.isEmpty(entry.detail)}" style="color:var(--muted);"
-                      th:text="|— ${entry.detail}|"></span>
-            </span>
-        </div>
-
         <!-- Log pagination -->
-        <div class="field-row" th:if="${log_total_pages > 1}">
+        <div class="field-row" th:if="${admin_log_total_pages > 1}">
             <span class="field-label" style="color:var(--muted); font-weight:400;"
-                  th:text="|Page ${log_current_page} of ${log_total_pages}|"></span>
+                  th:text="|Page ${admin_log_page} of ${admin_log_total_pages}|"></span>
             <div class="btn-group">
                 <a class="btn btn-secondary btn-sm"
-                   th:if="${log_current_page > 1}"
-                   th:href="|/admin/log?page=${log_current_page - 1}|">← Prev</a>
+                   th:if="${admin_log_page > 1}"
+                   th:href="|/admin/?page=${admin_log_page - 1}|">← Prev</a>
                 <a class="btn btn-secondary btn-sm"
-                   th:if="${log_current_page < log_total_pages}"
-                   th:href="|/admin/log?page=${log_current_page + 1}|">Next →</a>
+                   th:if="${admin_log_page < admin_log_total_pages}"
+                   th:href="|/admin/log?page=${admin_log_page + 1}|">Next →</a>
             </div>
         </div>
     </div>
