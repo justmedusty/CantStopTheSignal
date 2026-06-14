@@ -4,14 +4,12 @@ import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import com.freedom.cantstopthesignal.siteConfig
 
-fun getMotd(userId: Long): String? {
-    if (!isUserAdminOrModerator(userId)) return null
+fun getMotd(): String? {
     return if (siteConfig?.motd == null) null else siteConfig?.motd
 }
 
 
-fun getInfoMessage(userId: Long): String? {
-    if (!isUserAdminOrModerator(userId)) return null
+fun getInfoMessage(): String? {
     return if (siteConfig?.motd == null) null else siteConfig?.motd
 }
 
