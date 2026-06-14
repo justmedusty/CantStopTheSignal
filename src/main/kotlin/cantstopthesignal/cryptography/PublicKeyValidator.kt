@@ -35,11 +35,6 @@ fun isValidOpenPGPPublicKey(publicKey: String): Boolean {
 
     if (!(hasValidHeader && hasValidFooter)) return false
 
-
-    // Check for actual content between header and footer
-    val content = trimmedKey.substringAfter(header).substringBeforeLast(footer).trim()
-    if (content.isEmpty()) return false
-
     try {
         val parsedKey = PGPainless.getInstance().readKey().parseCertificate(convertedKey)
     } catch (e: IOException) {
