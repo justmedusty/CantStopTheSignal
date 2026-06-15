@@ -422,10 +422,10 @@
             <div class="staff-col">
                 <div class="section-title">Moderators</div>
                 <div class="people-grid" th:if="${site_stats.moderatorList != null and !site_stats.moderatorList.isEmpty()}">
-                    <div class="people-card" th:each="mod : ${site_stats.moderatorList}">
-                        <div class="avatar avatar-blue" th:text="${#strings.substring(mod.username, 0, 1)}">M</div>
+                    <div class="people-card" th:each="moderator : ${site_stats.moderatorList}">
+                        <div class="avatar avatar-blue" th:text="${#strings.substring(moderator.username, 0, 1)}">M</div>
                         <div class="people-info">
-                            <div class="people-name" th:text="${mod.username}">username</div>
+                            <div class="people-name" th:text="${moderator.username}">username</div>
                             <span class="role-tag role-mod">Mod</span>
                         </div>
                     </div>
@@ -482,8 +482,8 @@
         <div class="toggle-row">
             <div class="toggle-left">
                 <span class="field-label">New signups</span>
-                <span class="pill pill-green" th:if="${signups_open}"><span class="dot"></span> Open</span>
-                <span class="pill pill-red"   th:unless="${signups_open}"><span class="dot"></span> Suspended</span>
+                <span class="pill pill-green" th:if="${!signups_open}"><span class="dot"></span> Open</span>
+                <span class="pill pill-red"   th:unless="${!signups_open}"><span class="dot"></span> Suspended</span>
             </div>
             <form th:action="'/admin/signups/toggle'" method="post">
                 <button type="submit"

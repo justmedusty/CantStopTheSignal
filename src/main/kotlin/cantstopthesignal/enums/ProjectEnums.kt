@@ -1,6 +1,7 @@
 package com.freedom.cantstopthesignal.enums
 
 enum class Length(val value: Long) {
+    MAX_INVITE_CODES(500),
     MAX_CONTENT_LENGTH(20_000),
     MAX_TITLE_LENGTH(300),
     MAX_COMMENT_LENGTH(10_000),
@@ -80,6 +81,9 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_INVITE_ONLY("invite_only"),
     ADMIN_INVITE_CODE_LIST("invite_code_list"),
 
+}
+enum class RetStrings(val value: String) {
+    MAX_REACHED("max_reached"),
 }
 
 enum class SortOrderValues(val value: String) {

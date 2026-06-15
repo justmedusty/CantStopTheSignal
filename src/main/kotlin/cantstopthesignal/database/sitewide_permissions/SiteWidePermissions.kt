@@ -21,7 +21,7 @@ fun areSignupsSuspended(): Boolean {
         /*
             The site config will supercede a database entry
          */
-        if (siteConfig?.signupsDisabled ?: false) {
+        if (siteConfig?.signupsDisabled == true) {
             return true
         }
         transaction {
@@ -29,7 +29,7 @@ fun areSignupsSuspended(): Boolean {
                 .where { SiteWidePermissionsDb.eventId eq SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong() }
                 .count() > 0
             logger.debug { "Site wide permissions suspended: $ret" }
-            !ret //Because the way the thymeleaf template is rigged up we need to negate it
+            ret //Because the way the thymeleaf template is rigged up we need to negate it
         }
     } catch (e: Exception) {
         logger.error { "${e.message} occurred while trying to check if signups were suspended" }

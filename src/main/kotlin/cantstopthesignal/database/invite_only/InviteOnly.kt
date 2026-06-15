@@ -5,6 +5,8 @@ import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.database.users.isUserModerator
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
+import com.freedom.cantstopthesignal.enums.Length
+import com.freedom.cantstopthesignal.enums.RetStrings
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -44,6 +46,11 @@ fun generateNewInviteCode(userId: Long): String? {
             if (!isUserAdmin(userId)) {
                 return@transaction null
             }
+
+            if(InviteCodes.selectAll().count() >= Length.MAX_INVITE_CODES.value) {
+                return@transaction RetStrings.MAX_REACHED.value
+            }
+
             val newCode = InviteCodes.insert {
                 it[inviteCode] = UUID.randomUUID().toString()
             }[InviteCodes.inviteCode]

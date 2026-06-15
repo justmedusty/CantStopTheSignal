@@ -41,8 +41,8 @@ fun setInfoMessage(userId: Long, newMessage: String): Boolean {
     return true
 }
 
-fun getInviteOnly(): String? {
-    return if (siteConfig?.inviteOnly == null) null else siteConfig?.inviteOnly.toString()
+fun getInviteOnly(): Boolean? {
+    return if (siteConfig?.inviteOnly == null) null else siteConfig?.inviteOnly
 }
 
 fun setInviteOnly(on : Boolean): Boolean? {

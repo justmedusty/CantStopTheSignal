@@ -9,6 +9,7 @@ import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
 import cantstopthesignal.database.users.createUserWithoutPassword
 import cantstopthesignal.database.users.userNameAlreadyExists
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
@@ -26,6 +27,7 @@ fun Application.configureSignupRoutes() {
 
         get("/signup") {
             if (areSignupsSuspended()) {
+                logger.error { "Signups are suspended!" }
                 return@get call.respond(HttpStatusCode.NotFound)
             }
             val error = call.request.queryParameters["error"]
