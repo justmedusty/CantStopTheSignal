@@ -2,6 +2,7 @@ package cantstopthesignal.database.admin
 
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.siteConfig
 
 fun getMotd(): String? {
@@ -10,7 +11,7 @@ fun getMotd(): String? {
 
 
 fun getInfoMessage(): String? {
-    return if (siteConfig?.motd == null) null else siteConfig?.motd
+    return if (siteConfig?.infoMessage == null) null else siteConfig?.infoMessage
 }
 
 
@@ -41,14 +42,23 @@ fun setInfoMessage(userId: Long, newMessage: String): Boolean {
 }
 
 fun getInviteOnly(): String? {
-    return if (siteConfig?.motd == null) null else siteConfig?.motd
+    return if (siteConfig?.inviteOnly == null) null else siteConfig?.inviteOnly.toString()
 }
 
-fun setInviteOnly(): Boolean? {
+fun setInviteOnly(on : Boolean): Boolean? {
+    /*
+        This should never happen but we'll check anyway
+     */
     if (siteConfig?.inviteOnly == null) {
+        logger.error { "site config is null, this should never happen!" }
         return null
     }
-    siteConfig?.inviteOnly = true
+
+    if(siteConfig?.inviteOnly == true) {
+        logger.warn { "An admin is trying to override a setting that , when set, cannot be overridden! invite only" }
+        return null
+    }
+
     return true
 }
 

@@ -1,6 +1,7 @@
 package cantstopthesignal.database.invite_only
 
 import cantstopthesignal.database.users.isUserAdmin
+import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.database.users.isUserModerator
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
@@ -18,9 +19,8 @@ import java.util.*
 fun getAllValidLoginCodes(userId: Long, page: Long, limit: Long): List<String>? {
     return try {
         transaction {
-            if (isUserAdmin(userId) && !isUserModerator(userId)) {
-                return@transaction null
-            }
+            if (!isUserAdminOrModerator(userId)) return@transaction null
+
             val offsetVal = ((page - 1) * limit)
 
 

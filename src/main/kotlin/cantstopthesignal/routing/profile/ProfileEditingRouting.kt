@@ -274,10 +274,10 @@ fun Application.configureEditProfileRoutes() {
 
             }
 
-            get("/profile/delete/pgp") {
+            post("/profile/edit/pgp/remove") {
 
             }
-            get("/profile/delete/password") {
+            post("/profile/edit/password/remove") {
 
             }
         }

@@ -68,7 +68,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     PGP_CHALLENGE_STRING("challenge_string"),
     PGP_CHALLENGE_USERNAME("challenge_username"),
     ADMIN_SITE_STATS("site_stats"),
-    ADMIN_LOG_PAGE(""),
+    ADMIN_LOG_PAGE("admin_log_page"),
     ADMIN_LOG_TOTAL_PAGES("admin_log_total_pages"),
     ADMIN_SUSPEND_LOG_PAGE("admin_suspension_log_page"),
     ADMIN_SUSPEND_LOG_TOTAL_PAGES("admin_suspension_log_total_pages"),
@@ -78,6 +78,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_INFO_MESSAGE("info_message"),
     ADMIN_ARE_SIGNUPS_SUSPENDED("signups_open"),
     ADMIN_INVITE_ONLY("invite_only"),
+    ADMIN_INVITE_CODE_LIST("invite_code_list"),
 
 }
 
@@ -101,6 +102,7 @@ enum class RegexPatterns(val value: Regex) {
 enum class SiteWidePermissions(val value: Int) {
     SUSPENDED_SIGNUPS(1), // This will disable signups until the entry is removed from the database
     SERVER_MAINTENANCE(2), //This will prevent logins until you are done doing your database backup or whatever you want to do, this will be checked for in the auth flow so existing sessions can be logged out
+    INVITE_ONLY(3), //If the value in the application config file is false, then you can toggle it on and off from within the admin panel. If it is true in the config, it cannot be changed without changing the config and restarting.
 }
 
 enum class DeletionReason(val value: Long) {

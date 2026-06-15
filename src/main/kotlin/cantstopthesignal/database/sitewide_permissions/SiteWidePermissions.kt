@@ -4,6 +4,7 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.enums.SiteWidePermissions
 import com.freedom.cantstopthesignal.siteConfig
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -20,15 +21,15 @@ fun areSignupsSuspended(): Boolean {
         /*
             The site config will supercede a database entry
          */
-        if(siteConfig?.signupsDisabled ?: false){
+        if (siteConfig?.signupsDisabled ?: false) {
             return true
         }
         transaction {
             val ret = SiteWidePermissionsDb.selectAll()
-                .where { SiteWidePermissionsDb.eventId eq SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong() }.count()
-                .toInt() == 1
-
-            ret
+                .where { SiteWidePermissionsDb.eventId eq SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong() }
+                .count() > 0
+            logger.debug { "Site wide permissions suspended: $ret" }
+            !ret //Because the way the thymeleaf template is rigged up we need to negate it
         }
     } catch (e: Exception) {
         logger.error { "${e.message} occurred while trying to check if signups were suspended" }
@@ -38,7 +39,7 @@ fun areSignupsSuspended(): Boolean {
 }
 
 /* This will be delegated to admins only, visible in the admin panel */
-fun suspendSignups(callingUser: Long): Boolean {
+fun suspendSignups(): Boolean {
     return try {
         if (areSignupsSuspended()) {
             return false
@@ -50,7 +51,7 @@ fun suspendSignups(callingUser: Long): Boolean {
                 it[eventId] = SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong()
             }[SiteWidePermissionsDb.id]
 
-            id != null
+            true
         }
     } catch (e: Exception) {
         logger.error { "${e.message} occurred while trying to suspend signups" }
@@ -58,3 +59,36 @@ fun suspendSignups(callingUser: Long): Boolean {
     }
 }
 
+fun unsuspendSignups(callingUser: Long): Boolean {
+    return try {
+        if (!areSignupsSuspended()) {
+            return false
+        }
+        transaction {
+            val id =
+                SiteWidePermissionsDb.deleteWhere { SiteWidePermissionsDb.eventId eq SiteWidePermissions.SUSPENDED_SIGNUPS.value.toLong() }
+            (id > 0)
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to suspend signups" }
+        false
+    }
+}
+
+fun isInviteOnlyEnabled(): Boolean {
+    if (siteConfig?.inviteOnly ?: false) {
+        return true
+    }
+    return try {
+        transaction {
+            val ret = SiteWidePermissionsDb.selectAll()
+                .where { SiteWidePermissionsDb.eventId eq SiteWidePermissions.INVITE_ONLY.value.toLong() }.count() > 0
+            logger.debug { "Site wide invite only $ret" }
+            ret
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to suspend signups" }
+        false
+    }
+
+}

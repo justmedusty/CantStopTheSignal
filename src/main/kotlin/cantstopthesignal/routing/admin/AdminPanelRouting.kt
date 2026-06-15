@@ -1,7 +1,11 @@
 package com.freedom.cantstopthesignal.routing.admin
 
 import cantstopthesignal.database.admin.*
+import cantstopthesignal.database.invite_only.generateNewInviteCode
+import cantstopthesignal.database.invite_only.getAllValidLoginCodes
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
+import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.admin.getSiteStats
 import com.freedom.cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
 import com.freedom.cantstopthesignal.enums.Length
@@ -25,8 +29,13 @@ fun Application.configureAdminRoutes() {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@get call.respond(HttpStatusCode.NotFound)
                 }
+
+                val success = call.queryParameters["success"]
+                val error = call.queryParameters["error"]
+
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val suspendLogPage = call.queryParameters["suspendLogPage"]?.toIntOrNull() ?: 1
                 val suspendLogsOrder = call.queryParameters["suspendLogsOrder"]
@@ -46,6 +55,12 @@ fun Application.configureAdminRoutes() {
                 val areSignupsSuspended = areSignupsSuspended()
                 val inviteOnly = getInviteOnly()
 
+                val inviteCodes: List<String>? = getAllValidLoginCodes(
+                    user,
+                    1,
+                    100
+                )//Im just gonna show 100, you should never need to page through these so don't think I'll implement it. If you need to give out an invite code, why would you page through them? Just pick one.
+                logger.info { inviteCodes }
 
                 val map = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
@@ -58,6 +73,15 @@ fun Application.configureAdminRoutes() {
                     put(ThymeLeafMapKeys.ADMIN_SITE_STATS.value, siteStats)
                     put(ThymeLeafMapKeys.ADMIN_LOG_PAGE.value, adminLogsPage)
                     put(ThymeLeafMapKeys.ADMIN_SUSPEND_LOG_PAGE.value, adminLogsPageOrder)
+                    put(ThymeLeafMapKeys.ADMIN_INVITE_CODE_LIST.value, inviteCodes)
+
+                    if(error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if(success != null){
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
 
                 call.respond(ThymeleafContent("admin_panel", map))
@@ -67,6 +91,7 @@ fun Application.configureAdminRoutes() {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
                 val params = call.receive<Parameters>()
@@ -79,6 +104,7 @@ fun Application.configureAdminRoutes() {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
                 val params = call.receive<Parameters>()
@@ -86,6 +112,60 @@ fun Application.configureAdminRoutes() {
 
 
             }
+
+            post("/admin/infomessage/update") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+
+            }
+            post("/admin/motd/update") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+            }
+
+            post("/admin/signups/toggle") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+
+            }
+
+            post("/admin/inviteonly/toggle") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+
+            }
+
+            post("/admin/invites/generate") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+
+                generateNewInviteCode(user)
+                val success = "Generated invite code"
+                call.respondRedirect("/admin?success=$success")
+
+            }
+
+
         }
 
 

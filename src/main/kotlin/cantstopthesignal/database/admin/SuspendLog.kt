@@ -85,7 +85,7 @@ fun getSuspendLogEntries(
             }
         }
     } catch (e: Exception) {
-        logger.error { "${e.message} ocurred while trying to get suspend logs entries" }
+        logger.error { "${e.message} occurred while trying to get suspend logs entries" }
         null
     }
 }

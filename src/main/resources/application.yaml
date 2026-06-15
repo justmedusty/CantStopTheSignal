@@ -44,10 +44,10 @@ site:
   issuer: "cantstopthesignal.i2p"
   baseUrl: "http://cantstopthesignal.i2p"
   token_lifetime_minutes: "25"
-  invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums
+  invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums. This can be changed in the admin panel. If this option here is true, it cannot be overridden from the admin panel. If it is false, then admins can turn it on or off as they wish.
   rate_limit_window_seconds: "20"
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
   signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it
-  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge
+  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge. This option should not be changed later, it should be decided when you first decide to host an instance of this service
