@@ -59,7 +59,7 @@ fun suspendSignups(): Boolean {
     }
 }
 
-fun unsuspendSignups(callingUser: Long): Boolean {
+fun unsuspendSignups(): Boolean {
     return try {
         if (!areSignupsSuspended()) {
             return false
@@ -76,7 +76,7 @@ fun unsuspendSignups(callingUser: Long): Boolean {
 }
 
 fun isInviteOnlyEnabled(): Boolean {
-    if (siteConfig?.inviteOnly ?: false) {
+    if (siteConfig?.inviteOnly == true) {
         return true
     }
     return try {
@@ -87,8 +87,48 @@ fun isInviteOnlyEnabled(): Boolean {
             ret
         }
     } catch (e: Exception) {
-        logger.error { "${e.message} occurred while trying to suspend signups" }
+        logger.error { "${e.message} occurred while trying to get invite only" }
         false
     }
 
+}
+
+fun setInviteOnlyEnabled(): Boolean {
+    if (siteConfig?.inviteOnly == true) {
+        //This setting will override the database config option
+        return false
+    }
+    return try {
+        transaction {
+            val ret = SiteWidePermissionsDb.insert {
+                it[eventId] = SiteWidePermissions.INVITE_ONLY.value.toLong()
+                it[timestamp] = java.time.LocalDateTime.now(ZoneOffset.UTC)
+            }.insertedCount > 0
+
+            logger.debug { "Site wide invite only $ret" }
+            ret
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to enable invite only" }
+        false
+    }
+
+}
+
+fun disableInviteOnly(): Boolean {
+    if (siteConfig?.inviteOnly == true) {
+        //This setting will override the database config option
+        return false
+    }
+    return try {
+        transaction {
+            val ret =
+                SiteWidePermissionsDb.deleteWhere { SiteWidePermissionsDb.eventId eq SiteWidePermissions.INVITE_ONLY.value.toLong() } > 0
+            logger.debug { "Site wide invite only $ret" }
+            ret
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to get invite only" }
+        false
+    }
 }

@@ -7,8 +7,9 @@ import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.admin.getSiteStats
-import com.freedom.cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
+import com.freedom.cantstopthesignal.database.sitewide_permissions.*
 import com.freedom.cantstopthesignal.enums.Length
+import com.freedom.cantstopthesignal.enums.RetStrings
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.http.*
@@ -75,11 +76,11 @@ fun Application.configureAdminRoutes() {
                     put(ThymeLeafMapKeys.ADMIN_SUSPEND_LOG_PAGE.value, adminLogsPageOrder)
                     put(ThymeLeafMapKeys.ADMIN_INVITE_CODE_LIST.value, inviteCodes)
 
-                    if(error != null) {
+                    if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
                     }
 
-                    if(success != null){
+                    if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
@@ -95,12 +96,33 @@ fun Application.configureAdminRoutes() {
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
                 val params = call.receive<Parameters>()
+                val clear = params["clear"]?.toBoolean() ?: false
+
+                if(clear == true) {
+                    val ret = setMotd(userId = user, "")
+
+                    if (!ret) {
+                        val error = "An error occurred while clearing motd message"
+                        return@post call.respondRedirect("/admin?error=$error")
+                    }
+                    return@post call.respondRedirect("/admin?success=Cleared motd message")
+                }
 
                 val motd = params["motd"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
+                val ret = setMotd(userId = user, motd)
+
+                if (!ret) {
+                    val error = "An error occurred while setting motd message"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully set motd message"
+                return@post call.respondRedirect("/admin?success=$success")
+
             }
 
-            post("/admin/info/set") {
+            post("/admin/infomessage/set") {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
@@ -108,27 +130,30 @@ fun Application.configureAdminRoutes() {
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
                 val params = call.receive<Parameters>()
-                val infoMessage = params["infoMessage"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val clear = params["clear"]?.toBoolean() ?: false
+
+                if(clear == true) {
+                    val ret = setInfoMessage(userId = user, "")
+
+                    if (!ret) {
+                        val error = "An error occurred while clearing info message"
+                        return@post call.respondRedirect("/admin?error=$error")
+                    }
+                    return@post call.respondRedirect("/admin?success=Cleared info message")
+                }
+                val infoMessage = params["message"] ?: ""
 
 
-            }
+                val ret = setInfoMessage(userId = user, infoMessage)
 
-            post("/admin/infomessage/update") {
-                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-
-                if (!isUserAdminOrModerator(user!!)) {
-                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
-                    return@post call.respond(HttpStatusCode.NotFound)
+                if (!ret) {
+                    val error = "An error occurred while setting info message"
+                    return@post call.respondRedirect("/admin?error=$error")
                 }
 
-            }
-            post("/admin/motd/update") {
-                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val success = "Successfully set info message"
+                return@post call.respondRedirect("/admin?success=$success")
 
-                if (!isUserAdminOrModerator(user!!)) {
-                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
-                    return@post call.respond(HttpStatusCode.NotFound)
-                }
             }
 
             post("/admin/signups/toggle") {
@@ -139,6 +164,21 @@ fun Application.configureAdminRoutes() {
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
 
+                val signupsDisabled = areSignupsSuspended()
+
+                when (signupsDisabled) {
+                    true -> {
+                        unsuspendSignups()
+                    }
+
+                    false -> {
+                        suspendSignups()
+                    }
+                }
+
+                val success = "Successfully ${if (signupsDisabled == true) "enabled" else "disabled"} signups"
+                return@post call.respondRedirect("/admin?success=$success")
+
             }
 
             post("/admin/inviteonly/toggle") {
@@ -147,6 +187,40 @@ fun Application.configureAdminRoutes() {
                 if (!isUserAdminOrModerator(user!!)) {
                     logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
+                }
+                if (siteConfig?.inviteOnly == true) {
+                    val error =
+                        "Invite only is set at the application config level, this cannot be overridden. Talk to the site owner if you wish to change this."
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+                val inviteOnly = getInviteOnly()
+
+                when (inviteOnly) {
+                    true -> {
+                        if (!disableInviteOnly()) {
+                            val error = "An error occurred while disabling invite only"
+                            return@post call.respondRedirect("/admin?error=$error")
+                        }
+                        val success = "Successfully disabled invite only"
+                        return@post call.respondRedirect("/admin?success=$success")
+                    }
+
+                    false -> {
+                        if (!setInviteOnlyEnabled()) {
+                            val error = "An error occurred while enabling invite only"
+                            return@post call.respondRedirect("/admin?error=$error")
+                        }
+                        val success = "Successfully enabled invite only"
+                        return@post call.respondRedirect("/admin?success=$success")
+                    }
+
+                    null -> {
+
+                        val error =
+                            "An error that should never happen has occurred. Site config null or database access error. Please report this to the owner."
+                        return@post call.respondRedirect("/admin?error=$error")
+
+                    }
                 }
 
             }
@@ -159,7 +233,19 @@ fun Application.configureAdminRoutes() {
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
 
-                generateNewInviteCode(user)
+                val ret = generateNewInviteCode(user)
+
+                if (ret == null) {
+                    val error = "An error occurred while generating invite code"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                if (ret == RetStrings.MAX_REACHED.value) {
+                    val error =
+                        "You have the reached the max number of unused invite codes allowed (${Length.MAX_INVITE_CODES.value})"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
                 val success = "Generated invite code"
                 call.respondRedirect("/admin?success=$success")
 

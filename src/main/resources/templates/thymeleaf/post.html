@@ -723,6 +723,7 @@
     </div>
     <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+    <div class="info" th:if="${server_config.infoMessage != null}" th:text="${server_config.infoMessage}"></div>
 
 
     <!-- ═══════════════════════════════════════════

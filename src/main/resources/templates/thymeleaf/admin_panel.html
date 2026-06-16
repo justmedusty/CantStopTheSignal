@@ -355,6 +355,16 @@
         }
         .toggle-row:last-child { border-bottom: none; }
         .toggle-left { display: flex; align-items: center; gap: 0.75rem; }
+        /* ── Flash messages ── */
+        .info {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #4c86e7;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 
 </head>
@@ -363,6 +373,7 @@
 
     <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
     <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+
 
     <!-- ── Top bar ── -->
     <div class="topbar">
@@ -439,6 +450,7 @@
     <div class="card">
         <div class="section-title">Server Banner Messages</div>
         <div class="banner-grid">
+
             <!-- MOTD -->
             <div class="banner-panel">
                 <div class="banner-panel-label">Message of the Day (MOTD)</div>
@@ -446,7 +458,7 @@
                     <span th:if="${motd_message != null and !motd_message.isEmpty()}" th:text="${motd_message}"></span>
                     <span th:if="${motd_message == null or motd_message.isEmpty()}">No MOTD set.</span>
                 </div>
-                <form th:action="'/admin/motd/update'" method="post">
+                <form th:action="'/admin/motd/set'" method="post">
                     <div class="banner-form">
                         <input class="banner-input" type="text" name="motd" placeholder="New MOTD…" th:value="${motd_message}">
                     </div>
@@ -463,7 +475,7 @@
                     <span th:if="${info_message != null and !info_message.isEmpty()}" th:text="${info_message}"></span>
                     <span th:if="${info_message == null or info_message.isEmpty()}">No info message set.</span>
                 </div>
-                <form th:action="'/admin/infomessage/update'" method="post">
+                <form th:action="'/admin/infomessage/set'" method="post">
                     <div class="banner-form">
                         <input class="banner-input" type="text" name="message" placeholder="New info message…" th:value="${info_message}">
                     </div>

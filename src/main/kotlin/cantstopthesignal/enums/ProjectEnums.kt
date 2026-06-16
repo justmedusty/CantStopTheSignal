@@ -80,6 +80,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_ARE_SIGNUPS_SUSPENDED("signups_open"),
     ADMIN_INVITE_ONLY("invite_only"),
     ADMIN_INVITE_CODE_LIST("invite_code_list"),
+    SITE_INVITE_ONLY("invite_only"),
 
 }
 enum class RetStrings(val value: String) {

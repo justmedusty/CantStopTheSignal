@@ -166,6 +166,16 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+        /* ── Flash messages ── */
+        .info {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #4c86e7;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
@@ -174,10 +184,11 @@
     <h1 th:text="${server_config.name}">Server Name</h1>
     <h2 th:text="${server_config.topic}">Server Topic</h2>
     <h3 th:text="${server_config.motd}">Message of the Day</h3>
-    <h4 th:if="${server_config.inviteOnly == true}"><br>This service is invite only.</h4>
+    <h4 th:if="${invite_only == true}"><br>This service is invite only.</h4>
 </div>
 <div class="error" th:if="${error}" th:text="${error}"></div>
 <div class="success" th:if="${success}" th:text="${success}"></div>
+<div class="info" th:if="${server_config.infoMessage != null}" th:text="${server_config.infoMessage}"></div>
 
 <div class="card">
     <p>Please log in or create an account to continue.</p>

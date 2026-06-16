@@ -146,6 +146,16 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+        /* ── Flash messages ── */
+        .info {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #4c86e7;
+            border-radius: var(--radius);
+            padding: 0.6rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 </head>
 <body>
@@ -154,6 +164,7 @@
 
     <div class="error"   th:if="${error}"   th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
+    <div class="info" th:if="${server_config.infoMessage != null}" th:text="${server_config.infoMessage}"></div>
 
     <form action="login" method="post">
         <div class="form-group">

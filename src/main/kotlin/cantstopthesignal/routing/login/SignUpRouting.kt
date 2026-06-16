@@ -11,6 +11,7 @@ import cantstopthesignal.database.users.createUserWithoutPassword
 import cantstopthesignal.database.users.userNameAlreadyExists
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
+import com.freedom.cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RegexPatterns
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
@@ -35,6 +36,7 @@ fun Application.configureSignupRoutes() {
 
             val map = buildMap {
                 put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                put(ThymeLeafMapKeys.SITE_INVITE_ONLY.value, isInviteOnlyEnabled())
                 /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                 if (error != null) {
                     put(ThymeLeafMapKeys.ERROR.value, error)
@@ -79,7 +81,7 @@ fun Application.configureSignupRoutes() {
                 return@post call.respondRedirect("/signup?error=Your passwords do not match")
             }
 
-            if (siteConfig?.inviteOnly == true) {
+            if (isInviteOnlyEnabled()) {
                 /*
                     We can assert inviteCode isn't null because if invite only is true and the field is null it will have already returned
                  */
@@ -153,7 +155,7 @@ fun Application.configureSignupRoutes() {
                 }
             }
 
-            if (siteConfig?.inviteOnly == true) {
+            if (isInviteOnlyEnabled()) {
                 if (!consumeInviteCode(inviteCode!!)) {
                     val error = "Unable to consume invite code, an error occrred"
                     return@post call.respondRedirect("/signup?error=$error")

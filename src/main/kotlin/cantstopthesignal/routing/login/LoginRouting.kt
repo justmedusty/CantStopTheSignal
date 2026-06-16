@@ -12,6 +12,7 @@ import cantstopthesignal.security.createJWT
 import com.freedom.cantstopthesignal.cryptography.pgpChallengeHashSet
 import com.freedom.cantstopthesignal.cryptography.registerNewChallenge
 import com.freedom.cantstopthesignal.cryptography.verifySignature
+import com.freedom.cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
@@ -36,6 +37,7 @@ fun Application.configureLoginRoutes() {
 
             val map = buildMap {
                 put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                put(ThymeLeafMapKeys.SITE_INVITE_ONLY.value, isInviteOnlyEnabled())
                 /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                 if (error != null) {
                     put(ThymeLeafMapKeys.ERROR.value, error)
