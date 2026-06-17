@@ -426,10 +426,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
 
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val numReplies = numCommentReplies(commentId)
-            val totalPages = ceil(
-                Comments.selectAll().where { parentCommentId eq commentId }.count()
-                    .toDouble() / pageSize.toDouble()
-            ).toLong()
+
             val parentCommentData = parentComment?.let {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
@@ -453,7 +450,11 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     0
                 )
             }
-
+            val totalPages = ceil(
+                Comments.selectAll().where { parentCommentId eq commentId }.count()
+                    .toDouble() / pageSize.toDouble()
+            ).toLong()
+            logger.info { "TOTAL PAGES ${totalPages}" }
             val query = Comments.leftJoin(CommentLikes).leftJoin(CommentDislikes).select(
                 Comments.id,
                 Comments.content,
