@@ -677,10 +677,12 @@
             padding: 0.45rem 0.85rem;
             font-size: 0.8rem;
         }
+
         a {
             color: #ffffff;
             text-decoration: underline;
         }
+
         /* ── Flash messages ── */
         .info {
             background: var(--accent-soft);
@@ -692,6 +694,49 @@
             font-size: 0.875rem;
         }
 
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .sort-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.25rem;
+        }
+
+        .sort-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .sort-pill:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .sort-pill.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
     </style>
 </head>
 <body>
@@ -699,7 +744,6 @@
     <div class="topbar">
         <h1>Posts</h1>
         <div class="topbar-actions">
-
 
 
             <a class="btn-icon"
@@ -735,7 +779,8 @@
         <div class="post-body">
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
-                <span class="post-topic" ><a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}"></a></span>
+                <span class="post-topic"><a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|"
+                                            th:text="${post.topic}"></a></span>
             </div>
 
             <p class="post-meta">
@@ -780,32 +825,55 @@
             </th:block>
         </div>
 
+        <div class="comments-header">
+            <span class="comments-title">Comments</span>
+            <span class="comment-count-badge" th:text="${post.commentCount}">0</span>
+        </div>
+
+        <!-- ─── Compose Box ─── -->
+        <div class="compose-box">
+            <form th:action="|/comments/post/${id}(id=${post.id}|" method="post">
+                <input type="hidden" name="postId" th:value="${post.id}"/>
+
+                <textarea name="content"
+                          id="comment-input"
+                          maxlength="5000"
+                          minlength="1"
+                          placeholder="Write a comment…"
+                          required></textarea>
+
+                <div class="compose-footer">
+                    <button type="submit" id="post-btn">Post</button>
+                </div>
+            </form>
+        </div>
+
         <!-- ─── Comments Section ─── -->
         <div class="comments-section">
-
-            <div class="comments-header">
-                <span class="comments-title">Comments</span>
-                <span class="comment-count-badge" th:text="${post.commentCount}">0</span>
+            <br>
+            <div class="sort-bar">
+                <span class="sort-label">Sort:</span>
+                <a class="sort-pill"
+                   th:classappend="${sort == null or sort == ''} ? 'active'"
+                   th:href="${'/posts/' + post.id + '?orderBy=newest'}">
+                    🕐 Newest
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'old'} ? 'active'"
+                   th:href="${'/posts/' + post.id + '?orderBy=oldest'}">
+                    📅 Oldest
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'liked'} ? 'active'"
+                   th:href="${'/posts/' + post.id + '?orderBy=likes'}">
+                    👍 Most Liked
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'disliked'} ? 'active'"
+                   th:href="${'/posts/' + post.id + '?orderBy=dislikes'}">
+                    👎 Most Disliked
+                </a>
             </div>
-
-            <!-- ─── Compose Box ─── -->
-            <div class="compose-box">
-                <form th:action="|/comments/post/${id}(id=${post.id}|" method="post">
-                    <input type="hidden" name="postId" th:value="${post.id}"/>
-
-                    <textarea name="content"
-                              id="comment-input"
-                              maxlength="5000"
-                              minlength="1"
-                              placeholder="Write a comment…"
-                              required></textarea>
-
-                    <div class="compose-footer">
-                        <button type="submit" id="post-btn">Post</button>
-                    </div>
-                </form>
-            </div>
-
             <div class="comment-list"
                  th:with="postComments=${commentsByPost != null ? commentsByPost[post.id] : null}">
 
@@ -859,9 +927,10 @@
                             </form>
 
                             <!-- View Replies (only when replies exist) -->
-                            <a th:if="${comment.hasReplies}"
+                            <a th:if="${comment.numReplies > 0}"
                                class="btn-replies"
-                               th:href="|/comments/${post.id}/replies/${comment.id}|">&#8618; Replies</a>
+                               th:href="|/comments/${post.id}/replies/${comment.id}|"
+                               th:text="${'View Replies' + '(' + comment.numReplies + ')'}">>&#8618; Replies</a>
 
                             <!-- Reply label stays here with the other buttons -->
                             <label class="btn-blue"

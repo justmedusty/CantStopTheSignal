@@ -10,7 +10,6 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentDisli
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
@@ -35,7 +34,7 @@ data class Comment(
     val lastEdited: String?,
     val isCommentLikedByMe: Boolean,
     val isCommentDislikedByMe: Boolean,
-    val hasReplies: Boolean,
+    val numReplies: Long,
     val myComment: Boolean,
     val deleted: Boolean,
     val deletedReason: String?,
@@ -86,7 +85,7 @@ fun getUserIdFromCommentId(commentId: Long): Long? {
 fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boolean, parentCommentId: Long?): Long? {
     return try {
         transaction {
-            if(isUserSuspended(commenterId)){
+            if (isUserSuspended(commenterId)) {
                 return@transaction RetValues.SUSPENDED.value
             }
             if (isDuplicateComment(content, commenterId, postId, parentCommentId, false)) {
@@ -149,17 +148,18 @@ fun getParentId(commentId: Long): Long? {
     }
 }
 
-fun doesCommentHaveReplies(commentId: Long): Boolean {
+fun numCommentReplies(commentId: Long): Long {
     return try {
         val count =
             Comments.selectAll().where { (parentCommentId eq commentId) and (parentCommentId.isNotNull()) }.count()
-        return count > 0
+        return count
 
     } catch (e: Exception) {
         logger.error { e.message }
-        false
+        0
     }
 }
+
 
 fun getCommentOwnerId(commentId: Long): Long? {
     return try {
@@ -225,7 +225,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
             val lastEdited: LocalDateTime? = getLastCommentEdit(id)
             val isCommentLiked: Boolean = isCommentLikedByUser(id, userId)
             val isCommentDisliked: Boolean = isCommentDisLikedByUser(id, userId)
-            val hasReplies = doesCommentHaveReplies(id)
+            val numReplies = numCommentReplies(id)
 
 
             Comments.selectAll().where { Comments.id eq id }.singleOrNull()?.let {
@@ -244,10 +244,10 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     lastEdited.toString(),
                     isCommentLiked,
                     isCommentDisliked,
-                    hasReplies,
+                    numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     0 //no pages for a 1 comment query
                 )
             }
@@ -318,7 +318,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
                 val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], userId)
                 val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], userId)
-                val hasReplies = doesCommentHaveReplies(it[Comments.id])
+                val numReplies = numCommentReplies(it[Comments.id])
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
 
 
@@ -336,10 +336,10 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     lastEdited.toString(),
                     isCommentLiked,
                     isCommentDisliked,
-                    hasReplies,
+                    numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     totalPages
                 )
             }
@@ -362,7 +362,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                     val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
                     val isCommentDisliked: Boolean =
                         isCommentDisLikedByUser(it[Comments.id], requesterId)
-                    val hasReplies = doesCommentHaveReplies(it[Comments.id])
+                    val numReplies = numCommentReplies(it[Comments.id])
                     val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
 
                     Comment(
@@ -379,10 +379,10 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         lastEdited.toString(),
                         isCommentLiked,
                         isCommentDisliked,
-                        hasReplies,
+                        numReplies,
                         it[Comments.commenterId] == requesterId,
                         it[Comments.deleted],
-                        if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                        if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                         totalPages
                     )
                 }
@@ -393,14 +393,42 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
     }
 }
 
-fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?): List<Comment>? {
+fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?, order: String?): List<Comment>? {
     return try {
         transaction {
+            val sortOrder: SortOrder?
+            val orderByColumn = Comments.id
+            var orderByCount: Count? = null
+
+            when (order) {
+                "oldest" -> {
+                    sortOrder = SortOrder.ASC
+                }
+
+                "newest" -> {
+                    sortOrder = SortOrder.DESC
+                }
+
+                "likes" -> {
+                    orderByCount = CommentLikes.commentId.count()
+                    sortOrder = SortOrder.DESC
+                }
+
+                "dislikes" -> {
+                    orderByCount = CommentDislikes.commentId.count()
+                    sortOrder = SortOrder.DESC
+                }
+
+                else -> {
+                    sortOrder = SortOrder.DESC
+                }
+            }
+
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
-            val hasReplies = doesCommentHaveReplies(commentId)
+            val numReplies = numCommentReplies(commentId)
             val totalPages = ceil(
                 Comments.selectAll().where { parentCommentId eq commentId }.count()
-                .toDouble() / pageSize.toDouble()
+                    .toDouble() / pageSize.toDouble()
             ).toLong()
             val parentCommentData = parentComment?.let {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
@@ -418,45 +446,64 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     getLastCommentEdit(it[Comments.id]).toString(),
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     isCommentLikedByUser(it[Comments.id], requesterId),
-                    hasReplies,
+                    numReplies,
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
-                    if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
                     0
                 )
             }
 
-            val childComments = Comments.selectAll().where { (parentCommentId eq commentId) }
-                .limit(pageSize).offset(((page - 1) * pageSize).toLong()).map {
-                    val commentLikes: Long = getLikesForComment(it[Comments.id])
-                    val commentDislikes: Long = getDislikesForComment(it[Comments.id])
-                    val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
-                    val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
-                    val isCommentDisliked: Boolean =
-                        isCommentDisLikedByUser(it[Comments.id], requesterId)
-                    val hasRepliesChild = doesCommentHaveReplies(it[Comments.id])
-                    val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
-                    Comment(
-                        it[Comments.id],
-                        it[Comments.content],
-                        it[Comments.postId],
-                        it[Comments.commenterId],
-                        username,
-                        it[Comments.isReply],
-                        it[parentCommentId],
-                        it[Comments.timeStamp],
-                        commentLikes,
-                        commentDislikes,
-                        lastEdited.toString(),
-                        isCommentLiked,
-                        isCommentDisliked,
-                        hasRepliesChild,
-                        it[Comments.commenterId] == requesterId,
-                        it[Comments.deleted],
-                        if(it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
-                        totalPages
-                    )
-                }
+            val query = Comments.leftJoin(CommentLikes).leftJoin(CommentDislikes).select(
+                Comments.id,
+                Comments.content,
+                Comments.postId,
+                Comments.commenterId,
+                Comments.isReply,
+                parentCommentId,
+                Comments.timeStamp,
+                Comments.deleted,
+                Comments.deletedReason
+            ).where { (parentCommentId eq commentId) }
+                .limit(pageSize).offset(((page - 1) * pageSize).toLong())
+
+            if (orderByCount != null) {
+                query.orderBy(orderByCount, sortOrder).groupBy(Comments.id)
+            } else {
+                query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
+            }
+
+            val childComments = query.map {
+                val commentLikes: Long = getLikesForComment(it[Comments.id])
+                val commentDislikes: Long = getDislikesForComment(it[Comments.id])
+                val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
+                val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
+                val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], requesterId)
+                val numReplies = numCommentReplies(it[Comments.id])
+                val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
+
+
+                Comment(
+                    it[Comments.id],
+                    it[Comments.content],
+                    it[Comments.postId],
+                    it[Comments.commenterId],
+                    username,
+                    it[Comments.isReply],
+                    it[parentCommentId],
+                    it[Comments.timeStamp],
+                    commentLikes,
+                    commentDislikes,
+                    lastEdited.toString(),
+                    isCommentLiked,
+                    isCommentDisliked,
+                    numReplies,
+                    it[Comments.commenterId] == requesterId,
+                    it[Comments.deleted],
+                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    totalPages
+                )
+            }
 
             parentCommentData?.let { childComments } ?: childComments
         }

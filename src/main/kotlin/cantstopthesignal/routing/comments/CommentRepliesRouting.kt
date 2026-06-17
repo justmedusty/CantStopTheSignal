@@ -42,6 +42,8 @@ fun Application.configureCommentRepliesRouting() {
                         "You are not authorized to perform this operation"
                     )
                 }
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
                     someone messing around manually, so I am okay with an obstructive 400 return. For anything that can happen from within normal use we absolutely want to make use of the
@@ -77,7 +79,7 @@ fun Application.configureCommentRepliesRouting() {
                 val post = fetchPostById(postId, callingUser!!) ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val root_comment =
                     getCommentById(commentId, callingUser) ?: return@get call.respond(HttpStatusCode.BadRequest)
-                val replies = getReplyComments(commentId, limit, page, callingUser) ?: return@get call.respond(
+                val replies = getReplyComments(commentId, limit, page, callingUser,sortOrder) ?: return@get call.respond(
                     HttpStatusCode.BadRequest
                 )
 
@@ -97,6 +99,12 @@ fun Application.configureCommentRepliesRouting() {
 
                     if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
+
+                    when (sortOrder) {
+                        "likes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
+                        "dislikes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
+                        "oldest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
                     }
                 }
                 return@get call.respond(

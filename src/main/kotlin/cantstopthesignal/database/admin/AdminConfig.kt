@@ -41,25 +41,3 @@ fun setInfoMessage(userId: Long, newMessage: String): Boolean {
     return true
 }
 
-fun getInviteOnly(): Boolean? {
-    return if (siteConfig?.inviteOnly == null) null else siteConfig?.inviteOnly
-}
-
-fun setInviteOnly(on : Boolean): Boolean? {
-    /*
-        This should never happen but we'll check anyway
-     */
-    if (siteConfig?.inviteOnly == null) {
-        logger.error { "site config is null, this should never happen!" }
-        return null
-    }
-
-    if(siteConfig?.inviteOnly == true) {
-        logger.warn { "An admin is trying to override a setting that , when set, cannot be overridden! invite only" }
-        return null
-    }
-
-    return true
-}
-
-

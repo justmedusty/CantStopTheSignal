@@ -84,6 +84,7 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (userId == null) {
@@ -93,7 +94,6 @@ fun Application.configurePostRouting() {
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId!!)
-                val order = call.request.queryParameters["order"] ?: SortOrderValues.NEWEST.value
 
                 if (postList == null) {
                     val error = "The post you requested was not found"
@@ -102,7 +102,7 @@ fun Application.configurePostRouting() {
 
                 val post = postList?.get(0)
 
-                val comments = getCommentsByPost(post!!.id, limit, page, userId, order)
+                val comments = getCommentsByPost(post!!.id, limit, page, userId, sortOrder)
 
 
                 val model = buildMap {
@@ -121,6 +121,11 @@ fun Application.configurePostRouting() {
 
                     if (success != null) {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
+                    when (sortOrder) {
+                        "likes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
+                        "dislikes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
+                        "oldest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
                     }
                 }
 

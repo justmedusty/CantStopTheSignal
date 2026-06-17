@@ -687,6 +687,49 @@
             text-decoration: underline;
         }
 
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .sort-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 0.25rem;
+        }
+
+        .sort-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-secondary);
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .sort-pill:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .sort-pill.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
     </style>
 </head>
 <body>
@@ -818,6 +861,30 @@
         </div>
 
         <div class="replies-list">
+            <br>
+            <div class="sort-bar" th:if="${replies != null and not #lists.isEmpty(replies) ? replies.size() : 0}">
+                <span class="sort-label">Sort:</span>
+                <a class="sort-pill"
+                   th:classappend="${sort == null or sort == ''} ? 'active'"
+                   th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=newest'}">
+                    🕐 Newest
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'old'} ? 'active'"
+                   th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=oldest'}">
+                    📅 Oldest
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'liked'} ? 'active'"
+                   th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=likes'}">
+                    👍 Most Liked
+                </a>
+                <a class="sort-pill"
+                   th:classappend="${sort == 'disliked'} ? 'active'"
+                   th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=dislikes'}">
+                    👎 Most Disliked
+                </a>
+            </div>
 
             <th:block th:if="${replies != null and not #lists.isEmpty(replies)}">
 
@@ -855,9 +922,9 @@
                             </button>
                         </form>
 
-                        <a th:if="${reply.hasReplies}"
+                        <a th:if="${reply.numReplies > 0}"
                            class="btn-replies"
-                           th:href="|/comments/${id}/replies/${reply.id}|">
+                           th:href="|/comments/${id}/replies/${reply.id}|" th:text="${'View Replies' + '(' + reply.numReplies + ')'}">
                             &#8618; Replies
                         </a>
 

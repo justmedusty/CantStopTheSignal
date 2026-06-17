@@ -54,7 +54,7 @@ fun Application.configureAdminRoutes() {
                 val siteStats = getSiteStats()
 
                 val areSignupsSuspended = areSignupsSuspended()
-                val inviteOnly = getInviteOnly()
+                val inviteOnly = isInviteOnlyEnabled()
 
                 val inviteCodes: List<String>? = getAllValidLoginCodes(
                     user,
@@ -193,7 +193,7 @@ fun Application.configureAdminRoutes() {
                         "Invite only is set at the application config level, this cannot be overridden. Talk to the site owner if you wish to change this."
                     return@post call.respondRedirect("/admin?error=$error")
                 }
-                val inviteOnly = getInviteOnly()
+                val inviteOnly = isInviteOnlyEnabled()
 
                 when (inviteOnly) {
                     true -> {
