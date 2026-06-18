@@ -10,7 +10,7 @@ import java.util.*
 
 //Our scope for doing cleanup with the PGP challenge entries that cannot exist forever
 val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-var siteConfig: SiteConfig? = null // This will store configurable values for site customization
+lateinit var siteConfig: SiteConfig // This will store configurable values for site customization
 fun main(args: Array<String>) {
     //Set timezone to UTC since this may be hosted anywhere in the world and we do not want to expose the person hosting the forum to unnecessary data leakage
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
