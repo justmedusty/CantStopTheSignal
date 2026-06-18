@@ -62,14 +62,18 @@ fun getSiteStats(): SiteStats? {
     return try {
         transaction {
             val userCount = Users.selectAll().count()
+            logger.debug { "User count: $userCount" }
             val totalComments = Comments.selectAll().count()
+            logger.debug { "Total comments: $totalComments" }
             val totalPosts = Posts.selectAll().count()
-            val totalSuspendedUsers = SuspendLog.selectAll().count()
+            logger.debug { "Total posts: $totalPosts" }
+            val totalSuspendedUsers = Users.selectAll().where { Users.isSuspended eq true }.count()
+            logger.debug { "Total suspended users: $totalSuspendedUsers" }
 
             SiteStats(
-                userCount,
                 totalPosts,
                 totalComments,
+                userCount,
                 totalSuspendedUsers,
                 getAdminList() ?: return@transaction null,
                 getModeratorList() ?: return@transaction null
