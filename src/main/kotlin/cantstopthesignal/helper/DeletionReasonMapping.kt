@@ -2,7 +2,7 @@ package cantstopthesignal.helper
 
 import com.freedom.cantstopthesignal.enums.DeletionReason
 
-fun getDeletionReasonString(reasonId: Long): String {
+fun getDeletionReasonString(reasonId: Long?): String {
     return when (reasonId) {
         DeletionReason.DELETED_BY_USER.value -> {
             "Deleted by user"

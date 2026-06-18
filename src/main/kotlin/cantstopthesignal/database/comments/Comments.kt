@@ -232,7 +232,11 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
-                    it[Comments.content],
+                    if(!it[Comments.deleted]) {
+                        it[Comments.content]
+                    } else {
+                        (getDeletionReasonString(it[Comments.deletedReason]))
+                    },
                     it[Comments.postId],
                     it[Comments.commenterId],
                     username,
@@ -324,7 +328,11 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 
                 Comment(
                     it[Comments.id],
-                    it[Comments.content],
+                    if(!it[Comments.deleted]) {
+                        it[Comments.content]
+                    } else {
+                        (getDeletionReasonString(it[Comments.deletedReason]))
+                    },
                     it[Comments.postId],
                     it[Comments.commenterId],
                     username,
@@ -367,7 +375,11 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
 
                     Comment(
                         it[Comments.id],
-                        it[Comments.content],
+                        if(!it[Comments.deleted]) {
+                            it[Comments.content]
+                        } else {
+                            (getDeletionReasonString(it[Comments.deletedReason]))
+                        },
                         it[Comments.postId],
                         it[Comments.commenterId],
                         username,
@@ -431,7 +443,11 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
-                    it[Comments.content],
+                    if(!it[Comments.deleted]) {
+                        it[Comments.content]
+                    } else {
+                        (getDeletionReasonString(it[Comments.deletedReason]))
+                    },
                     it[Comments.postId],
                     it[Comments.commenterId],
                     username,
