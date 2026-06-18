@@ -5,10 +5,7 @@ import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Conversations
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages
+import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.message
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
@@ -140,6 +137,25 @@ fun createConversation(userId: Long, users: List<Long>, conversationName: String
         val targetUserIds = (users + userId).distinct()
         val numUsers = targetUserIds.size
 
+        val visitedIds = mutableSetOf<Pair<Long, Long>>()
+        //This can iterate a maximum of 225 times so we'll have a lil mappy poo to make sure we dont add unnecessary compute
+        for (id in targetUserIds) {
+
+            for (userId in targetUserIds) {
+                if (id == userId) {
+                    continue
+                }
+                if (visitedIds.contains(Pair(id, userId)) || visitedIds.contains(Pair(userId, id))) {
+                    continue
+                }
+
+                if (isUserBlocked(userId, id)) {
+                    return@transaction RetValues.BLOCKED_USER.value
+                }
+                visitedIds.add(Pair(id, userId))
+            }
+        }
+
         val matchingConversationId = targetUserIds
             .map { uid ->
                 ConversationMembers
@@ -264,7 +280,7 @@ fun getLastMessageUsername(conversation: Long): String? {
     return try {
         val userId = Messages.selectAll().where { Messages.conversationId eq conversation }
             .orderBy(Messages.id to SortOrder.DESC)
-            .firstOrNull()?.get(Messages.senderId)
+            .firstOrNull()?.get(senderId)
 
         if (userId == null) {
             return null
@@ -430,3 +446,74 @@ fun getLastMessageTimestamp(group: Long): LocalDateTime? {
     }
 }
 
+/*
+    We want to encourage users to not take tons of space in the database with private messages since its a social site and should be useful to all users
+    not just private messages. So we will allow users to clear their own messages from a conversation. You should not need THAT much history anyway for social
+    site DMs.
+ */
+fun deleteAllMyMessagesInConversation(userId: Long, conversationId: Long): Boolean? {
+    return try {
+        transaction {
+            Messages.deleteWhere { (Messages.conversationId eq conversationId) and (Messages.senderId eq userId) } > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to delete all of a users messages from the database: " + e.message }
+        null
+    }
+}
+
+fun leaveConversation(userId: Long, conversationId: Long): Boolean? {
+    return try {
+        transaction {
+            val success =
+                ConversationMembers.deleteWhere { (ConversationMembers.userId) eq userId and (ConversationMembers.conversationId eq conversationId) } > 0
+
+            //If there is nobody left, just delete all of it. Private messages have
+            if (ConversationMembers.selectAll().where(ConversationMembers.conversationId eq conversationId)
+                    .count() <= 1
+            ) {
+
+                val memberDeleted =
+                    ConversationMembers.deleteWhere { ConversationMembers.conversationId eq conversationId } > 0
+                if (!memberDeleted) {
+                    logger.error { "An unexpected error occurred while trying to delete a conversations members" }
+                }
+
+                val conversationDeleted = Conversations.deleteWhere { Conversations.id eq conversationId } > 0
+
+                if (!conversationDeleted) {
+                    logger.error { "An unexpected error occurred while trying to delete a conversation" }
+                }
+
+                //The database reference option constrain will delete the messages for us
+            }
+
+            success
+        }
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to leave conversation : " + e.message }
+        null
+    }
+}
+
+fun isUserBlocked(user: Long, target: Long): Boolean {
+    return try {
+        transaction {
+            PrivateMessageBlockList.selectAll().where {
+                ((PrivateMessageBlockList.blockedById eq user) and (PrivateMessageBlockList.blockedUser eq target)) or ((PrivateMessageBlockList.blockedUser eq user) and (PrivateMessageBlockList.blockedById eq target))
+            }.count() > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to determine is a user was blocked. The error message contents is ${e.message}" }
+        false
+    }
+}
+
+fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConversations: Boolean) {
+    return try {
+        transaction {}
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to block user from messaging" + e.message }
+    }
+
+}

@@ -1,13 +1,10 @@
 package com.freedom.cantstopthesignal.database.dsl.table_definitions
 
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes.dislikedById
-import com.freedom.cantstopthesignal.siteConfig
-import org.jetbrains.exposed.v1.javatime.datetime
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.core.statements.api.ExposedBlob
 import org.jetbrains.exposed.v1.javatime.CurrentDateTime
+import org.jetbrains.exposed.v1.javatime.datetime
 import java.time.LocalDateTime
 
 
@@ -17,7 +14,8 @@ import java.time.LocalDateTime
 object Users : Table(name = "Users") {
     val id: Column<Long> = long("id").autoIncrement()
     val userName: Column<String> = varchar("user_name", 45).uniqueIndex()
-    val passwordHash = text("password_hash").nullable() // Making this nullable in the case a user wishes to disable password login for better account security
+    val passwordHash =
+        text("password_hash").nullable() // Making this nullable in the case a user wishes to disable password login for better account security
     val isAdmin = bool("is_admin").default(false)
     val isModerator = bool("is_moderator").default(false)
     val isSuspended = bool("is_suspended").default(false)
@@ -41,13 +39,26 @@ object Conversations : Table(name = "Conversations") {
     val isGroup: Column<Boolean> = bool("is_group").default(false)
     val name: Column<String?> = varchar("name", 100).nullable()  // null for DMs
     val createdBy: Column<Long> = long("created_by").references(Users.id)
+    val transientMessages: Column<Boolean> =
+        bool("transient_messages").default(false) // This will schedule messages for deletion after so long
     val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
 
     override val primaryKey = PrimaryKey(id)
 }
 
+object PrivateMessageBlockList : Table(name = "MessageBlockList") {
+    val id: Column<Long> = long("id").autoIncrement()
+    val blockedById: Column<Long> = long("blocked_by").references(Users.id, onDelete = ReferenceOption.CASCADE)
+    val blockedUser: Column<Long> = long("blocked_user").references(Users.id, onDelete = ReferenceOption.CASCADE)
+
+    /*
+        Composite Key
+     */
+    override val primaryKey = PrimaryKey(blockedById, blockedUser)
+}
+
 object ConversationMembers : Table(name = "ConversationMembers") {
-    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id)
+    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id, ReferenceOption.CASCADE)
     val userId: Column<Long> = long("user_id").references(Users.id)
     val joinedAt: Column<LocalDateTime> = datetime("joined_at").defaultExpression(CurrentDateTime)
 
@@ -57,8 +68,8 @@ object ConversationMembers : Table(name = "ConversationMembers") {
 
 object Messages : Table(name = "Messages") {
     val id: Column<Long> = long("id").autoIncrement()
-    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id)
-    val senderId: Column<Long> = long("sender_id").references(Users.id)
+    val conversationId: Column<Long> = long("conversation_id").references(Conversations.id, ReferenceOption.CASCADE)
+    val senderId: Column<Long> = long("sender_id").references(Users.id, ReferenceOption.CASCADE)
     val message: Column<String> = text("message")
     val timeSent: Column<LocalDateTime> = datetime("time_sent").defaultExpression(CurrentDateTime)
 
@@ -69,9 +80,11 @@ object Notifications : Table(name = "Notifications") {
     val id: Column<Long> = long("id").autoIncrement()
     val read: Column<Boolean> = bool("read").default(false)
     val postId: Column<Long?> = long("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE).nullable()
-    val commentId: Column<Long?> = long("comment_id").references(Comments.id).nullable().default(null)  // only if a comment reply
+    val commentId: Column<Long?> =
+        long("comment_id").references(Comments.id).nullable().default(null)  // only if a comment reply
     val userId: Column<Long> = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
-    val userWhoInteracted: Column<Long> = long("user_who_interacted").references(Users.id, onDelete = ReferenceOption.CASCADE)
+    val userWhoInteracted: Column<Long> =
+        long("user_who_interacted").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val type: Column<Long> = long("type")
 
     override val primaryKey = PrimaryKey(id)
@@ -80,7 +93,8 @@ object Notifications : Table(name = "Notifications") {
 
 object MessageNotifications : Table(name = "MessageNotifications") {
     val id: Column<Long> = long("id").autoIncrement()
-    val conversationId: Column<Long> = long("conversation_id").references(Messages.id, onDelete = ReferenceOption.CASCADE)
+    val conversationId: Column<Long> =
+        long("conversation_id").references(Messages.id, onDelete = ReferenceOption.CASCADE)
     val userId: Column<Long> = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
 
     override val primaryKey = PrimaryKey(id)
@@ -88,13 +102,11 @@ object MessageNotifications : Table(name = "MessageNotifications") {
 
 object Posts : Table(name = "Posts") {
     val id: Column<Long> = long("id").autoIncrement()
-    val posterId: Column<Long> = long("posterId").references(Users.id)
+    val posterId: Column<Long> = long("posterId").references(Users.id, ReferenceOption.CASCADE)
     val topic: Column<String> = varchar("topic", 60)
     val timestamp: Column<LocalDateTime> = datetime("timestamp").defaultExpression(CurrentDateTime)
     val deleted: Column<Boolean> = bool("deleted").default(false)
     val deletedReason: Column<Long?> = long("deleted_reason").nullable().default(null) /* soft deletion */
-
-
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -108,6 +120,7 @@ object PostLikes : Table(name = "Likes") {
     init {
         index(true, postId, likedById)
     }
+
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -186,7 +199,7 @@ object CommentDislikes : Table(name = "CommentDislikes") {
     val commentId: Column<Long> = long("commentId").references(
         Comments.id, ReferenceOption.CASCADE
     )
-    val dislikedById: Column<Long> = long("dislikedById").references(Users.id)
+    val dislikedById: Column<Long> = long("dislikedById").references(Users.id, ReferenceOption.CASCADE)
 
 
     init {
@@ -201,7 +214,9 @@ object AdminLogs : Table(name = "AdminLogs") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("timestamp")
     val doneById: Column<Long> = long("done_by_id").references(Users.id)
-    val actionString: Column<String> = text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
+    val actionString: Column<String> =
+        text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
+
     //cont. ^ I would tie it to ids but if a post is removed then there will no longer be an id to link to. This is mostly so that admins can just do whatever other staff can see what theyre doing
     val reason: Column<String> = text("reason")
 
@@ -216,12 +231,14 @@ object SuspendLog : Table(name = "SuspendLog") {
     val reason: Column<String> = text("reason")
     override val primaryKey = PrimaryKey(id)
 }
+
 //my idea for creating this table is something that can be done by admins dynamically to create an entry that essentially turns off account creation,
 // this can be useful if someone wants to suddenly make their forum private or if they are being bombarded by signups that they do not want
 object SiteWidePermissions : Table(name = "SiteWidePermissions") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("timestamp")
-    val eventId: Column<Long> = long("event_id").uniqueIndex() //this will be used for nuclear options in case you get swarmed or something, but it can be used to include other stuff too
+    val eventId: Column<Long> =
+        long("event_id").uniqueIndex() //this will be used for nuclear options in case you get swarmed or something, but it can be used to include other stuff too
 }
 
 //If the user chooses to make their forum invite only, this will be where the one-time-use codes are stored

@@ -97,7 +97,8 @@ enum class SortOrderValues(val value: String) {
 
 enum class RetValues(val value: Long) {
     ALREADY_EXISTS(-50),
-    SUSPENDED(-49)
+    SUSPENDED(-49),
+    BLOCKED_USER(-48),
 }
 
 enum class RegexPatterns(val value: Regex) {
