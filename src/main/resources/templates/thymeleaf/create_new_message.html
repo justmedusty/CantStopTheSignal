@@ -19,6 +19,7 @@
             --accent-dim: #1e2d56;
             --text: #e8eaf2;
             --text-secondary: #7b82a0;
+            --muted: var(--accent);
             --dm-avatar: #1e3a2f;
             --dm-pill: #1a3324;
             --dm-pill-text: #4ecb82;
@@ -35,7 +36,8 @@
         }
 
         .container {
-            max-width: 680px;
+            max-width: 40vw;
+            min-width: 680px;
             margin: 0 auto;
         }
 
@@ -172,6 +174,22 @@
             border-radius: var(--radius);
             overflow: hidden;
             transition: border-color .15s, box-shadow .15s;
+        }
+
+        .checkbox-slot {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 12px;
+            background: var(--muted);
+            border-right: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .checkbox-slot input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            margin: 0;
         }
 
         .input-wrap:focus-within {
@@ -325,6 +343,22 @@
                                 th:value="${conversation_draft != null} ? ${conversation_draft.groupName} : ''"/>
                     </div>
                 </div>
+
+                <div class="field">
+                    <label class="field-label" for="selfDeleting">Self Delete Once Seen?</label>
+                    <div class="input-wrap">
+                        <label class="checkbox-slot" for="selfDeleting">
+                            <input
+                                    type="checkbox"
+                                    id="selfDeleting"
+                                    name="selfDeleting"
+                                    autocomplete="off"
+                                    th:checked="${conversation_draft != null} ? ${conversation_draft.selfDeleting} : false"/>
+                        </label>
+                        <span style="padding: 0.65rem 0.85rem; font-size: 0.875rem; color: var(--text-secondary);">Delete message after recipients reads it +- a few hours</span>
+                    </div>
+                </div>
+
 
                 <!-- Message -->
                 <div class="field">

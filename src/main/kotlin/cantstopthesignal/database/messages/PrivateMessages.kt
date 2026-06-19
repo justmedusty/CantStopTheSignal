@@ -132,7 +132,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
     }
 }
 
-fun createConversation(userId: Long, users: List<Long>, conversationName: String?): Long? = try {
+fun createConversation(userId: Long, users: List<Long>, conversationName: String?, selfDelete: Boolean): Long? = try {
     transaction {
         val targetUserIds = (users + userId).distinct()
         val numUsers = targetUserIds.size
@@ -180,6 +180,7 @@ fun createConversation(userId: Long, users: List<Long>, conversationName: String
         val conversationId = Conversations.insert {
             it[createdBy] = userId
             it[isGroup] = targetUserIds.size > 2
+            it[transientMessages] = selfDelete
             it[name] =
                 conversationName // This is null for non groups and for groups where it is null it will just be populated with the usernames
         }[Conversations.id]

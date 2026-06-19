@@ -22,6 +22,7 @@ import io.ktor.server.thymeleaf.*
 data class ConversationDraft(
     val members: String?,
     val groupName: String?,
+    val selfDeleting: Boolean?,
     val message: String?,
 )
 
@@ -168,11 +169,17 @@ fun Application.configureMessageRouting() {
 
                 val usersToAdd = parameters["recipients"]
                 val groupName = parameters["groupName"]
+                val selfDelete = parameters["selfDeleting"] == "on"
+                logger.info { parameters["selfDelete"] }
+                logger.info { selfDelete }
+
+
                 val firstMessage = parameters["firstMessage"]
 
                 val convoDraft = ConversationDraft(
                     usersToAdd,
                     groupName,
+                    selfDelete,
                     firstMessage
                 )
                 //These should ONLY be a comma separating usernames
@@ -223,7 +230,9 @@ fun Application.configureMessageRouting() {
 
                 }
 
-                if(usernames.size > Length.MAX_MEMBERS_IN_CONVERSATION.value) {
+
+
+                if (usernames.size > Length.MAX_MEMBERS_IN_CONVERSATION.value) {
                     val map = buildMap {
                         put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                         put(
@@ -270,7 +279,7 @@ fun Application.configureMessageRouting() {
                 val userIdList = usernames.map {
                     getUserId(it)!!
                 }
-                val ret = createConversation(userId!!, userIdList, groupName)
+                val ret = createConversation(userId!!, userIdList, groupName, selfDelete)
 
                 if (ret == RetValues.ALREADY_EXISTS.value) {
                     val map = buildMap {
@@ -293,6 +302,21 @@ fun Application.configureMessageRouting() {
                         put(
                             ThymeLeafMapKeys.ERROR.value,
                             "An unspecified error occurred while trying to create your new conversation"
+                        )
+                        put(
+                            ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
+                            convoDraft
+                        ) //We send them back with the same list in case it is long to type out, may as well give them less work to do
+                    }
+                    return@post call.respond(ThymeleafContent("create_new_message", map))
+                }
+
+                if (ret == RetValues.BLOCKED_USER.value) {
+                    val map = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(
+                            ThymeLeafMapKeys.ERROR.value,
+                            "A user in this group has blocked another user in this group, the conversation cannot be created."
                         )
                         put(
                             ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value,
