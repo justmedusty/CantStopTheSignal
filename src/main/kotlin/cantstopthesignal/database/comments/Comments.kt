@@ -13,6 +13,7 @@ import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments.par
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues
+import com.freedom.cantstopthesignal.helper.isThisCode
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -38,6 +39,7 @@ data class Comment(
     val myComment: Boolean,
     val deleted: Boolean,
     val deletedReason: String?,
+    val isCode: Boolean,
     val totalPages: Long //This will be duplicated more than is needed but this makes it easier for me to insert it right in depending on the query being made
 )
 
@@ -252,6 +254,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
                     if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    isThisCode(it[Comments.content]),
                     0 //no pages for a 1 comment query
                 )
             }
@@ -348,6 +351,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
                     if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    isThisCode(it[Comments.content]),
                     totalPages
                 )
             }
@@ -395,6 +399,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         it[Comments.commenterId] == requesterId,
                         it[Comments.deleted],
                         if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                        isThisCode(it[Comments.content]),
                         totalPages
                     )
                 }
@@ -463,6 +468,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
                     if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    isThisCode(it[Comments.content]),
                     0
                 )
             }
@@ -518,6 +524,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
                     if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    isThisCode(it[Comments.content]),
                     totalPages
                 )
             }

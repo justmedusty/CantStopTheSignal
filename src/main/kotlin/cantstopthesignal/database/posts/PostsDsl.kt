@@ -9,6 +9,7 @@ import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
+import com.freedom.cantstopthesignal.helper.isThisCode
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -38,7 +39,8 @@ data class Post(
     val commentCount: Long,
     val deleted: Boolean,
     val deletedReason: String?,
-    val myPost: Boolean, //this can be used to toggle the edit and delete buttons
+    val myPost: Boolean, //this can be used to toggle the edit and delete buttons\
+    val isCode: Boolean,
     val totalPages: Long //Again this causes duplication but this makes life easier with the way things are set up at the time of adding this field
 )
 
@@ -239,6 +241,7 @@ fun fetchPostsByTopic(
                     it[Posts.deleted],
                     if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     userId == it[Posts.posterId],
+                    isThisCode(it[PostContents.content]),
                     totalPages,
 
                     )
@@ -291,6 +294,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == callerId,
+                        isThisCode(it[PostContents.content]),
                         totalPages,
 
                         )
@@ -336,6 +340,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
+                        isThisCode(it[PostContents.content]),
                         totalPages,
 
                         )
@@ -379,6 +384,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
+                        isThisCode(it[PostContents.content]),
                         0 //Just one post so no point
 
                     )
@@ -449,6 +455,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     it[Posts.deleted],
                     if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     it[Posts.posterId] == userId,
+                    isThisCode(it[PostContents.content]),
                     totalPages,
                 )
             }
@@ -500,6 +507,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     row[Posts.deleted],
                     if(row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),
                     row[Posts.id] == userId,
+                    isThisCode(row[PostContents.content]),
                     totalPages
 
 
