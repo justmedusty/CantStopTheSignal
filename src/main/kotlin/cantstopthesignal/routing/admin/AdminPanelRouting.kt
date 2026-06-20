@@ -61,7 +61,7 @@ fun Application.configureAdminRoutes() {
                     1,
                     100
                 )//Im just gonna show 100, you should never need to page through these so don't think I'll implement it. If you need to give out an invite code, why would you page through them? Just pick one.
-                logger.info { inviteCodes }
+                logger.debug { inviteCodes }
 
                 val map = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)

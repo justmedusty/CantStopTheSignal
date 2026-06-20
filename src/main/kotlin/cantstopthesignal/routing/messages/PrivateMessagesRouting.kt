@@ -170,8 +170,8 @@ fun Application.configureMessageRouting() {
                 val usersToAdd = parameters["recipients"]
                 val groupName = parameters["groupName"]
                 val selfDelete = parameters["selfDeleting"] == "on"
-                logger.info { parameters["selfDelete"] }
-                logger.info { selfDelete }
+                logger.debug { parameters["selfDelete"] }
+
 
 
                 val firstMessage = parameters["firstMessage"]

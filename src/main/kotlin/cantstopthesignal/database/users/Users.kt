@@ -136,11 +136,11 @@ fun userAndPasswordValidation(userName: String, password: String): Boolean {
  * @param user
  */ // Functions to perform CRUD operations on Users table
 fun createUser(user: User): Boolean {
-    logger.info { "creating user" }
+    logger.debug { "creating user" }
     if (user.passwordHash == null) return false
     return try {
         transaction {
-            logger.info { "in user creation tx" }
+            logger.debug { "in user creation tx" }
             if (userAndPasswordValidation(user.userName, "") && userAndPasswordValidation("", user.passwordHash)) {
                 val id: Long = Users.insert {
                     it[userName] = user.userName

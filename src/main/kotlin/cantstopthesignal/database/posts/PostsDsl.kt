@@ -412,12 +412,12 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
 
         return transaction {
             val relevantPostIds = Posts.selectAll().map { it[Posts.id] }
-            logger.info { "after revelent post ID" }
+            logger.debug { "after revelent post ID" }
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
                     Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason
                 ).where { Posts.id inList relevantPostIds }
-        logger.info { "after query" }
+        logger.debug { "after query" }
 
 
             if (orderByCount != null) {
@@ -428,7 +428,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
 
             val totalPages = ceil(query.count().toDouble() / limit.toDouble()).toLong()
             query.limit(limit).offset((page - 1) * limit.toLong())
-            logger.info { "after total pages and limit" }
+            logger.debug { "after total pages and limit" }
             query.map {
                 val postId = it[Posts.id]
                 val posterUsername = it[Posts.posterId]

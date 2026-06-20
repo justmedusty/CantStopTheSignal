@@ -476,7 +476,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 Comments.selectAll().where { parentCommentId eq commentId }.count()
                     .toDouble() / pageSize.toDouble()
             ).toLong()
-            logger.info { "TOTAL PAGES ${totalPages}" }
+
             val query = Comments.leftJoin(CommentLikes).leftJoin(CommentDislikes).select(
                 Comments.id,
                 Comments.content,
