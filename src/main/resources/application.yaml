@@ -32,22 +32,19 @@ ktor:
 
 
 site:
-  name: "Can't Stop The Signal."
-  topic: "Anonymous discussion, uncensored."
-  motd: "“There is some good in this world, and it’s worth fighting for.” — Samwise Gamgee"
+  name: "Can't Stop The Signal." # Your service name, displayed as part of the header card
+  topic: "Anonymous discussion, uncensored." #A little blurb about your service, could be cooking related if its a cooking forum, gardening related if its gardening , etc.
+  motd: "“There is some good in this world, and it’s worth fighting for.” — Samwise Gamgee" # This is configurable from the admin panel, but this is the default value upon starting the server and will wipe whatever transient value was set by admins
   pgp_help: "You should share PGP keys with members. You should always encrypt private messages."
-  no_encrypt_warning_group: "Someone in this group does not have a public key uploaded! The chat cannot be encrypted! Do not share personal information until all members have PGP keys uploaded!"
-  no_encrypt_warning_individual: "The person you are messaging does not have a public key uploaded! You should be locally encryptingDo not share personal information until all members have PGP keys uploaded!"
-  encryption_explanation: "You should upload a PGP key for private messages, but you do not have to. It will make your communication much more private and secure, otherwise the messages with live plaintext on a server. If there is no identifiable information then it is not a huge deal, however it is always best to encrypt."
   pgp_warning: "Your PGP key will have a name email attached, if this is for totally anonymous use, you should make sure the key you share has a pseudonym and a fake or anonymous email handle."
   audience: "cantstopthesignal"
-  issuer: "cantstopthesignal.i2p"
+  issuer: "cantstopthesignal.i2p" #This and the one after is just for your token, it doesnt necessarily matter that much but you should set it your i2p service name for consistency
   baseUrl: "http://cantstopthesignal.i2p"
-  token_lifetime_minutes: "25"
+  token_lifetime_minutes: "25" #There is no token invalidation done so it is recommended to keep this value below 30 minutes , you can put it higher just bare in mind session hijacking risk grows with this value
   invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums. This can be changed in the admin panel. If this option here is true, it cannot be overridden from the admin panel. If it is false, then admins can turn it on or off as they wish.
-  rate_limit_window_seconds: "20"
+  rate_limit_window_seconds: "20" #This and the below rate limit va
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
-  signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it
-  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge. This option should not be changed later, it should be decided when you first decide to host an instance of this service
+  signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it. If it is enabled here it cannot be overridden by admins
+  pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge. This option should not be changed later, it should be decided when you first decide to host an instance of this service. Note: I have since updated this to allow passwordless users in a non forced pgp login context, so it is safe to change this once you have a userbase.
