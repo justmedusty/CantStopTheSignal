@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.database.admin
+package cantstopthesignal.database.admin
 
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.Comments

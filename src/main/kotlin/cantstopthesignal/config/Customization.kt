@@ -1,6 +1,6 @@
 package cantstopthesignal.config
 
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 
 data class SiteConfig(
@@ -21,6 +21,7 @@ data class SiteConfig(
     val rateLimitNumAllowedInWindowLoginSignup: Long,
     val signupsDisabled: Boolean,
     val pgpLoginOnly: Boolean,
+    val hoursBetweenMessageDeletionJobs: Long,
 )
 
 
@@ -46,5 +47,6 @@ fun Application.loadSiteConfig() {
             .getString().toLong(),
         signupsDisabled = config.property("signups_disabled").getString().toBoolean(),
         pgpLoginOnly = config.property("pgp_login_only").getString().toBoolean(),
+        hoursBetweenMessageDeletionJobs = config.property("message_deletion_window_hours").getString().toLong()
     )
 }

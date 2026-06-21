@@ -1,13 +1,13 @@
-package com.freedom.cantstopthesignal.routing.posts
+package cantstopthesignal.routing.posts
 
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
-import com.freedom.cantstopthesignal.database.posts.Post
-import com.freedom.cantstopthesignal.database.posts.fetchPostsByTopic
-import com.freedom.cantstopthesignal.database.posts.searchPostByTitleOrContents
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.database.posts.Post
+import cantstopthesignal.database.posts.fetchPostsByTopic
+import cantstopthesignal.database.posts.searchPostByTitleOrContents
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*

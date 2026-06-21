@@ -2,7 +2,7 @@ package cantstopthesignal.database.admin
 
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.siteConfig
 
 fun getMotd(): String? {
     return if (siteConfig?.motd == null) null else siteConfig?.motd

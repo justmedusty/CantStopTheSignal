@@ -4,8 +4,8 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.InviteCodes
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetStrings
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetStrings
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert

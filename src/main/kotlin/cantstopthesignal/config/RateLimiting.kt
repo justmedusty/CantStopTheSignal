@@ -1,6 +1,6 @@
 package cantstopthesignal.config
 
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.siteConfig
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.RateLimiting
 import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.TokenBucket
 import io.ktor.server.application.*

@@ -1,9 +1,9 @@
 package cantstopthesignal.routing.login
 
 
-import com.freedom.cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

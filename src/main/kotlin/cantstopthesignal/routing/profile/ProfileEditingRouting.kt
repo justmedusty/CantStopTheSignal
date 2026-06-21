@@ -4,9 +4,9 @@ import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.users.*
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

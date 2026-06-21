@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.routing.comments
+package cantstopthesignal.routing.comments
 
 
 import cantstopthesignal.database.comments.getCommentsByPost
@@ -6,12 +6,12 @@ import cantstopthesignal.database.comments.postComment
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.posts.fetchPostById
-import com.freedom.cantstopthesignal.database.posts.verifyPostId
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetValues
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.database.posts.fetchPostById
+import cantstopthesignal.database.posts.verifyPostId
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

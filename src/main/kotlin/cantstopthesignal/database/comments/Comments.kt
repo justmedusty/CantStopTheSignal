@@ -10,10 +10,10 @@ import cantstopthesignal.table_definitions.CommentDislikes
 import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.Comments.parentCommentId
-import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
-import com.freedom.cantstopthesignal.enums.Notif
-import com.freedom.cantstopthesignal.enums.RetValues
-import com.freedom.cantstopthesignal.helper.isThisCode
+import cantstopthesignal.database.posts.getPostOwnerId
+import cantstopthesignal.enums.Notif
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.helper.isThisCode
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

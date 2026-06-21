@@ -2,7 +2,7 @@ package cantstopthesignal.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.siteConfig
 import io.ktor.http.auth.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

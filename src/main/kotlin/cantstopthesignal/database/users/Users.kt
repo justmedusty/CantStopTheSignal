@@ -5,7 +5,7 @@ import cantstopthesignal.log.logger
 import cantstopthesignal.security.hashPassword
 import cantstopthesignal.table_definitions.ProfileData
 import cantstopthesignal.table_definitions.Users
-import com.freedom.cantstopthesignal.enums.Length
+import cantstopthesignal.enums.Length
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException

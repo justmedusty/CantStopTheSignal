@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.database.posts
+package cantstopthesignal.database.posts
 
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.PostContents
@@ -13,9 +13,9 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.helper.getDeletionReasonString
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetValues
-import com.freedom.cantstopthesignal.helper.isThisCode
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.helper.isThisCode
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert

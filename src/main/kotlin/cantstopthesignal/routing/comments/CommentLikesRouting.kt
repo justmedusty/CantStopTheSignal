@@ -1,9 +1,9 @@
-package com.freedom.cantstopthesignal.routing.comments
+package cantstopthesignal.routing.comments
 
 import cantstopthesignal.database.comments.dislikeComment
 import cantstopthesignal.database.comments.likeComment
 import cantstopthesignal.database.comments.verifyCommentId
-import com.freedom.cantstopthesignal.database.posts.verifyPostId
+import cantstopthesignal.database.posts.verifyPostId
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

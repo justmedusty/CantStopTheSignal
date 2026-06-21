@@ -7,8 +7,8 @@ import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

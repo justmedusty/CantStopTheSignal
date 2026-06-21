@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.helper
+package cantstopthesignal.helper
 
 fun isThisCode(content: String): Boolean {
     return content.contains("{")

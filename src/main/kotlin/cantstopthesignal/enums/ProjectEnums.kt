@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.enums
+package cantstopthesignal.enums
 
 enum class Length(val value: Long) {
     MAX_INVITE_CODES(500),

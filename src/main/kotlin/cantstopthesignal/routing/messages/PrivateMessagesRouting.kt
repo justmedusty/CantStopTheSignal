@@ -5,11 +5,11 @@ import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
 import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RegexPatterns
-import com.freedom.cantstopthesignal.enums.RetValues
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RegexPatterns
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

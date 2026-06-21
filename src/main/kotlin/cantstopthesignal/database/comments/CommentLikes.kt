@@ -3,7 +3,7 @@ package cantstopthesignal.database.comments
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.CommentDislikes
 import cantstopthesignal.table_definitions.CommentLikes
-import com.freedom.cantstopthesignal.enums.Notif
+import cantstopthesignal.enums.Notif
 import cantstopthesignal.database.notifications.insertNotification
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq

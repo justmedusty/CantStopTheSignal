@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.routing.admin
+package cantstopthesignal.routing.admin
 
 import cantstopthesignal.database.admin.*
 import cantstopthesignal.database.invite_only.generateNewInviteCode
@@ -6,12 +6,12 @@ import cantstopthesignal.database.invite_only.getAllValidLoginCodes
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.admin.getSiteStats
-import com.freedom.cantstopthesignal.database.sitewide_permissions.*
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetStrings
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.database.admin.getSiteStats
+import cantstopthesignal.database.sitewide_permissions.*
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetStrings
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

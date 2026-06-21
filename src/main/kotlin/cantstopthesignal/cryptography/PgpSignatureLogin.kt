@@ -1,9 +1,9 @@
-package com.freedom.cantstopthesignal.cryptography
+package cantstopthesignal.cryptography
 
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.applicationScope
+import cantstopthesignal.applicationScope
 import io.ktor.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,6 +15,7 @@ import org.pgpainless.decryption_verification.DecryptionStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.time.Duration
 import java.time.ZoneOffset
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
@@ -101,7 +102,7 @@ fun registerNewChallenge(user: String): String? /* Successful creation or not */
 
     // Schedule expiry
     applicationScope.launch {
-        delay(java.time.Duration.ofMinutes(5).toMillis().milliseconds)
+        delay(Duration.ofMinutes(5).toMillis().milliseconds)
         // Only remove if it's still the same challenge (not replaced/consumed)
         pgpChallengeHashSet.remove(user, signatureLoginChallenge)
     }

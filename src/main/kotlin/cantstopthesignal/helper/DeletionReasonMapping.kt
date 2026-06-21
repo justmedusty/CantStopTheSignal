@@ -1,6 +1,6 @@
 package cantstopthesignal.helper
 
-import com.freedom.cantstopthesignal.enums.DeletionReason
+import cantstopthesignal.enums.DeletionReason
 
 fun getDeletionReasonString(reasonId: Long?): String {
     return when (reasonId) {

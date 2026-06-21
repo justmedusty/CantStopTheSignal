@@ -1,10 +1,10 @@
 package cantstopthesignal.routing.posts
 
-import com.freedom.cantstopthesignal.database.posts.createPost
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetValues
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.database.posts.createPost
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*

@@ -1,8 +1,8 @@
-package com.freedom.cantstopthesignal.database.sitewide_permissions
+package cantstopthesignal.database.sitewide_permissions
 
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.enums.SiteWidePermissions
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.enums.SiteWidePermissions
+import cantstopthesignal.siteConfig
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert

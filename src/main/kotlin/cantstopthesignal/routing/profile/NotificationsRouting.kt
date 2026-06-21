@@ -5,9 +5,9 @@ import cantstopthesignal.database.notifications.getAllNotifications
 import cantstopthesignal.database.notifications.markAllNotificationsRead
 import cantstopthesignal.database.notifications.markNotifRead
 import cantstopthesignal.database.notifications.markNotifUnread
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
-import com.freedom.cantstopthesignal.siteConfig
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*

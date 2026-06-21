@@ -4,8 +4,8 @@ import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.PostLikes
 import cantstopthesignal.table_definitions.PostLikes.likedById
-import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
-import com.freedom.cantstopthesignal.enums.Notif
+import cantstopthesignal.database.posts.getPostOwnerId
+import cantstopthesignal.enums.Notif
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

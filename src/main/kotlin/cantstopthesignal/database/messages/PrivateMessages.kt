@@ -13,8 +13,8 @@ import cantstopthesignal.table_definitions.Messages.message
 import cantstopthesignal.table_definitions.Messages.senderId
 import cantstopthesignal.table_definitions.Messages.timeSent
 import cantstopthesignal.table_definitions.PrivateMessageBlockList
-import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetValues
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
