@@ -767,12 +767,10 @@
                     &nbsp;·&nbsp;
                     <span th:text="|Posted at ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
 
-                    <span th:if="${post.lastEdited != null and !#strings.isEmpty(post.lastEdited)}"
-                          th:text="|Last edited at ${post.lastEdited}|">Not edited
+                    <span th:if="${post.lastEdited != null}"
+                          th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
 </span></p>
             </div>
-            postedits
-
             <!-- Truncated content (≈500 chars via CSS line-clamp) -->
             <div class="post-content-wrap"
                  th:classappend="${#strings.length(post.content) > 400} ? 'overflows'">

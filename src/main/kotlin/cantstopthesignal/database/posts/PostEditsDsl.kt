@@ -8,6 +8,7 @@ import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -57,7 +58,7 @@ fun checkLastPostEdit(postId: Long): LocalDateTime? {
     return try {
         transaction {
 
-            val latestEdit = PostEdits.select(PostEdits.postId eq postId)
+            val latestEdit = PostEdits.selectAll().where { PostEdits.postId eq postId }
                 .orderBy(PostEdits.lastEdited, SortOrder.DESC)
                 .limit(1)
                 .singleOrNull()
@@ -65,7 +66,7 @@ fun checkLastPostEdit(postId: Long): LocalDateTime? {
             latestEdit?.getOrNull(PostEdits.lastEdited)
         }
     } catch (e: Exception) {
-        logger.error {"An error occurred while trying to fetch last post edit. : ${e.message}" }
+        logger.error { "An error occurred while trying to fetch last post edit. : ${e.message}" }
         null
     }
 }

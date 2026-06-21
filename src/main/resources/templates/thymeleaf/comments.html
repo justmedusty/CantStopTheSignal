@@ -796,7 +796,7 @@
 
             <p class="post-edited"
                th:if="${post.lastEdited != null}"
-               th:text="|Edited ${post.lastEdited}|">Edited …</p>
+               th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
         </div>
 
         <!-- Read-only reaction summary -->

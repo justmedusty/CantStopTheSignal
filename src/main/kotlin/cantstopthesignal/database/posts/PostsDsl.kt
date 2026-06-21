@@ -40,7 +40,7 @@ data class Post(
     val dislikeCount: Long,
     val likedByMe: Boolean,
     val dislikedByMe: Boolean,
-    val lastEdited: String?,
+    val lastEdited: LocalDateTime?,
     val commentCount: Long,
     val deleted: Boolean,
     val deletedReason: String?,
@@ -228,7 +228,7 @@ fun fetchPostsByTopic(
                 val username = getUserName(posterUsername) ?: "Could not get username"
                 val isPostLikedByMe = isPostLikedByUser(postId, userId)
                 val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
-                val lastEdited = checkLastPostEdit(postId) ?: ""
+                val lastEdited = checkLastPostEdit(postId)
                 val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
 
                 Post(
@@ -243,7 +243,7 @@ fun fetchPostsByTopic(
                     getDislikesForPost(postId),
                     isPostLikedByMe,
                     isPostDislikedByMe,
-                    lastEdited.toString(),
+                    lastEdited,
                     commentCount,
                     it[Posts.deleted],
                     if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
@@ -296,7 +296,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         it[PostDislikes.postId.count()],
                         isPostLikedByMe,
                         isPostDislikedByMe,
-                        lastEdited.toString(),
+                        lastEdited,
                         commentCount,
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
@@ -343,7 +343,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         getDislikesForPost(postId),
                         liked,
                         dislikedByMe,
-                        lastEdited.toString(),
+                        lastEdited,
                         commentCount,
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
@@ -388,7 +388,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         getDislikesForPost(postId),
                         likedByMe,
                         dislikedByMe,
-                        lastEdited.toString(),
+                        lastEdited,
                         commentCount,
                         it[Posts.deleted],
                         if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
@@ -460,7 +460,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     getDislikesForPost(postId),
                     isPostLikedByMe,
                     isPostDislikedByMe,
-                    lastEdited.toString(),
+                    lastEdited,
                     commentCount,
                     it[Posts.deleted],
                     if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
@@ -514,7 +514,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     getDislikesForPost(postId),
                     isLikedByMe,
                     isDislikedByMe,
-                    lastEdited.toString(),
+                    lastEdited,
                     commentCount,
                     row[Posts.deleted],
                     if(row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),

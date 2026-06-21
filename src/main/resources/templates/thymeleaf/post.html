@@ -315,13 +315,14 @@
             white-space: pre-wrap;
             overflow-wrap: break-word;
             background: #13161f;
-            border-left: 2px solid #313649;   /* thinner/lighter than post's 3px */
+            border-left: 2px solid #313649; /* thinner/lighter than post's 3px */
             padding: 0.6rem 0.875rem;
             border-radius: 0 5px 5px 0;
             margin-bottom: 0.5rem;
             font-family: var(--font-serif);
             letter-spacing: 0.01em;
         }
+
         .comment-actions {
             display: flex;
             align-items: center;
@@ -821,11 +822,12 @@
                 <span th:text="|Posted: ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
             </p>
 
-            <div th:class="${post.isCode} ? 'post-content-code' : 'post-content'" th:text="${post.content}">Post content goes here.</div>
+            <div th:class="${post.isCode} ? 'post-content-code' : 'post-content'" th:text="${post.content}">Post content
+                goes here.
+            </div>
 
-            <p class="post-edited"
-               th:if="${post.lastEdited != null and post.lastEdited != 'null'}"
-               th:text="|Edited ${post.lastEdited}|">No Edits</p>
+            <p class="post-edited" th:if="${post.lastEdited != null}"
+               th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
         </div>
 
         <!-- Reaction Bar -->

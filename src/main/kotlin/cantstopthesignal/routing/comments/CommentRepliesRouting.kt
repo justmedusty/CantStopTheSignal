@@ -164,7 +164,7 @@ fun Application.configureCommentRepliesRouting() {
 
 
                 val success = "Reply posted successfully."
-                return@post call.respondRedirect("/comments/$postId/replies/$result?success=$success")
+                return@post call.respondRedirect("/comments/${postId}/replies/${commentId}?success=$success")
 
 
             }
