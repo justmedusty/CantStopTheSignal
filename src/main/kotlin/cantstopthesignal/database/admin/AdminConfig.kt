@@ -2,7 +2,6 @@ package cantstopthesignal.database.admin
 
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
-import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.siteConfig
 
 fun getMotd(): String? {
@@ -21,7 +20,7 @@ fun setMotd(userId: Long, newMotd: String): Boolean {
     insertAdminLogEntry(
         userId,
         "Changing the MOTD",
-        "${getUserName(userId)} changed the motd to ${newMotd}"
+        "${getUserName(userId)} changed the motd to $newMotd"
     )
     siteConfig?.motd = newMotd
     return true
@@ -33,7 +32,7 @@ fun setInfoMessage(userId: Long, newMessage: String): Boolean {
     insertAdminLogEntry(
         userId,
         "Changing the info message",
-        "${getUserName(userId)} changed the info message to ${newMessage}"
+        "${getUserName(userId)} changed the info message to $newMessage"
     )
 
     siteConfig?.infoMessage = newMessage

@@ -229,7 +229,7 @@ fun getMessagesFromConversation(
             val hasMessages = Messages.selectAll().where { Messages.conversationId eq conversationId }.count() > 0
 
             if (!hasMessages) {
-                return@transaction emptyList<MessageObject>()
+                return@transaction emptyList()
             }
 
             val messageList = Messages
@@ -421,7 +421,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
             logger.error { e.message }
             null
         }
-    } else return null
+    } else null
 }
 
 fun getConversationName(conversationId: Long): String? {

@@ -3,7 +3,6 @@ package com.freedom.cantstopthesignal.database.admin
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Comments
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Posts
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.SuspendLog
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Users
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll

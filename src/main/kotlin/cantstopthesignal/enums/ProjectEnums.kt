@@ -81,6 +81,8 @@ enum class ThymeLeafMapKeys(val value: String) {
     ADMIN_INVITE_ONLY("invite_only"),
     ADMIN_INVITE_CODE_LIST("invite_code_list"),
     SITE_INVITE_ONLY("invite_only"),
+    EDIT_TITLE("edit_title"),
+    EDIT_CONTENTS("edit_contents"),
 
 }
 enum class RetStrings(val value: String) {

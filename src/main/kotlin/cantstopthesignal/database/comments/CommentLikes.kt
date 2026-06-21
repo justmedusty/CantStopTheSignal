@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 fun isCommentDisLikedByUser(commentId: Long, likedById: Long?): Boolean {
     return if (likedById == null) {
-        return false
+        false
     } else {
         try {
             transaction {

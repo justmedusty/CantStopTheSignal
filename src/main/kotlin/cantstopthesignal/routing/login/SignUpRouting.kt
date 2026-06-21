@@ -28,7 +28,7 @@ fun Application.configureSignupRoutes() {
 
         get("/signup") {
             if (areSignupsSuspended()) {
-                logger.error { "Signups are suspended!" }
+                logger.info { "Signups are suspended!" }
                 return@get call.respond(HttpStatusCode.NotFound)
             }
             val error = call.request.queryParameters["error"]
@@ -119,12 +119,12 @@ fun Application.configureSignupRoutes() {
 
 
                 siteConfig?.pgpLoginOnly == false && password!!.length !in Length.MIN_PASSWORD_LENGTH.value..Length.MAX_PASSWORD_LENGTH.value -> {
-                    return@post call.respondRedirect("/signupYour password must be between ${Length.MIN_PASSWORD_LENGTH.value} and ${Length.MAX_PASSWORD_LENGTH.value} characters")
+                    return@post call.respondRedirect("/signup?error=Your password must be between ${Length.MIN_PASSWORD_LENGTH.value} and ${Length.MAX_PASSWORD_LENGTH.value} characters")
                 }
 
 
                 userNameAlreadyExists(username) -> {
-                    return@post call.respondRedirect("/signupUsername already exists, please choose another one")
+                    return@post call.respondRedirect("/signup?error=Username already exists, please choose another one")
                 }
             }
             when (siteConfig?.pgpLoginOnly) {

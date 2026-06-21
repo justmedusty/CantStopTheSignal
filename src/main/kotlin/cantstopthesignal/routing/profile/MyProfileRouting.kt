@@ -7,7 +7,6 @@ import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.http.HttpStatusCode
@@ -82,7 +81,7 @@ fun Application.configureProfileRoutes() {
                 val id = getUserId(username)
 
                 if(userId == null) {
-                    val error = "No user by the name ${username} found..."
+                    val error = "No user by the name $username found..."
                     return@get call.respondRedirect { "/feed?error=$error" }
                 }
 

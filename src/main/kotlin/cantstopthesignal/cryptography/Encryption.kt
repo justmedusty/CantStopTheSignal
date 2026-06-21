@@ -8,8 +8,6 @@ import org.pgpainless.PGPainless
 import org.pgpainless.algorithm.SymmetricKeyAlgorithm
 import org.pgpainless.encryption_signing.EncryptionOptions
 import org.pgpainless.encryption_signing.ProducerOptions
-import org.pgpainless.sop.SOPImpl
-import sop.exception.SOPGPException
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.*

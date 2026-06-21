@@ -8,7 +8,6 @@ import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.database.posts.fetchPosts
 import com.freedom.cantstopthesignal.database.posts.totalTopicPages
 import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.SortOrderValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
 import io.ktor.server.application.*

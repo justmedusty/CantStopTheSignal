@@ -3,7 +3,6 @@ package cantstopthesignal.database.notifications
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
-import com.freedom.cantstopthesignal.enums.Notif
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -67,7 +66,7 @@ fun insertNotification(
     return try {
         transaction {
             if (doesNotificationAlreadyExist(postId, commentId, user, userWhoInteracted, notifType)) {
-                logger.info { "Notification already exists post ${postId} comment ${commentId} user ${user} userwhointeracted ${userWhoInteracted} notiftype ${notifType}" }
+                logger.info { "Notification already exists post $postId comment $commentId user $user userwhointeracted $userWhoInteracted notiftype $notifType" }
                 return@transaction false
             }
             Notifications.insert {

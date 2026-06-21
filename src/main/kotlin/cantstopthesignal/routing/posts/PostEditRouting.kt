@@ -1,11 +1,11 @@
 package cantstopthesignal.routing.posts
 
 import cantstopthesignal.database.posts.editPost
-import com.freedom.cantstopthesignal.database.posts.createPost
+import com.freedom.cantstopthesignal.database.posts.fetchPostById
 import com.freedom.cantstopthesignal.enums.Length
-import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.enums.ThymeLeafMapKeys
 import com.freedom.cantstopthesignal.siteConfig
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.JWTPrincipal
@@ -24,12 +24,31 @@ fun Application.configurePostEditingRouting() {
             get("/posts/edit/{id}") {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
+                val userId = call.principal<JWTPrincipal>()!!.subject?.toLongOrNull() ?: return@get call.respond(
+                    HttpStatusCode.ExpectationFailed.value
+                )
+                val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val post = fetchPostById(id, userId)
+
+                if (post.isNullOrEmpty()) {
+                    val errorMessage = "Post not found"
+                    return@get call.respond(HttpStatusCode.BadRequest, errorMessage)
+                }
+
+                if (userId != post[0].posterId) {
+                    val errorMessage = "This is not your post, you cannot edit it."
+                    return@get call.respond(HttpStatusCode.BadRequest, errorMessage)
+                }
+
+
                 val model = buildMap {
                     put(
                         ThymeLeafMapKeys.SERVER_CONFIG.value,
                         siteConfig
 
                     )
+
+                    put(ThymeLeafMapKeys.POSTS.value, post)
 
                     /*
                     *
@@ -48,67 +67,40 @@ fun Application.configurePostEditingRouting() {
                     }
                 }
                 return@get call.respond(
-                    ThymeleafContent("create_post", model)
+                    ThymeleafContent("edit_post", model)
                 )
             }
 
             post("/posts/edit/{id}") {
                 val params = call.receiveParameters()
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                    ?: return@post call.respondRedirect("/logout")
 
-                if (userId == null) {
-                    return@post call.respondRedirect("/logout")
-                }
+                val id = call.parameters["id"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                val id = params["id"]?.toLongOrNull() ?: return@post
+                val contents = params["content"] ?: return@post call.respondRedirect("/posts/edit/$id?error=You must provide post contents")
 
-                val contents = params["content"] ?: return@post call.respond(
-                    ThymeleafContent(
-                        "edit_post", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide post contents")
-                    )
-                )
-
-                val title = params["title"] ?: return@post call.respond(
-                    ThymeleafContent(
-                        "edit_post", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide post title")
-                    )
-                )
+                val title = params["title"] ?: return@post call.respondRedirect("/posts/edit/$id?error=You must provide a post title")
 
                 if (title.length > Length.MAX_TITLE_LENGTH.value) {
-                    return@post call.respond(
-                        ThymeleafContent(
-                            "create_post",
-                            mapOf(ThymeLeafMapKeys.ERROR.value to "Your title must be less than ${Length.MAX_TITLE_LENGTH.value} characters long}")
-                        )
-                    )
+                  return@post call.respondRedirect("/posts/edit/$id?error=Your title length exceeds ${Length.MAX_TITLE_LENGTH.value} characters")
                 }
 
                 if (contents.length > Length.MAX_CONTENT_LENGTH.value) {
-                    return@post call.respond(
-                        ThymeleafContent(
-                            "create_post",
-                            mapOf(ThymeLeafMapKeys.ERROR.value to "Your post contents must be less than ${Length.MAX_CONTENT_LENGTH.value} characters long}")
-                        )
-                    )
+                    return@post call.respondRedirect("/posts/edit/$id?error=Your post contents length exceeds ${Length.MAX_CONTENT_LENGTH.value} characters")
+
                 }
 
                 val success = editPost(id, userId, title, contents)
 
                 if (!success) {
-
-                    val model = buildMap {
-                        put(
-                            ThymeLeafMapKeys.ERROR.value,
-                            "Error creating post"
-                        )
-                    }
-
-                    return@post call.respond(ThymeleafContent("create_post", model))
+                    val error = "Error editing post"
+                    return@post call.respondRedirect("/posts/edit/$id?error=$error")
                 }
 
 
-
-                return@post call.respondRedirect("/posts/${success}")
+                val successMessage = "Post edited successfully"
+                return@post call.respondRedirect("/posts/${id}?success=$successMessage")
             }
 
         }

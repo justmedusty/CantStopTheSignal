@@ -542,7 +542,7 @@ fun getPostIdFromComment(commentId: Long): Long? {
             Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()?.get(Comments.postId)
         }
     } catch (e: Exception) {
-        logger.error { "Error trying to get the post id! ${e}" }
+        logger.error { "Error trying to get the post id! $e" }
         null
     }
 }

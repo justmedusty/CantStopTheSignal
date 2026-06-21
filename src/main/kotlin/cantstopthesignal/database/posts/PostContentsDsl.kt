@@ -29,7 +29,7 @@ fun updatePostContents(newTitle: String?, newContent: String?, postId: Long): Bo
     if (newTitle == null && newContent == null) {
         return false
     }
-    if (newTitle != null && newContent != null) {
+    return if (newTitle != null && newContent != null) {
         try {
             transaction {
                 PostContents.update({ PostContents.id eq postId }) {
@@ -43,36 +43,8 @@ fun updatePostContents(newTitle: String?, newContent: String?, postId: Long): Bo
             logger.error { e.message }
             return false
         }
-    } else if (newTitle != null) {
-        return try {
-            transaction {
-                PostContents.update({ PostContents.id eq postId }) {
-                    it[title] = newTitle
-                }
-            }
-            true
-
-        } catch (e: Exception) {
-            logger.error { e.message }
-            false
-        }
-
-    } else if (newContent != null) {
-        return try {
-            transaction {
-                PostContents.update({ PostContents.id eq postId }) {
-                    it[content] = newContent
-                }
-            }
-            true
-
-        } catch (e: Exception) {
-            logger.error { e.message }
-            false
-        }
-
-
+    } else {
+        false
     }
-    return false
 }
 

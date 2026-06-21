@@ -2,7 +2,6 @@ package cantstopthesignal.database.invite_only
 
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserAdminOrModerator
-import cantstopthesignal.database.users.isUserModerator
 import cantstopthesignal.log.logger
 import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
 import com.freedom.cantstopthesignal.enums.Length

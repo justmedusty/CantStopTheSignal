@@ -23,13 +23,13 @@ fun insertNewPostEdit(post: Long, poster: Long): Boolean {
 
         }
     } catch (e: Exception) {
-        logger.error { e.message }
+        logger.error { "An error occurred while trying to edit post : ${e.message}" }
         false
     }
 }
 
 fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: String?): Boolean {
-    transaction {
+    return transaction {
         if (verifyUserId(userId, postId) || isUserAdmin(userId)) {
 
             if (newTitle == null && newPostContents == null) {
@@ -43,12 +43,14 @@ fun editPost(postId: Long, userId: Long, newTitle: String?, newPostContents: Str
                 }
 
             } catch (e: Exception) {
-                logger.error { e.message }
+                logger.error { "Error while trying to edit post : ${e.message}" }
                 return@transaction false
             }
+        } else {
+            return@transaction false
         }
     }
-    return false
+
 }
 
 fun checkLastPostEdit(postId: Long): LocalDateTime? {

@@ -3,7 +3,6 @@ package com.freedom.cantstopthesignal.routing.posts
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
 import com.freedom.cantstopthesignal.database.posts.Post
-import com.freedom.cantstopthesignal.database.posts.fetchPosts
 import com.freedom.cantstopthesignal.database.posts.fetchPostsByTopic
 import com.freedom.cantstopthesignal.database.posts.searchPostByTitleOrContents
 import com.freedom.cantstopthesignal.enums.Length
@@ -43,12 +42,12 @@ fun Application.configurePostSearchRouting() {
 
 
                 if (postList == null) {
-                    val error = "An error occurred while fetching posts for field ${searchField} with query ${searchText}"
+                    val error = "An error occurred while fetching posts for field $searchField with query $searchText"
                     return@get call.respondRedirect { call.respondRedirect("/feed?error=$error") }
                 }
 
                 val info = when (searchField) {
-                    "topic" -> "You are viewing posts by topic ${searchText}"
+                    "topic" -> "You are viewing posts by topic $searchText"
                     "content" -> "You are viewing posts by content search query \"${searchText}\""
                     else -> null
                 }

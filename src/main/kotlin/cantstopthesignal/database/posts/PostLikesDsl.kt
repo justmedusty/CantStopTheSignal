@@ -58,7 +58,7 @@ fun likePost(likedById: Long, postId: Long): Boolean {
                 Notif.POST_LIKE.value
             )
             if(ret == null || !ret){
-                logger.error { "Error adding notification to post: ${postId} of type ${Notif.POST_LIKE.value} ret is $ret" }
+                logger.error { "Error adding notification to post: $postId of type ${Notif.POST_LIKE.value} ret is $ret" }
             }
 
             return@transaction true
