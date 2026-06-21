@@ -31,17 +31,13 @@ fun Application.configureCommentRepliesRouting() {
               */
             get("/comments/{postId}/replies/{commentId}") {
 
-                val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    "You are not authorized to perform this operation"
+                )
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
-                //User should never EVER be null and something absolutely catastrophic has happened if it is, but we will check anyway
-                if (callingUser == null) {
-                    logger.error { "/comments/post/{postId}: User was null! Possible authentication bug or secret leak!" }
-                    return@get call.respond(
-                        HttpStatusCode.BadRequest,
-                        "You are not authorized to perform this operation"
-                    )
-                }
+           
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
 
                 /*
@@ -79,9 +75,10 @@ fun Application.configureCommentRepliesRouting() {
                 val post = fetchPostById(postId, callingUser!!) ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val root_comment =
                     getCommentById(commentId, callingUser) ?: return@get call.respond(HttpStatusCode.BadRequest)
-                val replies = getReplyComments(commentId, limit, page, callingUser,sortOrder) ?: return@get call.respond(
-                    HttpStatusCode.BadRequest
-                )
+                val replies =
+                    getReplyComments(commentId, limit, page, callingUser, sortOrder) ?: return@get call.respond(
+                        HttpStatusCode.BadRequest
+                    )
 
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
