@@ -83,6 +83,7 @@ enum class ThymeLeafMapKeys(val value: String) {
     SITE_INVITE_ONLY("invite_only"),
     EDIT_TITLE("edit_title"),
     EDIT_CONTENTS("edit_contents"),
+    REDIRECT_URI("redirect_uri"),
 
 }
 enum class RetStrings(val value: String) {

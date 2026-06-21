@@ -3,11 +3,11 @@ package cantstopthesignal.routing.comments
 
 import cantstopthesignal.database.comments.*
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
-import cantstopthesignal.log.logger
 import cantstopthesignal.database.posts.fetchPostById
 import cantstopthesignal.database.posts.verifyPostId
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -17,6 +17,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import java.net.URLEncoder
 
 /*
     This will be put together from database data since these things aren't all stored together
@@ -53,7 +54,8 @@ fun Application.configureCommentRepliesRouting() {
                     call.parameters["commentId"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val page = call.queryParameters["page"]?.toIntOrNull() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
-
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
                 if (postId == null) {
                     postId = getPostIdFromComment(commentId) ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -89,6 +91,7 @@ fun Application.configureCommentRepliesRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, if (replies.isEmpty()) 0 else replies[0].totalPages)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
@@ -133,6 +136,7 @@ fun Application.configureCommentRepliesRouting() {
                 val commentContents = params["content"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 var postId = params["postId"]?.toLongOrNull()
 
+
                 if (postId == null) {
                     postId = getPostIdFromComment(commentId) ?: return@post call.respond(HttpStatusCode.BadRequest)
                 }
@@ -158,10 +162,8 @@ fun Application.configureCommentRepliesRouting() {
                     postComment(commentContents, callingUser, postId, true, commentId) ?: return@post call.respond(
                         HttpStatusCode.BadRequest
                     )
-
-
                 val success = "Reply posted successfully."
-                return@post call.respondRedirect("/comments/${postId}/replies/${commentId}?success=$success")
+                return@post call.respondRedirect( "/comments/${postId}/replies/${commentId}?success=$success")
 
 
             }

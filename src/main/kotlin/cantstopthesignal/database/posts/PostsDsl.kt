@@ -150,22 +150,26 @@ fun deletePost(userId: Long, postId: Long): Boolean {
         false
     }
 }
-fun totalTopicPages() : Long{
+
+fun totalTopicPages(): Long {
     return try {
         transaction {
             val topics = ceil(
                 Posts
-                .select(Posts.topic, Posts.topic.count())
-                .groupBy(Posts.topic)
-                .orderBy(Posts.topic.count(), SortOrder.DESC).distinct().count().toDouble() / Length.POPULAR_TOPIC_COUNT.value.toDouble()).toLong()
+                    .select(Posts.topic, Posts.topic.count())
+                    .groupBy(Posts.topic)
+                    .orderBy(Posts.topic.count(), SortOrder.DESC).distinct().count()
+                    .toDouble() / Length.POPULAR_TOPIC_COUNT.value.toDouble()
+            ).toLong()
             topics
         }
-    }catch (e: Throwable){
+    } catch (e: Throwable) {
         logger.error { "An error occurred ${e.message} while trying to fetch topic pages" }
         0
     }
 }
-fun fetchPopularTopicNames(page : Long) : List<String>? {
+
+fun fetchPopularTopicNames(page: Long): List<String>? {
     return try {
         transaction {
             val topics = Posts
@@ -177,7 +181,7 @@ fun fetchPopularTopicNames(page : Long) : List<String>? {
                 .toList()
             topics
         }
-    }catch (e: Throwable){
+    } catch (e: Throwable) {
         logger.error { "An error occurred ${e.message} while trying to fetch topics" }
         null
     }
@@ -208,7 +212,13 @@ fun fetchPostsByTopic(
             val totalPages = ceil(relevantPostIds.count().toDouble() / limit.toDouble()).toLong()
             val query = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.id,
+                    Posts.posterId,
+                    Posts.topic,
+                    Posts.timestamp,
+                    PostContents.title,
+                    PostContents.content,
+                    Posts.deleted,
                     Posts.deletedReason
                 ).where { Posts.id inList relevantPostIds }
 
@@ -237,8 +247,12 @@ fun fetchPostsByTopic(
                     it[Posts.posterId],
                     it[Posts.topic],
                     it[Posts.timestamp],
-                    if(!it[Posts.deleted]){it[PostContents.title]} else "*Deleted Post*",
-                    if(!it[Posts.deleted]){it[PostContents.content]} else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (!it[Posts.deleted]) {
+                        it[PostContents.title]
+                    } else "*Deleted Post*",
+                    if (!it[Posts.deleted]) {
+                        it[PostContents.content]
+                    } else getDeletionReasonString(it[Posts.deletedReason]!!),
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isPostLikedByMe,
@@ -246,7 +260,7 @@ fun fetchPostsByTopic(
                     lastEdited,
                     commentCount,
                     it[Posts.deleted],
-                    if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     userId == it[Posts.posterId],
                     isThisCode(it[PostContents.content]),
                     totalPages,
@@ -290,8 +304,12 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp],
-                        if(!it[Posts.deleted]){it[PostContents.title]} else "*Deleted Post*",
-                        if(!it[Posts.deleted]){it[PostContents.content]} else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.title]
+                        } else "*Deleted Post*",
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.content]
+                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[PostLikes.postId.count()],
                         it[PostDislikes.postId.count()],
                         isPostLikedByMe,
@@ -299,7 +317,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == callerId,
                         isThisCode(it[PostContents.content]),
                         totalPages,
@@ -321,7 +339,13 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
             val totalPages = Posts.selectAll().where(column eq userId).count() / limit
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.id,
+                    Posts.posterId,
+                    Posts.topic,
+                    Posts.timestamp,
+                    PostContents.title,
+                    PostContents.content,
+                    Posts.deleted,
                     Posts.deletedReason
                 ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
                 .orderBy(Posts.id, SortOrder.DESC).limit(limit).offset(((page - 1) * limit).toLong()).map {
@@ -337,8 +361,12 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp],
-                        if(!it[Posts.deleted]){it[PostContents.title]} else "*Deleted Post*",
-                        if(!it[Posts.deleted]){it[PostContents.content]} else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.title]
+                        } else "*Deleted Post*",
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.content]
+                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         liked,
@@ -346,7 +374,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         isThisCode(it[PostContents.content]),
                         totalPages,
@@ -366,7 +394,13 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
         transaction {
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.id,
+                    Posts.posterId,
+                    Posts.topic,
+                    Posts.timestamp,
+                    PostContents.title,
+                    PostContents.content,
+                    Posts.deleted,
                     Posts.deletedReason
                 ).where(Posts.id eq givenId).map {
                     val postId = it[Posts.id]
@@ -382,8 +416,12 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         it[Posts.posterId],
                         it[Posts.topic],
                         it[Posts.timestamp],
-                        if(!it[Posts.deleted]){it[PostContents.title]} else "*Deleted Post*",
-                        if(!it[Posts.deleted]){it[PostContents.content]} else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.title]
+                        } else "*Deleted Post*",
+                        if (!it[Posts.deleted]) {
+                            it[PostContents.content]
+                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         likedByMe,
@@ -391,7 +429,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         isThisCode(it[PostContents.content]),
                         0 //Just one post so no point
@@ -424,10 +462,16 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             logger.debug { "after revelent post ID" }
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.id,
+                    Posts.posterId,
+                    Posts.topic,
+                    Posts.timestamp,
+                    PostContents.title,
+                    PostContents.content,
+                    Posts.deleted,
                     Posts.deletedReason
                 ).where { Posts.id inList relevantPostIds }
-        logger.debug { "after query" }
+            logger.debug { "after query" }
 
 
             if (orderByCount != null) {
@@ -454,8 +498,12 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     it[Posts.posterId],
                     it[Posts.topic],
                     it[Posts.timestamp],
-                    if(!it[Posts.deleted]){it[PostContents.title]} else "*Deleted Post*",
-                    if(!it[Posts.deleted]){it[PostContents.content]} else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (!it[Posts.deleted]) {
+                        it[PostContents.title]
+                    } else "*Deleted Post*",
+                    if (!it[Posts.deleted]) {
+                        it[PostContents.content]
+                    } else getDeletionReasonString(it[Posts.deletedReason]!!),
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isPostLikedByMe,
@@ -463,7 +511,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     lastEdited,
                     commentCount,
                     it[Posts.deleted],
-                    if(it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
                     it[Posts.posterId] == userId,
                     isThisCode(it[PostContents.content]),
                     totalPages,
@@ -483,10 +531,17 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
         transaction {
             val query = "%$queryParam%".lowercase(getDefault())
             val postsWithContents = (Posts innerJoin PostContents).leftJoin(Users).select(
-                Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                Posts.id,
+                Posts.posterId,
+                Posts.topic,
+                Posts.timestamp,
+                PostContents.title,
+                PostContents.content,
+                Posts.deleted,
                 Posts.deletedReason,
                 Users.userName
-            ).where { (PostContents.title.lowerCase() like query) or (PostContents.content.lowerCase() like query) or (Users.userName.lowerCase() like query) }
+            )
+                .where { (PostContents.title.lowerCase() like query) or (PostContents.content.lowerCase() like query) or (Users.userName.lowerCase() like query) }
 
             val totalPages = ceil(postsWithContents.count().toDouble() / limit.toDouble()).toLong()
 
@@ -508,8 +563,12 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     row[Posts.posterId],
                     row[Posts.topic],
                     row[Posts.timestamp],
-                    if(!row[Posts.deleted]){row[PostContents.title]} else "*Deleted Post*",
-                    if(!row[Posts.deleted]){row[PostContents.content]} else getDeletionReasonString(row[Posts.deletedReason]!!),
+                    if (!row[Posts.deleted]) {
+                        row[PostContents.title]
+                    } else "*Deleted Post*",
+                    if (!row[Posts.deleted]) {
+                        row[PostContents.content]
+                    } else getDeletionReasonString(row[Posts.deletedReason]!!),
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isLikedByMe,
@@ -517,11 +576,10 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     lastEdited,
                     commentCount,
                     row[Posts.deleted],
-                    if(row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),
+                    if (row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),
                     row[Posts.id] == userId,
                     isThisCode(row[PostContents.content]),
                     totalPages
-
 
                 )
             }

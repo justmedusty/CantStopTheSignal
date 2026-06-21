@@ -650,6 +650,61 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
+        /* ── Reaction Bar ── */
+        .reaction-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface-hover);
+        }
+
+        .btn-like {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #2d3f7a;
+        }
+
+        .btn-like.active, .btn-like:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn-dislike.active, .btn-dislike:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .btn-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-muted:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn-danger-outline {
+            background: transparent;
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn-danger-outline:hover {
+            background: var(--danger-soft);
+        }
+
     </style>
 </head>
 <body>
@@ -771,7 +826,7 @@
                           th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
 </span></p>
             </div>
-            <!-- Truncated content (≈500 chars via CSS line-clamp) -->
+            <!-- Truncated content (~500 chars via CSS line-clamp) -->
             <div class="post-content-wrap"
                  th:classappend="${#strings.length(post.content) > 400} ? 'overflows'">
                 <div class="post-content" th:text="${post.content}">Post content preview…</div>
@@ -779,30 +834,34 @@
 
         </div>
 
-        <!-- Reaction / action bar -->
-        <div class="post-actions">
-            <div class="post-actions-left">
-                <!-- Read-only reaction summary -->
-                <div class="post-reaction-bar">
-                    <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
-                    <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
-                </div>
-                <span class="comment-count">
-                    💬 <span th:text="${post.commentCount}">0</span>
-                </span>
-            </div>
 
-            <div class="post-actions-right" th:if="${post.myPost}">
+        <div class="reaction-bar">
+            <form th:action="|/posts/like/${post.id}?redirect=${redirect_uri}|" method="post">
+                <button type="submit" class="btn btn-like" th:classappend="${post.likedByMe} ? 'active'">
+                    &#9650; <span th:text="${post.likeCount}">0</span>
+                </button>
+            </form>
+
+            <form th:action="|/posts/dislike/${post.id}?redirect=${redirect_uri}|" method="post">
+                <button type="submit" class="btn btn-dislike" th:classappend="${post.dislikedByMe} ? 'active'">
+                    &#9660; <span th:text="${post.dislikeCount}">0</span>
+                </button>
+            </form>
+
+            <span class="comment-count">💬 <span th:text="${post.commentCount}">0</span></span>
+
+
+            <div style="margin-left: auto; display: flex; gap: 0.5rem;" th:if="${post.myPost}">
                 <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
                 <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
             </div>
         </div>
 
-        <!-- Read more / view comments — both go to the same post detail page -->
         <a class="btn-read-more" th:href="|/posts/${post.id}|">
             Read more &amp; view comments →
         </a>
     </div>
+
 
     <!-- Empty state -->
     <div th:if="${#lists.isEmpty(posts)}" class="card">

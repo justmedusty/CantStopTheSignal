@@ -14,9 +14,11 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.uri
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import java.net.URLEncoder
 
 /*
     This will be put together from database data since these things aren't all stored together
@@ -34,6 +36,8 @@ fun Application.configurePostRouting() {
                 val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
                 val postList = fetchPosts(page, limit, callingUser!!, sortOrder)
 
@@ -54,6 +58,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
 
                     when (sortOrder) {
                         "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
@@ -85,6 +90,8 @@ fun Application.configurePostRouting() {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
                 if (userId == null) {
                     return@get call.respondRedirect("/logout")
@@ -112,6 +119,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
 
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
@@ -137,7 +145,8 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respondRedirect("/logout")
-
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
 
@@ -151,6 +160,7 @@ fun Application.configurePostRouting() {
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
 
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {

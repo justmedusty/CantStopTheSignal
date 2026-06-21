@@ -5,12 +5,12 @@ import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.comments.postComment
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
-import cantstopthesignal.log.logger
 import cantstopthesignal.database.posts.fetchPostById
 import cantstopthesignal.database.posts.verifyPostId
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RetValues
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -21,6 +21,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import java.net.URLEncoder
 
 /*
     This will be put together from database data since these things aren't all stored together
@@ -99,6 +100,8 @@ fun Application.configureCommentsRouting() {
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId!!)
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
                 if (postList == null) {
 
@@ -120,6 +123,7 @@ fun Application.configureCommentsRouting() {
                     put(ThymeLeafMapKeys.COMMENTS.value, comments)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
                     /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)

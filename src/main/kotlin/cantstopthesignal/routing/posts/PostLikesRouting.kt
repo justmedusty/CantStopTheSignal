@@ -25,12 +25,14 @@ fun Application.configurePostLikesRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
                 val success = likePost(userId!!, postId)
-                val successMessage = "Operation successful"
+                val successMessage = "Post liked"
+                val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
-                    val errorMessage = "An error occured"
-                    return@post call.respondRedirect("/posts/$postId?error=$errorMessage")
+                    val errorMessage = "An error occurred"
+                    return@post call.respondRedirect("${redirect}${separator}error=${errorMessage}")
                 }
-                return@post call.respondRedirect("/posts/$postId?success=$successMessage")
+                return@post call.respondRedirect("${redirect}${separator}success=${successMessage}")
 
 
             }
@@ -45,12 +47,14 @@ fun Application.configurePostLikesRouting() {
                 }
                 val validPostId = verifyPostId(postId) ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val success = dislikePost(userId!!, postId)
-                val successMessage = "Operation successful"
+                val successMessage = "Post disliked"
+                val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"
-                    return@post call.respondRedirect("/posts/$postId?error=$errorMessage")
+                    return@post call.respondRedirect("${redirect}${separator}error=${errorMessage}")
                 }
-                return@post call.respondRedirect("/posts/$postId?success=$successMessage")
+                return@post call.respondRedirect("${redirect}${separator}success=${successMessage}")
 
             }
         }

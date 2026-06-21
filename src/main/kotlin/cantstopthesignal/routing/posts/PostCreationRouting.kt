@@ -138,8 +138,8 @@ fun Application.configurePostCreationRouting() {
                 }
 
 
-
-                return@post call.respondRedirect("/posts/${success}")
+                val successMessage = "Post created successfully."
+                return@post call.respondRedirect("/posts/?success=${successMessage}")
             }
 
         }

@@ -757,7 +757,83 @@
             color: var(--text-secondary);
             transition: background 0.15s, border-color 0.15s;
         }
+        /* ── Action bar ── */
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.875rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface-hover);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
 
+        .post-actions-left {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .post-actions-right {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .btn.like {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #2d3f7a;
+        }
+
+        .btn.dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn.like.active, .btn.like:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn.dislike.active, .btn.dislike:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .comment-count {
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.42rem 0.6rem;
+        }
+
+        .btn.edit {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn.delete {
+            background: transparent;
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn.edit:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn.delete:hover {
+            background: var(--danger-soft);
+        }
         .sort-pill:hover {
             background: var(--surface-hover);
             border-color: var(--accent);
@@ -833,7 +909,7 @@
         <!-- Reaction Bar -->
         <div class="reaction-bar">
             <!-- Like -->
-            <form th:action="|/posts/like/${post.id}|" method="post">
+            <form th:action="|/posts/like/${post.id}?redirect=${redirect_uri}|" method="post">
                 <button type="submit"
                         class="btn btn-like"
                         th:classappend="${post.likedByMe} ? 'active'">
@@ -842,7 +918,7 @@
             </form>
 
             <!-- Dislike -->
-            <form th:action="|/posts/dislike/${post.id}|" method="post">
+            <form th:action="|/posts/dislike/${post.id}?redirect=${redirect_uri}|" method="post">
                 <button type="submit"
                         class="btn btn-dislike"
                         th:classappend="${post.dislikedByMe} ? 'active'">
@@ -850,13 +926,20 @@
                 </button>
             </form>
 
+            <span class="comment-count">
+                    💬 <span th:text="${post.commentCount}">0</span>
+                </span>
+
             <div class="reaction-spacer"></div>
 
-            <!-- Edit / Delete (only for post owner) -->
-            <th:block th:if="${post.myPost}">
-                <a class="btn btn-muted" th:href="|/posts/${id}/edit(id=${post.id})|">Edit</a>
-                <a class="btn btn-danger-outline" th:href="|posts/@{id}/delete(id=${post.id})|">Delete</a>
-            </th:block>
+
+            <!-- Reaction / action bar -->
+            <div class="post-actions">
+                <div class="post-actions-right" th:if="${post.myPost}">
+                    <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
+                    <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
+                </div>
+            </div>
         </div>
 
         <div class="comments-header">
@@ -944,7 +1027,7 @@
                         <div class="comment-actions">
 
                             <!-- Like -->
-                            <form th:action="|/comments/${post.id}/like/${comment.id}|" method="post">
+                            <form th:action="|/comments/${post.id}/like/${comment.id}?redirect=${redirect_uri}|" method="post">
                                 <button type="submit"
                                         class="btn btn-like"
                                         th:classappend="${comment.isCommentLikedByMe} ? 'active'">
@@ -953,7 +1036,7 @@
                             </form>
 
                             <!-- Dislike -->
-                            <form th:action="|/comments/${post.id}/dislike/${comment.id}|" method="post">
+                            <form th:action="|/comments/${post.id}/dislike/${comment.id}?redirect=${redirect_uri}|" method="post">
                                 <button type="submit"
                                         class="btn btn-dislike"
                                         th:classappend="${comment.isCommentDislikedByMe} ? 'active'">

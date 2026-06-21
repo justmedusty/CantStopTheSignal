@@ -35,11 +35,13 @@ fun Application.configureCommentLikesRouting() {
                 }
                 val success = likeComment(userId, commentId)
                 val successMessage = "Comment liked"
+                val redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"
-                    return@post call.respondRedirect("/comments/$postId}/replies/$commentId?error=$errorMessage")
+                    return@post call.respondRedirect(redirect + separator + "error=$errorMessage")
                 }
-                return@post call.respondRedirect("/comments/$postId/replies/$commentId?success=$successMessage")
+                return@post call.respondRedirect(redirect + separator + "success=$successMessage")
 
 
             }
@@ -64,11 +66,19 @@ fun Application.configureCommentLikesRouting() {
                 }
                 val success = dislikeComment(userId, commentId)
                 val successMessage = "Comment disliked"
+                /*
+                    Let it be duly noted that:
+                    When liking or disliking and the undo of each operation on a single page, it will keep adding the success or error message to the URL, it is ugly but it only compounds until
+                    the user clicks off that particular page. The pages are not that massive, so I do not care to write finicky stripping logic to look and strip error or success if theyre there.
+                    It will just piggy back off the last one if they are liking many from the same page.
+                 */
+                val redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"
-                    return@post call.respondRedirect("/comments/$postId}/replies/$commentId?error=$errorMessage")
+                    return@post call.respondRedirect(redirect + separator + "error=$errorMessage")
                 }
-                return@post call.respondRedirect("/comments/$postId/replies/$commentId?success=$successMessage")
+                return@post call.respondRedirect(redirect + separator + "success=$successMessage")
 
             }
         }
