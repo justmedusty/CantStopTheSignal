@@ -2,7 +2,7 @@ package cantstopthesignal.database.notifications
 
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.Notifications
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Notifications
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq

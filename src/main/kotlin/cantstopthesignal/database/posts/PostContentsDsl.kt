@@ -1,7 +1,7 @@
 package cantstopthesignal.database.posts
 
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostContents
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostContents
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

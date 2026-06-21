@@ -9,6 +9,7 @@
             margin: 0;
             padding: 0;
         }
+
         a {
             color: #ffffff;
             text-decoration: underline;
@@ -470,6 +471,7 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
         /* ── Search bar ── */
         .search-wrapper {
             max-height: 0;
@@ -489,7 +491,9 @@
             color: var(--accent);
         }
 
-        .search-inner { padding: 0.125rem 0; }
+        .search-inner {
+            padding: 0.125rem 0;
+        }
 
         .search-bar {
             display: flex;
@@ -502,7 +506,9 @@
             transition: border-color 0.15s;
         }
 
-        .search-bar:focus-within { border-color: var(--accent); }
+        .search-bar:focus-within {
+            border-color: var(--accent);
+        }
 
         .search-type {
             background: var(--surface-hover);
@@ -521,7 +527,9 @@
             background-position: right 0.45rem center;
         }
 
-        .search-type:focus { border-color: var(--accent); }
+        .search-type:focus {
+            border-color: var(--accent);
+        }
 
         .search-input {
             flex: 1;
@@ -533,7 +541,9 @@
             font-size: 0.9rem;
         }
 
-        .search-input::placeholder { color: var(--muted); }
+        .search-input::placeholder {
+            color: var(--muted);
+        }
 
         .search-submit {
             background: var(--accent);
@@ -552,14 +562,20 @@
             transition: opacity 0.15s;
         }
 
-        .search-submit:hover { opacity: 0.85; }
+        .search-submit:hover {
+            opacity: 0.85;
+        }
 
         .search-submit svg {
-            width: 14px; height: 14px;
-            stroke: currentColor; fill: none;
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
             stroke-width: 2.5;
-            stroke-linecap: round; stroke-linejoin: round;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
+
         .sort-bar {
             display: flex;
             align-items: center;
@@ -602,6 +618,7 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -622,6 +639,7 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
         /* ── Flash messages ── */
         .info {
             background: var(--accent-soft);
@@ -742,13 +760,18 @@
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
                 <p class="post-meta">
-                    topic: <a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}">topic</a>
+                    topic: <a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|"
+                              th:text="${post.topic}">topic</a>
                     &nbsp;·&nbsp;
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
                     <span th:text="|Posted at ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
-                </p>
+
+                    <span th:if="${post.lastEdited != null and !#strings.isEmpty(post.lastEdited)}"
+                          th:text="|Last edited at ${post.lastEdited}|">Not edited
+</span></p>
             </div>
+            postedits
 
             <!-- Truncated content (≈500 chars via CSS line-clamp) -->
             <div class="post-content-wrap"
@@ -791,27 +814,27 @@
         </div>
     </div>
     <div class="pagination"
-             th:if="${total_pages > 0}"
-             th:with="prevPage=${current_page - 1}, nextPage=${current_page + 1}">
+         th:if="${total_pages > 0}"
+         th:with="prevPage=${current_page - 1}, nextPage=${current_page + 1}">
 
-    <a class="page-btn"
-       th:classappend="${current_page == 1} ? 'disabled'"
-       th:href="${'/feed?page=' + prevPage}">
-        &#8592; Prev
-    </a>
+        <a class="page-btn"
+           th:classappend="${current_page == 1} ? 'disabled'"
+           th:href="${'/feed?page=' + prevPage}">
+            &#8592; Prev
+        </a>
 
-    <span class="page-info"
-          th:text="|Page ${current_page} of ${total_pages}|">
+        <span class="page-info"
+              th:text="|Page ${current_page} of ${total_pages}|">
         Page 1 of 1
     </span>
 
-    <a class="page-btn"
-       th:classappend="${current_page == total_pages} ? 'disabled'"
-       th:href="${'/feed?page=' + nextPage}">
-        Next &#8594;
-    </a>
+        <a class="page-btn"
+           th:classappend="${current_page == total_pages} ? 'disabled'"
+           th:href="${'/feed?page=' + nextPage}">
+            Next &#8594;
+        </a>
 
-</div>
+    </div>
 </div>
 </body>
 </html>

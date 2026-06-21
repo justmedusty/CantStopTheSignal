@@ -9,10 +9,10 @@ ktor:
       - cantstopthesignal.config.MonitoringKt.configureMonitoring
       - cantstopthesignal.security.SecurityKt.configureSecurity
       - cantstopthesignal.config.RateLimitingKt.configureRateLimiting
-      - com.freedom.ThymeleafKt.configureThymeleaf
+      - cantstopthesignal.ThymeleafKt.configureThymeleaf
       - cantstopthesignal.config.StatusPagesKt.configureStatusPages
       - cantstopthesignal.routing.login.IndexRoutingKt.indexRouting
-      - com.freedom.cantstopthesignal.routing.LoginRoutingKt.configureLoginRoutes
+      - cantstopthesignal.cantstopthesignal.routing.LoginRoutingKt.configureLoginRoutes
       - cantstopthesignal.routing.login.SignUpRoutingKt.configureSignupRoutes
       - cantstopthesignal.routing.posts.PostsRoutingKt.configurePostRouting
       - cantstopthesignal.config.DatabaseKt.configureDatabase

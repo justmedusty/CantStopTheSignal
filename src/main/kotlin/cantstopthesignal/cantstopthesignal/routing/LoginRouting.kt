@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.routing
+package cantstopthesignal.cantstopthesignal.routing
 
 import cantstopthesignal.cryptography.convertSignedPgpMessage
 import cantstopthesignal.cryptography.isPgpMessageOrPgpKey

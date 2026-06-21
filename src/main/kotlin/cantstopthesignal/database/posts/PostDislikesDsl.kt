@@ -1,8 +1,8 @@
 package cantstopthesignal.database.posts
 
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostDislikes
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostDislikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere

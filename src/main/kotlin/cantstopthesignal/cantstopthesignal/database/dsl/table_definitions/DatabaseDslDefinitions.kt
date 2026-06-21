@@ -1,4 +1,4 @@
-package com.freedom.cantstopthesignal.database.dsl.table_definitions
+package cantstopthesignal.cantstopthesignal.database.dsl.table_definitions
 
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
@@ -126,7 +126,7 @@ object PostLikes : Table(name = "Likes") {
 
 object PostEdits : Table(name = "PostEdits") {
     val id: Column<Long> = long("id").autoIncrement()
-    val postId: Column<Long> = long("commentId").references(Posts.id)
+    val postId: Column<Long> = long("post_id").references(Posts.id)
     val lastEdited: Column<LocalDateTime> = datetime("lastEdited")
 
 

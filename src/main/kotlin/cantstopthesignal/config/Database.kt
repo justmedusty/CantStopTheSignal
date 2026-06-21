@@ -1,6 +1,26 @@
 package cantstopthesignal.config
 
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.AdminLogs
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentEdits
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentLikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Conversations
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.InviteCodes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Messages
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Notifications
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostContents
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostDislikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostEdits
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Posts
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PrivateMessageBlockList
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.ProfileData
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.SiteWidePermissions
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.SuspendLog
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Users
 import io.ktor.server.application.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils

@@ -2,8 +2,8 @@ package cantstopthesignal.database.posts
 
 import cantstopthesignal.database.notifications.insertNotification
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes.likedById
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import org.jetbrains.exposed.v1.core.and

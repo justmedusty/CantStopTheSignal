@@ -3,7 +3,7 @@ package cantstopthesignal.database.invite_only
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.InviteCodes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.InviteCodes
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetStrings
 import org.jetbrains.exposed.v1.core.eq

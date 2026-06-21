@@ -3,7 +3,7 @@ package cantstopthesignal.database.admin
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.AdminLogs
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.AdminLogs
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll

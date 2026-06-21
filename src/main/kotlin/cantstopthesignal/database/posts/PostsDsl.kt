@@ -1,12 +1,18 @@
 package com.freedom.cantstopthesignal.database.posts
 
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostContents
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostDislikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostEdits
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Posts
+import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Users
 import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.helper.getDeletionReasonString
 import cantstopthesignal.log.logger
-import com.freedom.cantstopthesignal.database.dsl.table_definitions.*
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
 import com.freedom.cantstopthesignal.helper.isThisCode
@@ -147,7 +153,8 @@ fun deletePost(userId: Long, postId: Long): Boolean {
 fun totalTopicPages() : Long{
     return try {
         transaction {
-            val topics = ceil(Posts
+            val topics = ceil(
+                Posts
                 .select(Posts.topic, Posts.topic.count())
                 .groupBy(Posts.topic)
                 .orderBy(Posts.topic.count(), SortOrder.DESC).distinct().count().toDouble() / Length.POPULAR_TOPIC_COUNT.value.toDouble()).toLong()
@@ -201,7 +208,8 @@ fun fetchPostsByTopic(
             val totalPages = ceil(relevantPostIds.count().toDouble() / limit.toDouble()).toLong()
             val query = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason
+                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.deletedReason
                 ).where { Posts.id inList relevantPostIds }
 
             if (orderByCount != null) {
@@ -313,7 +321,8 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
             val totalPages = Posts.selectAll().where(column eq userId).count() / limit
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason
+                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.deletedReason
                 ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
                 .orderBy(Posts.id, SortOrder.DESC).limit(limit).offset(((page - 1) * limit).toLong()).map {
                     val postId = it[Posts.id]
@@ -357,7 +366,8 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
         transaction {
             Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason
+                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.deletedReason
                 ).where(Posts.id eq givenId).map {
                     val postId = it[Posts.id]
                     val posterUsername = it[Posts.posterId]
@@ -414,7 +424,8 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             logger.debug { "after revelent post ID" }
             val query = Posts.innerJoin(PostContents, { id }, { postId }).leftJoin(PostDislikes)
                 .leftJoin(PostLikes).leftJoin(Comments).select(
-                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason
+                    Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                    Posts.deletedReason
                 ).where { Posts.id inList relevantPostIds }
         logger.debug { "after query" }
 
@@ -472,7 +483,9 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
         transaction {
             val query = "%$queryParam%".lowercase(getDefault())
             val postsWithContents = (Posts innerJoin PostContents).leftJoin(Users).select(
-                Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,Posts.deletedReason,Users.userName
+                Posts.id, Posts.posterId, Posts.topic, Posts.timestamp, PostContents.title, PostContents.content, Posts.deleted,
+                Posts.deletedReason,
+                Users.userName
             ).where { (PostContents.title.lowerCase() like query) or (PostContents.content.lowerCase() like query) or (Users.userName.lowerCase() like query) }
 
             val totalPages = ceil(postsWithContents.count().toDouble() / limit.toDouble()).toLong()
