@@ -1,8 +1,8 @@
 package cantstopthesignal.database.comments
 
 import cantstopthesignal.log.logger
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentLikes
+import cantstopthesignal.table_definitions.CommentDislikes
+import cantstopthesignal.table_definitions.CommentLikes
 import com.freedom.cantstopthesignal.enums.Notif
 import cantstopthesignal.database.notifications.insertNotification
 import org.jetbrains.exposed.v1.core.and

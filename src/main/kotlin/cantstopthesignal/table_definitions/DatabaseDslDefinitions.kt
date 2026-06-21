@@ -1,4 +1,4 @@
-package cantstopthesignal.cantstopthesignal.database.dsl.table_definitions
+package cantstopthesignal.table_definitions
 
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption

@@ -2,10 +2,10 @@ package cantstopthesignal.database.users
 
 
 import cantstopthesignal.log.logger
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Posts
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.ProfileData
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Users
+import cantstopthesignal.table_definitions.Comments
+import cantstopthesignal.table_definitions.Posts
+import cantstopthesignal.table_definitions.ProfileData
+import cantstopthesignal.table_definitions.Users
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction

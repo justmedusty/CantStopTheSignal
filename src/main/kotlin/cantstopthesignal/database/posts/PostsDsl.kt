@@ -1,12 +1,12 @@
 package com.freedom.cantstopthesignal.database.posts
 
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostContents
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostDislikes
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostEdits
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PostLikes
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Posts
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Users
+import cantstopthesignal.table_definitions.Comments
+import cantstopthesignal.table_definitions.PostContents
+import cantstopthesignal.table_definitions.PostDislikes
+import cantstopthesignal.table_definitions.PostEdits
+import cantstopthesignal.table_definitions.PostLikes
+import cantstopthesignal.table_definitions.Posts
+import cantstopthesignal.table_definitions.Users
 import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin

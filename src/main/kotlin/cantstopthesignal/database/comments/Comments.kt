@@ -6,10 +6,10 @@ import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
 import cantstopthesignal.helper.getDeletionReasonString
 import cantstopthesignal.log.logger
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentDislikes
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.CommentLikes
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Comments.parentCommentId
+import cantstopthesignal.table_definitions.CommentDislikes
+import cantstopthesignal.table_definitions.CommentLikes
+import cantstopthesignal.table_definitions.Comments
+import cantstopthesignal.table_definitions.Comments.parentCommentId
 import com.freedom.cantstopthesignal.database.posts.getPostOwnerId
 import com.freedom.cantstopthesignal.enums.Notif
 import com.freedom.cantstopthesignal.enums.RetValues

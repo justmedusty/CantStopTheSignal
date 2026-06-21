@@ -1,7 +1,7 @@
 package cantstopthesignal.database.notifications
 
 import cantstopthesignal.log.logger
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
+import cantstopthesignal.table_definitions.MessageNotifications
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert

@@ -34,7 +34,7 @@ fun Application.configureCommentLikesRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
                 val success = likeComment(userId, commentId)
-                val successMessage = "Operation successful"
+                val successMessage = "Comment liked"
                 if (!success) {
                     val errorMessage = "An error occurred"
                     return@post call.respondRedirect("/comments/$postId}/replies/$commentId?error=$errorMessage")
@@ -63,7 +63,7 @@ fun Application.configureCommentLikesRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
                 val success = dislikeComment(userId, commentId)
-                val successMessage = "Operation successful"
+                val successMessage = "Comment disliked"
                 if (!success) {
                     val errorMessage = "An error occurred"
                     return@post call.respondRedirect("/comments/$postId}/replies/$commentId?error=$errorMessage")

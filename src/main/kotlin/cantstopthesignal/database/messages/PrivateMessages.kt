@@ -1,18 +1,18 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.ConversationMembers
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Conversations
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.MessageNotifications
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Messages
+import cantstopthesignal.table_definitions.ConversationMembers
+import cantstopthesignal.table_definitions.Conversations
+import cantstopthesignal.table_definitions.MessageNotifications
+import cantstopthesignal.table_definitions.Messages
 import cantstopthesignal.database.notifications.numUnreadMessagesInConversation
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.log.logger
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Messages.message
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Messages.senderId
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.Messages.timeSent
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.PrivateMessageBlockList
+import cantstopthesignal.table_definitions.Messages.message
+import cantstopthesignal.table_definitions.Messages.senderId
+import cantstopthesignal.table_definitions.Messages.timeSent
+import cantstopthesignal.table_definitions.PrivateMessageBlockList
 import com.freedom.cantstopthesignal.enums.Length
 import com.freedom.cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.*

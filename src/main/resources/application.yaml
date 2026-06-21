@@ -12,7 +12,7 @@ ktor:
       - cantstopthesignal.ThymeleafKt.configureThymeleaf
       - cantstopthesignal.config.StatusPagesKt.configureStatusPages
       - cantstopthesignal.routing.login.IndexRoutingKt.indexRouting
-      - cantstopthesignal.cantstopthesignal.routing.LoginRoutingKt.configureLoginRoutes
+      - cantstopthesignal.routing.LoginRoutingKt.configureLoginRoutes
       - cantstopthesignal.routing.login.SignUpRoutingKt.configureSignupRoutes
       - cantstopthesignal.routing.posts.PostsRoutingKt.configurePostRouting
       - cantstopthesignal.config.DatabaseKt.configureDatabase
@@ -47,5 +47,6 @@ site:
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
+  message_deletion_window_hours: "48" #When a private message convo has deleting messages on, how many hours between clears? It ONLY clears if all messages have been read in th conversation by all members, so be wary
   signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it. If it is enabled here it cannot be overridden by admins
   pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge. This option should not be changed later, it should be decided when you first decide to host an instance of this service. Note: I have since updated this to allow passwordless users in a non forced pgp login context, so it is safe to change this once you have a userbase.

@@ -9,7 +9,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.ZoneOffset
-import cantstopthesignal.cantstopthesignal.database.dsl.table_definitions.SiteWidePermissions as SiteWidePermissionsDb
+import cantstopthesignal.table_definitions.SiteWidePermissions as SiteWidePermissionsDb
 
 /*
     This is for emergency admin actions actions
