@@ -4,11 +4,11 @@ import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
 import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
-import cantstopthesignal.log.logger
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RegexPatterns
 import cantstopthesignal.enums.RetValues
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -173,7 +173,6 @@ fun Application.configureMessageRouting() {
                 logger.debug { parameters["selfDelete"] }
 
 
-
                 val firstMessage = parameters["firstMessage"]
 
                 val convoDraft = ConversationDraft(
@@ -332,6 +331,41 @@ fun Application.configureMessageRouting() {
                 //Open the conversation
                 return@post call.respondRedirect("/messages/conversations/${ret}")
             }
+
+            post("/messages/conversation/{conversationId}/deleteAll") {
+                val userId =
+                    call.principal<JWTPrincipal>()?.subject?.toLong()
+                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
+
+                val conversationId =
+                    call.parameters["conversationId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                if (deleteAllMyMessagesInConversation(userId, conversationId) != true) {
+                    val error = "Error trying to delete messages in conversation"
+                    return@post call.respondRedirect("/messages/conversations/${conversationId}?error=$error")
+                }
+
+                val success = "Successfully deleted your messages in conversation"
+                return@post call.respondRedirect("/messages/conversations/${conversationId}?success=$success")
+            }
+
+            post("/messages/conversation/{conversationId}/leave") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLong() ?: return@post call.respond(
+                    HttpStatusCode.Unauthorized
+                )
+                val conversationId =
+                    call.parameters["conversationId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+
+                if (leaveConversation(userId, conversationId) == false) {
+                    val error = "Error trying to leave conversation"
+                    return@post call.respondRedirect("/messages?error=$error")
+                }
+
+                val success = "Successfully left conversation"
+                return@post call.respondRedirect("/messages?success=$success")
+            }
+
 
         }
     }

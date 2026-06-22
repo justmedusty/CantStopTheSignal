@@ -500,7 +500,7 @@
             <form th:action="'/admin/signups/toggle'" method="post">
                 <button type="submit"
                         th:class="${signups_open} ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'"
-                        th:text="${signups_open} ? 'Suspend Signups' : 'Re-enable Signups'">
+                        th:text="${signups_open} ? 'Re-enable Signups' : 'Suspend Signups'">
                 </button>
             </form>
         </div>
@@ -541,6 +541,7 @@
             No invite codes yet — generate one above.
         </div>
     </div>
+
 
 
     <!-- ── Suspension Log ── -->

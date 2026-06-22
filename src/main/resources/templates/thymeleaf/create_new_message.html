@@ -329,7 +329,7 @@
 
                 <!-- Group Name -->
                 <div class="field">
-                    <label class="field-label" for="groupName">Group Name</label>
+                    <label class="field-label" for="groupName">Conversation Name</label>
                     <div class="input-wrap">
                         <span class="input-prefix">Optional</span>
                         <input
@@ -355,7 +355,7 @@
                                     autocomplete="off"
                                     th:checked="${conversation_draft != null} ? ${conversation_draft.selfDeleting} : false"/>
                         </label>
-                        <span style="padding: 0.65rem 0.85rem; font-size: 0.875rem; color: var(--text-secondary);">Delete message after recipients reads it +- a few hours</span>
+                        <span style="padding: 0.65rem 0.85rem; font-size: 0.875rem; color: var(--text-secondary);" th:text="'Delete messages only after ALL recipients have seen last message in conversation, deletion job runs every ' +  ${server_config.hoursBetweenMessageDeletionJobs} +  ' hours'"></span>
                     </div>
                 </div>
 

@@ -27,8 +27,8 @@ private fun doWork() {
                     continue
                 }
 
+                //This could return 0 if a conversation is empty, so we won't bother checking the result just do ya thang
                 Messages.deleteWhere { Messages.conversationId eq applicableConversation }
-
 
             }
 

@@ -1,20 +1,16 @@
 package cantstopthesignal.database.messages
 
-import cantstopthesignal.table_definitions.ConversationMembers
-import cantstopthesignal.table_definitions.Conversations
-import cantstopthesignal.table_definitions.MessageNotifications
-import cantstopthesignal.table_definitions.Messages
 import cantstopthesignal.database.notifications.numUnreadMessagesInConversation
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.getUserName
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.RetValues
 import cantstopthesignal.log.logger
+import cantstopthesignal.table_definitions.*
 import cantstopthesignal.table_definitions.Messages.message
 import cantstopthesignal.table_definitions.Messages.senderId
 import cantstopthesignal.table_definitions.Messages.timeSent
-import cantstopthesignal.table_definitions.PrivateMessageBlockList
-import cantstopthesignal.enums.Length
-import cantstopthesignal.enums.RetValues
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -52,6 +48,7 @@ data class MessageConversationObject(
     val members: List<String>,
     val pgpKey: List<String>?, //This is just here to prompt users to encrypt their own messages with the convo members uploaded IDs
     val numUnreadMessages: Long,
+    val transientMessages: Boolean,
     val totalPages: Long
 )
 
@@ -111,6 +108,7 @@ fun getConversation(userId: Long, conversationId: Long): MessageConversationObje
                     members = getMembersOfConversation(conversationId)!! /* This should already be sanitized so we will assert it not null*/,
                     pgpKey = getPgpKeysInConversation(userId, conversationId),
                     numUnreadMessages = numUnreadMessagesInConversation(userId, conversationId),
+                    it[Conversations.transientMessages],
                     totalPages = totalPages
                 )
             }
@@ -367,6 +365,17 @@ fun verifyConversationId(id: Long, userId: Long): Boolean? {
     }
 }
 
+fun getTransientMessages(conversationId: Long): Boolean {
+    return try {
+        transaction {
+            Conversations.selectAll().where { Conversations.id eq conversationId }
+                .singleOrNull()?.get(Conversations.transientMessages) == true
+        }
+    } catch (e: Exception) {
+        logger.error { "An errror occurred while trying to get transient messages : ${e.message}" }
+        false // I think it is better to falsely say there ISNT disappearing messages than say there is
+    }
+}
 
 fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConversationObject>? {
     val offsetVal = ((page - 1) * limit).toLong()
@@ -376,7 +385,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
             transaction {
                 val conversationIdList: List<Long> =
                     ConversationMembers
-                        .join(Messages, JoinType.INNER, ConversationMembers.conversationId, Messages.conversationId)
+                        .join(Messages, JoinType.LEFT, ConversationMembers.conversationId, Messages.conversationId)
                         .select(ConversationMembers.conversationId)
                         .where { ConversationMembers.userId eq userId }
                         .groupBy(ConversationMembers.conversationId)
@@ -416,6 +425,7 @@ fun getAllConversations(userId: Long, page: Int, limit: Int): List<MessageConver
                         userList,
                         publicKeys,
                         numUnreadMessagesInConversation(userId, conversationId),
+                        getTransientMessages(conversationId),
                         totalPages
                     )
 
@@ -470,10 +480,19 @@ fun deleteAllMyMessagesInConversation(userId: Long, conversationId: Long): Boole
 fun leaveConversation(userId: Long, conversationId: Long): Boolean? {
     return try {
         transaction {
+
+            if (Conversations.innerJoin(ConversationMembers).selectAll()
+                    .where { (Conversations.id eq conversationId) and (ConversationMembers.userId eq userId) }
+                    .count() == 0L
+            ) {
+                //If we cannot find a conversation with this user in it by that ID then just send a failure, this should only happen if a user is fucking around
+                //hand crafting requests
+                return@transaction false
+            }
             val success =
                 ConversationMembers.deleteWhere { (ConversationMembers.userId) eq userId and (ConversationMembers.conversationId eq conversationId) } > 0
 
-            //If there is nobody left, just delete all of it. Private messages have
+            //If there is nobody left, just delete all of it.
             if (ConversationMembers.selectAll().where(ConversationMembers.conversationId eq conversationId)
                     .count() <= 1
             ) {
@@ -490,7 +509,7 @@ fun leaveConversation(userId: Long, conversationId: Long): Boolean? {
                     logger.error { "An unexpected error occurred while trying to delete a conversation" }
                 }
 
-                //The database reference option constrain will delete the messages for us
+                //The database reference option constraint will delete the messages for us
             }
 
             success
@@ -514,11 +533,26 @@ fun isUserBlocked(user: Long, target: Long): Boolean {
     }
 }
 
-fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConversations: Boolean) {
+fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConversations: Boolean): Boolean {
     return try {
-        transaction {}
+        transaction {
+            val exists = PrivateMessageBlockList.selectAll()
+                .where { (PrivateMessageBlockList.blockedById eq caller and (PrivateMessageBlockList.blockedUser eq target)) or ((PrivateMessageBlockList.blockedById eq target) and (PrivateMessageBlockList.blockedUser eq caller)) }
+                .count() > 0
+            if (exists) {
+                return@transaction true
+            }
+
+            val success = PrivateMessageBlockList.insert {
+                it[blockedUser] = target
+                it[blockedById] = caller
+            }[PrivateMessageBlockList.id]
+
+            return@transaction success > 0
+        }
     } catch (e: Exception) {
         logger.error { "An error occurred while trying to block user from messaging" + e.message }
+        false
     }
 
 }

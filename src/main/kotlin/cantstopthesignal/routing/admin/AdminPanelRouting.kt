@@ -251,6 +251,21 @@ fun Application.configureAdminRoutes() {
 
             }
 
+            post("/admin/give"){
+
+            }
+            post("/admin/take"){
+
+            }
+
+            post("/admin/{user}/suspend"){
+
+            }
+
+            post("/admin/{user}/unsuspend"){
+
+            }
+
 
         }
 

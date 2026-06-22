@@ -94,7 +94,7 @@ object Notifications : Table(name = "Notifications") {
 object MessageNotifications : Table(name = "MessageNotifications") {
     val id: Column<Long> = long("id").autoIncrement()
     val conversationId: Column<Long> =
-        long("conversation_id").references(Messages.id, onDelete = ReferenceOption.CASCADE)
+        long("conversation_id").references(Conversations.id, onDelete = ReferenceOption.CASCADE)
     val userId: Column<Long> = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
 
     override val primaryKey = PrimaryKey(id)
