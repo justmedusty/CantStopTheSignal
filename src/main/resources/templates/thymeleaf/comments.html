@@ -151,6 +151,7 @@
             overflow-wrap: break-word;
             letter-spacing: 0.01em;
         }
+
         /* ── Action bar ── */
         .post-actions {
             display: flex;
@@ -228,6 +229,7 @@
         .btn.delete:hover {
             background: var(--danger-soft);
         }
+
         .post-edited {
             font-size: 0.78rem;
             color: var(--muted);
@@ -392,7 +394,7 @@
             padding: 0.75rem 1rem;
             border-radius: 0 6px 6px 0;
             margin-bottom: 0.6rem;
-            font-family: var(--font-serif),fangsong;
+            font-family: var(--font-serif), fangsong;
             letter-spacing: 0.01em;
         }
 
@@ -495,7 +497,7 @@
             white-space: pre-wrap;
             overflow-wrap: break-word;
             background: #13161f;
-            border-left: 2px solid #313649;   /* thinner/lighter than post's 3px */
+            border-left: 2px solid #313649; /* thinner/lighter than post's 3px */
             padding: 0.6rem 0.875rem;
             border-radius: 0 5px 5px 0;
             margin-bottom: 0.5rem;
@@ -801,6 +803,7 @@
             padding: 0.45rem 0.85rem;
             font-size: 0.8rem;
         }
+
         a {
             color: #ffffff;
             text-decoration: underline;
@@ -848,6 +851,7 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
         /* ── Reaction Bar ── */
         .reaction-bar {
             display: flex;
@@ -876,7 +880,8 @@
         <div class="post-body">
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
-                <span class="post-topic" ><a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}"></a></span>
+                <span class="post-topic"><a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|"
+                                            th:text="${post.topic}"></a></span>
             </div>
 
             <p class="post-meta">
@@ -896,41 +901,42 @@
                th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
         </div>
 
-        <!-- Reaction / action bar -->
-        <!-- Reaction Bar -->
-        <div class="reaction-bar">
-            <!-- Like -->
-            <form th:action="|/posts/like/${post.id}?redirect=${redirect_uri}|" method="post">
-                <button type="submit"
-                        class="btn btn-like"
-                        th:classappend="${post.likedByMe} ? 'active'">
-                    &#9650; <span th:text="${post.likeCount}">0</span>
-                </button>
-            </form>
+        <div class="post-actions">
+            <div class="post-actions-left">
+                <!-- Reaction Bar -->
+                <div class="reaction-bar">
+                    <!-- Like -->
+                    <form th:action="|/posts/like/${post.id}?redirect=${redirect_uri}|" method="post">
+                        <button type="submit"
+                                class="btn btn-like"
+                                th:classappend="${post.likedByMe} ? 'active'">
+                            &#9650; <span th:text="${post.likeCount}">0</span>
+                        </button>
+                    </form>
 
-            <!-- Dislike -->
-            <form th:action="|/posts/dislike/${post.id}?redirect=${redirect_uri}|" method="post">
-                <button type="submit"
-                        class="btn btn-dislike"
-                        th:classappend="${post.dislikedByMe} ? 'active'">
-                    &#9660; <span th:text="${post.dislikeCount}">0</span>
-                </button>
-            </form>
+                    <!-- Dislike -->
+                    <form th:action="|/posts/dislike/${post.id}?redirect=${redirect_uri}|" method="post">
+                        <button type="submit"
+                                class="btn btn-dislike"
+                                th:classappend="${post.dislikedByMe} ? 'active'">
+                            &#9660; <span th:text="${post.dislikeCount}">0</span>
+                        </button>
+                    </form>
 
-            <span class="comment-count">
+                    <span class="comment-count">
                     💬 <span th:text="${post.commentCount}">0</span>
                 </span>
+                    <a th:href="|/posts/${post.id}|">See Other Comments</a>
+                    <div class="reaction-spacer"></div>
 
-            <div class="reaction-spacer"></div>
-
-
-            <!-- Reaction / action bar -->
-            <div class="post-actions">
-                <div class="post-actions-right" th:if="${post.myPost}">
-                    <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
-                    <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
                 </div>
             </div>
+            <!-- Reaction / action bar -->
+            <div class="post-actions-right" th:if="${post.myPost}">
+                <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
+                <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
+            </div>
+
         </div>
     </div>
 
@@ -965,7 +971,8 @@
             <!-- Actions on the focal comment itself -->
             <div class="focal-actions">
                 <!-- Like -->
-                <form th:action="|/comments/${post.id}/like/${focal_comment.id}?redirect=${redirect_uri}|" method="post">
+                <form th:action="|/comments/${post.id}/like/${focal_comment.id}?redirect=${redirect_uri}|"
+                      method="post">
                     <button type="submit"
                             class="btn btn-like"
                             th:classappend="${focal_comment.isCommentLikedByMe} ? 'active'">
@@ -974,7 +981,8 @@
                 </form>
 
                 <!-- Dislike -->
-                <form th:action="|/comments/${post.id}/dislike/${focal_comment.id}?redirect=${redirect_uri}|" method="post">
+                <form th:action="|/comments/${post.id}/dislike/${focal_comment.id}?redirect=${redirect_uri}|"
+                      method="post">
                     <button type="submit"
                             class="btn btn-dislike"
                             th:classappend="${focal_comment.isCommentDislikedByMe} ? 'active'">
@@ -1067,7 +1075,8 @@
 
                     <div class="reply-actions">
                         <!-- Like -->
-                        <form th:action="|/comments/${post.id}/like/${reply.id}?redirect=${redirect_uri}|" method="post">
+                        <form th:action="|/comments/${post.id}/like/${reply.id}?redirect=${redirect_uri}|"
+                              method="post">
                             <button type="submit"
                                     class="btn btn-like"
                                     th:classappend="${reply.isCommentLikedByMe} ? 'active'">
@@ -1076,7 +1085,8 @@
                         </form>
 
                         <!-- Dislike -->
-                        <form th:action="|/comments/${post.id}/dislike/${reply.id}?redirect=${redirect_uri}|" method="post">
+                        <form th:action="|/comments/${post.id}/dislike/${reply.id}?redirect=${redirect_uri}|"
+                              method="post">
                             <button type="submit"
                                     class="btn btn-dislike"
                                     th:classappend="${reply.isCommentDislikedByMe} ? 'active'">
@@ -1086,7 +1096,8 @@
 
                         <a th:if="${reply.numReplies > 0}"
                            class="btn-replies"
-                           th:href="|/comments/${id}/replies/${reply.id}|" th:text="${'View Replies' + '(' + reply.numReplies + ')'}">
+                           th:href="|/comments/${id}/replies/${reply.id}|"
+                           th:text="${'View Replies' + '(' + reply.numReplies + ')'}">
                             &#8618; Replies
                         </a>
 
