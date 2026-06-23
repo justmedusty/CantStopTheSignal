@@ -1,11 +1,14 @@
 package cantstopthesignal.database.users
 
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
+import cantstopthesignal.database.admin.insertAdminLogEntry
+import cantstopthesignal.database.admin.insertSuspendEntry
+import cantstopthesignal.database.admin.insertUnsuspendEntry
+import cantstopthesignal.enums.Length
 import cantstopthesignal.log.logger
 import cantstopthesignal.security.hashPassword
 import cantstopthesignal.table_definitions.ProfileData
 import cantstopthesignal.table_definitions.Users
-import cantstopthesignal.enums.Length
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.like
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
@@ -406,10 +409,10 @@ fun isUserModerator(userId: Long): Boolean {
     }
 }
 
-fun suspendUser(userId: Long, requesterId: Long): Boolean {
+fun suspendUser(userId: Long, requesterId: Long, reason: String): Boolean {
 
     if (isUserAdmin(requesterId)) {
-        return try {
+        val success = try {
             transaction {
                 Users.update({ Users.id eq userId }) {
                     it[isSuspended] = true
@@ -420,15 +423,21 @@ fun suspendUser(userId: Long, requesterId: Long): Boolean {
             logger.error { e.message }
             false
         }
+
+        if (!success) {
+            logger.error { "An error occurred while trying to suspend user $userId" }
+            return false
+        }
+        return insertSuspendEntry(userId, reason, userId)
     }
     return false
 
 }
 
-fun unSuspendUser(userId: Long, requesterId: Long): Boolean {
+fun unSuspendUser(userId: Long, requesterId: Long, reason: String): Boolean {
 
     if (isUserAdmin(requesterId)) {
-        return try {
+        val success = try {
             transaction {
                 Users.update({ Users.id eq userId }) {
                     it[isSuspended] = false
@@ -439,6 +448,12 @@ fun unSuspendUser(userId: Long, requesterId: Long): Boolean {
             logger.error { e.message }
             false
         }
+        if (!success) {
+            logger.error { "An error occurred while trying to unsuspend user $userId" }
+            return false
+        }
+
+        return insertUnsuspendEntry(userId, reason, userId)
     }
     return false
 
@@ -447,7 +462,7 @@ fun unSuspendUser(userId: Long, requesterId: Long): Boolean {
 fun giveAdmin(userId: Long, requesterId: Long): Boolean {
 
     if (isUserAdmin(requesterId)) {
-        return try {
+        val success = try {
             transaction {
                 Users.update({ Users.id eq userId }) {
                     it[isAdmin] = true
@@ -458,15 +473,29 @@ fun giveAdmin(userId: Long, requesterId: Long): Boolean {
             logger.error { e.message }
             false
         }
+
+        if (!success) {
+            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            return false
+        }
+
+        return insertAdminLogEntry(
+            requesterId,
+            "Admin ${getUserName(requesterId)} (ID ${requesterId}) has given admin to ${getUserName(userId)} (ID ${userId})",
+            "Gave admin to ${getUserName(userId)}"
+        )
     }
     return false
 
 }
 
-fun takeAdmin(userId: Long, requesterId: Long): Boolean {
+/*
+    Taking it away requires more of an explanation than giving it so we will require an explicit admin given string for this
+ */
+fun takeAdmin(userId: Long, requesterId: Long, reason: String): Boolean {
 
     if (isUserAdmin(requesterId)) {
-        return try {
+        val success = try {
             transaction {
                 Users.update({ Users.id eq userId }) {
                     it[isAdmin] = false
@@ -477,6 +506,17 @@ fun takeAdmin(userId: Long, requesterId: Long): Boolean {
             logger.error { e.message }
             false
         }
+
+        if (!success) {
+            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            return false
+        }
+
+        return insertAdminLogEntry(
+            requesterId,
+            "Admin ${getUserName(requesterId)} (ID ${requesterId} has taken admin status from ${getUserName(userId)} (ID ${userId} for reason ${reason})",
+            "Took admin status from ${getUserName(userId)} (ID ${userId}"
+        )
     }
     return false
 }

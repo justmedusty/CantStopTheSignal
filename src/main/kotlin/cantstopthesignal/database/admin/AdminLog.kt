@@ -51,6 +51,7 @@ fun insertAdminLogEntry(user: Long, reasonString: String, action: String): Boole
 
 }
 
+
 fun getAdminLogEntries(page: Int, limit: Int, userId: Long, order: String?): List<AdminLogEntry>? {
 
     if (!isUserAdmin(userId)) {

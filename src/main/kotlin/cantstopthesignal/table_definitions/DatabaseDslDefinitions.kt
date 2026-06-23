@@ -225,6 +225,7 @@ object AdminLogs : Table(name = "AdminLogs") {
 
 object SuspendLog : Table(name = "SuspendLog") {
     val id: Column<Long> = long("id").autoIncrement()
+    val suspend: Column<Boolean> = bool("suspend").default(false)
     val timestamp: Column<LocalDateTime> = datetime("suspend_time")
     val adminId: Column<Long> = long("admin_id").references(Users.id)
     val suspendedUserId: Column<Long> = long("suspended_user_id").references(Users.id)
