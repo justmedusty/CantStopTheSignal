@@ -57,7 +57,7 @@ fun Application.configureAdminRoutes() {
                 val inviteCodes: List<String>? = getAllValidLoginCodes(
                     user, 1, 100
                 )//Im just gonna show 100, you should never need to page through these so don't think I'll implement it. If you need to give out an invite code, why would you page through them? Just pick one.
-                logger.debug { inviteCodes }
+
 
                 val map = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
@@ -259,7 +259,7 @@ fun Application.configureAdminRoutes() {
 
             }
 
-            post("/admin/give/{user}") {
+            post("/admin/give") {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
@@ -272,8 +272,9 @@ fun Application.configureAdminRoutes() {
                     val error = "Only admins can give or take admin status"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
+                val params = call.receiveParameters()
 
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
                 val ret = giveAdmin(userId, user)
@@ -284,8 +285,68 @@ fun Application.configureAdminRoutes() {
                 }
 
                 val success = "Successfully gave $username admin"
+                return@post call.respondRedirect("/admin?success=$success")
             }
-            post("/admin/take/{user}") {
+            post("/admin/take") {
+
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+
+                //Is this user a moderator? Only admins can toggle this
+                if (!isUserAdmin(user)) {
+                    val error = "Only admins can give or take admin status"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val params = call.receiveParameters()
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
+
+                val ret = takeAdmin(userId, user, reason)
+
+                if (!ret) {
+                    val error = "An error occurred while giving ${username} admin"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully gave $username admin"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+
+            post("/moderator/give") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+                //Is this user a moderator? Only admins can toggle this
+                if (!isUserAdmin(user)) {
+                    val error = "Only admins can give or take admin status"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+                val params = call.receiveParameters()
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
+
+
+                val ret = giveAdmin(userId, user)
+
+                if (!ret) {
+                    val error = "An error occurred while giving ${username} moderator"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully gave $username moderator"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+            post("/moderator/take") {
 
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val reason = call.queryParameters["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
@@ -300,131 +361,81 @@ fun Application.configureAdminRoutes() {
                     val error = "Only admins can give or take admin status"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                val params = call.receiveParameters()
+
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
                 val ret = takeAdmin(userId, user, reason)
 
                 if (!ret) {
-                    val error = "An error occurred while giving ${username} admin"
+                    val error = "An error occurred while giving ${username} moderator"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val success = "Successfully gave $username admin"
+                val success = "Successfully gave $username moderator"
+                return@post call.respondRedirect("/admin?success=$success")
             }
 
-            post("/moderator/give/{user}") {
+            post("/admin/suspend") {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
                     logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
-                //Is this user a moderator? Only admins can toggle this
-                if (!isUserAdmin(user)) {
-                    val error = "Only admins can give or take admin status"
-                    return@post call.respondRedirect("/admin?error=$error")
-                }
-
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val params = call.receiveParameters()
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
-
-                val ret = giveAdmin(userId, user)
-
-                if (!ret) {
-                    val error = "An error occurred while giving ${username} admin"
-                    return@post call.respondRedirect("/admin?error=$error")
-                }
-
-                val success = "Successfully gave $username admin"
-            }
-            post("/moderator/take/{user}") {
-
-                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val reason = call.queryParameters["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-
-                if (!isUserAdminOrModerator(user!!)) {
-                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
-                    return@post call.respond(HttpStatusCode.NotFound)
-                }
-
-                //Is this user a moderator? Only admins can toggle this
-                if (!isUserAdmin(user)) {
-                    val error = "Only admins can give or take admin status"
-                    return@post call.respondRedirect("/admin?error=$error")
-                }
-
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
-
-                val ret = takeAdmin(userId, user, reason)
-
-                if (!ret) {
-                    val error = "An error occurred while giving ${username} admin"
-                    return@post call.respondRedirect("/admin?error=$error")
-                }
-
-                val success = "Successfully gave $username admin"
-            }
-
-            post("/admin/{user}/suspend") {
-                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-
-                if (!isUserAdminOrModerator(user!!)) {
-                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
-                    return@post call.respond(HttpStatusCode.NotFound)
-                }
-
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
-
-                if(isUserAdminOrModerator(userId)) {
+                if (isUserAdminOrModerator(userId)) {
                     val error = "You cannot suspend an admin or moderator while they still have active status"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val reason = call.parameters["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val ret = suspendUser(userId, user, reason)
 
-                if(!ret){
+                if (!ret) {
                     val error = "An error occurred while suspending ${username}"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val success = "Successfully gave $username admin"
-                return@post call.respondRedirect("/admin?error=$success")
+                val success = "Successfully suspended user ${username}"
+                return@post call.respondRedirect("/admin?success=$success")
 
 
             }
 
-            post("/admin/{user}/unsuspend") {
+            post("/admin/unsuspend") {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
 
                 if (!isUserAdminOrModerator(user!!)) {
                     logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
-                val username = call.parameters["user"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val params = call.receiveParameters()
+                val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
-                if(isUserAdminOrModerator(userId)) {
+                if (isUserAdminOrModerator(userId)) {
                     val error = "You cannot suspend/unsuspend an admin or moderator while they still have active status"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val reason = call.parameters["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val ret = unSuspendUser(userId, user, reason)
 
-                if(!ret){
+                if (!ret) {
                     val error = "An error occurred while suspending ${username}"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val success = "Successfully gave $username admin"
-                return@post call.respondRedirect("/admin?error=$success")
+                val success = "Successfully unsuspended user ${username}"
+                return@post call.respondRedirect("/admin?success=$success")
             }
 
 

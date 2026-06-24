@@ -4,29 +4,33 @@
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
-            --warning:       #d4a04a;
-            --warning-soft:  #2a1f0a;
-            --success:       #4ecb82;
-            --success-soft:  #1a2d1f;
-            --muted:         #4a5068;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            --font-serif:    ui-serif, Georgia, "Times New Roman", serif;
-            --font-mono:     ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --warning: #d4a04a;
+            --warning-soft: #2a1f0a;
+            --success: #4ecb82;
+            --success-soft: #1a2d1f;
+            --muted: #4a5068;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+            --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
         }
 
         body {
@@ -38,351 +42,883 @@
             min-height: 100vh;
         }
 
-        .container { max-width: 960px; margin: 0 auto; }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
 
         .alert {
             border-radius: var(--radius);
-            padding: 0.65rem 1rem; margin-bottom: 1rem; font-size: 0.875rem;
+            padding: .65rem 1rem;
+            margin-bottom: 1rem;
+            font-size: .875rem;
         }
-        .alert-error   { background: var(--danger-soft);  color: var(--danger);  border: 1px solid #7a2020; }
-        .alert-success { background: var(--success-soft); color: var(--success); border: 1px solid #207a40; }
 
-        /* ── Top bar ── */
+        .alert-error {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #7a2020;
+        }
+
+        .alert-success {
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid #207a40;
+        }
+
         .topbar {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 1.75rem; gap: 1rem; flex-wrap: wrap;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.75rem;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
-        .topbar h1 {
-            font-family: var(--font-serif); font-size: 2rem;
-            font-weight: 700; letter-spacing: -0.02em; margin: 0;
-        }
-        .topbar-actions { display: flex; gap: 0.75rem; align-items: center; }
 
-        /* ── Buttons ── */
-        .btn {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            padding: 0.42rem 0.875rem; border-radius: 6px;
-            font-family: var(--font); font-size: 0.82rem; font-weight: 600;
-            border: 1.5px solid transparent; cursor: pointer;
-            text-decoration: none; transition: opacity 0.15s, background 0.15s; line-height: 1;
+        .topbar h1 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin: 0;
         }
-        .btn:active { opacity: 0.8; }
-        .btn-primary   { background: var(--accent);      color: #fff;              border-color: var(--accent); }
-        .btn-primary:hover { opacity: 0.88; }
-        .btn-secondary { background: transparent;        color: var(--text-secondary); border-color: var(--border); }
-        .btn-secondary:hover { background: var(--surface-hover); }
-        .btn-danger    { background: transparent;        color: var(--danger);     border-color: #7a2020; }
-        .btn-danger:hover  { background: var(--danger-soft); }
-        .btn-warning   { background: transparent;        color: var(--warning);    border-color: #7a4010; }
-        .btn-warning:hover { background: var(--warning-soft); }
-        .btn-success   { background: transparent;        color: var(--success);    border-color: #207a40; }
-        .btn-success:hover { background: var(--success-soft); }
-        .btn-sm { padding: 0.28rem 0.65rem; font-size: 0.75rem; }
-        .btn-group { display: flex; gap: 0.4rem; }
+
+        .topbar-actions {
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .42rem .875rem;
+            border-radius: 6px;
+            font-family: var(--font);
+            font-size: .82rem;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity .15s, background .15s;
+            line-height: 1;
+        }
+
+        .btn:active {
+            opacity: .8;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            opacity: .88;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-soft);
+        }
+
+        .btn-warning {
+            background: transparent;
+            color: var(--warning);
+            border-color: #7a4010;
+        }
+
+        .btn-warning:hover {
+            background: var(--warning-soft);
+        }
+
+        .btn-success {
+            background: transparent;
+            color: var(--success);
+            border-color: #207a40;
+        }
+
+        .btn-success:hover {
+            background: var(--success-soft);
+        }
+
+        .btn-sm {
+            padding: .28rem .65rem;
+            font-size: .75rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: .4rem;
+        }
 
         .btn-icon {
-            position: relative; background: var(--surface-hover); color: var(--text-primary);
-            padding: 0.42rem 0.7rem; border-radius: 6px; font-size: 1.1rem;
-            border: 1.5px solid var(--border); cursor: pointer; text-decoration: none;
-            display: inline-flex; align-items: center; transition: background 0.15s;
-        }
-        .btn-icon:hover { background: var(--border); }
-        .btn-icon.has-alert {
-            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35);
-            animation: glow-pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes glow-pulse {
-            0%, 100% { box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224,96,96,0.35); }
-            50%       { box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224,96,96,0.6); }
-        }
-        .badge {
-            position: absolute; top: -6px; right: -6px;
-            background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 700;
-            border-radius: 999px; padding: 1px 5px; min-width: 16px; text-align: center; line-height: 1.4;
+            position: relative;
+            background: var(--surface-hover);
+            color: var(--text-primary);
+            padding: .42rem .7rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: background .15s;
         }
 
-        /* ── Card ── */
+        .btn-icon:hover {
+            background: var(--border);
+        }
+
+        .btn-icon.has-alert {
+            box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, .35);
+            animation: glow-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 8px 2px rgba(224, 96, 96, .35);
+            }
+            50% {
+                box-shadow: 0 0 0 2px var(--danger), 0 0 16px 6px rgba(224, 96, 96, .6);
+            }
+        }
+
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 1px 5px;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
         .card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); box-shadow: var(--shadow);
-            margin-bottom: 1.5rem; overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
         }
 
         .section-title {
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.1em; color: var(--muted);
-            padding: 0.875rem 1.75rem; border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.015);
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--muted);
+            padding: .875rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .015);
         }
 
-        /* ── Field rows ── */
         .field-row {
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 1rem; padding: 0.875rem 1.75rem; border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: .875rem 1.75rem;
+            border-bottom: 1px solid var(--border);
         }
-        .field-row:last-child { border-bottom: none; }
+
+        .field-row:last-child {
+            border-bottom: none;
+        }
+
         .field-label {
-            font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
-            min-width: 150px; flex-shrink: 0;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 150px;
+            flex-shrink: 0;
         }
-        .field-value { flex: 1; color: var(--text-primary); font-size: 0.9rem; line-height: 1.6; }
-        .field-value.muted { color: var(--muted); font-style: italic; font-size: 0.875rem; }
 
-        /* ── Status pills ── */
+        .field-value {
+            flex: 1;
+            color: var(--text-primary);
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+
+        .field-value.muted {
+            color: var(--muted);
+            font-style: italic;
+            font-size: .875rem;
+        }
+
         .pill {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            padding: 0.2rem 0.65rem; border-radius: 999px;
-            font-size: 0.75rem; font-weight: 600; letter-spacing: 0.03em;
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .2rem .65rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .03em;
         }
-        .pill-green  { background: var(--success-soft); color: var(--success); border: 1px solid #207a40; }
-        .pill-red    { background: var(--danger-soft);  color: var(--danger);  border: 1px solid #7a2020; }
-        .pill-amber  { background: var(--warning-soft); color: var(--warning); border: 1px solid #7a4010; }
-        .pill-blue   { background: var(--accent-soft);  color: var(--accent);  border: 1px solid #1e4a9a; }
-        .pill-purple { background: #2a1040; color: #c084fc; border: 1px solid #5b2a8a; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
 
-        /* ── Stats grid ── */
+        .pill-green {
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid #207a40;
+        }
+
+        .pill-red {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #7a2020;
+        }
+
+        .pill-amber {
+            background: var(--warning-soft);
+            color: var(--warning);
+            border: 1px solid #7a4010;
+        }
+
+        .pill-blue {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #1e4a9a;
+        }
+
+        .pill-purple {
+            background: #2a1040;
+            color: #c084fc;
+            border: 1px solid #5b2a8a;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            display: inline-block;
+        }
+
         .stats-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
         }
-        .stat-block {
-            padding: 1.25rem 1.75rem; border-right: 1px solid var(--border);
-        }
-        .stat-block:last-child { border-right: none; }
-        .stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 0.35rem; }
-        .stat-value { font-size: 1.6rem; font-weight: 700; font-family: var(--font-serif); color: var(--text-primary); }
-        .stat-value.danger  { color: var(--danger); }
-        .stat-value.success { color: var(--success); }
-        .stat-value.warning { color: var(--warning); }
 
-        /* ── Banner message editor ── */
-        .banner-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 0; border-bottom: 1px solid var(--border);
+        .stat-block {
+            padding: 1.25rem 1.75rem;
+            border-right: 1px solid var(--border);
         }
+
+        .stat-block:last-child {
+            border-right: none;
+        }
+
+        .stat-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--muted);
+            margin-bottom: .35rem;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: var(--font-serif);
+            color: var(--text-primary);
+        }
+
+        .stat-value.danger {
+            color: var(--danger);
+        }
+
+        .stat-value.success {
+            color: var(--success);
+        }
+
+        .stat-value.warning {
+            color: var(--warning);
+        }
+
+        .banner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+        }
+
         .banner-panel {
             padding: 1.25rem 1.75rem;
         }
-        .banner-panel:first-child { border-right: 1px solid var(--border); }
+
+        .banner-panel:first-child {
+            border-right: 1px solid var(--border);
+        }
+
         .banner-panel-label {
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.09em; color: var(--muted); margin-bottom: 0.6rem;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--muted);
+            margin-bottom: .6rem;
         }
+
         .banner-current {
-            font-size: 0.875rem; color: var(--text-primary);
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: 6px; padding: 0.6rem 0.85rem; margin-bottom: 0.75rem;
-            min-height: 2.4rem; line-height: 1.5; word-break: break-word;
-            font-family: var(--font-mono); font-size: 0.82rem; color: var(--accent);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: .6rem .85rem;
+            margin-bottom: .75rem;
+            min-height: 2.4rem;
+            line-height: 1.5;
+            word-break: break-word;
+            font-family: var(--font-mono);
+            font-size: .82rem;
+            color: var(--accent);
         }
-        .banner-current.empty { color: var(--muted); font-style: italic; font-family: var(--font); font-size: 0.82rem; }
-        .banner-form { display: flex; gap: 0.5rem; }
+
+        .banner-current.empty {
+            color: var(--muted);
+            font-style: italic;
+            font-family: var(--font);
+        }
+
+        .banner-form {
+            display: flex;
+            gap: .5rem;
+        }
+
         .banner-input {
-            flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-            color: var(--text-primary); font-family: var(--font); font-size: 0.82rem;
-            padding: 0.38rem 0.7rem; outline: none; transition: border-color 0.15s;
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: .82rem;
+            padding: .38rem .7rem;
+            outline: none;
+            transition: border-color .15s;
         }
-        .banner-input:focus { border-color: var(--accent); }
-        .banner-input::placeholder { color: var(--muted); }
-        .banner-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
 
-        /* ── Tables ── */
-        .data-table { width: 100%; border-collapse: collapse; }
+        .banner-input:focus {
+            border-color: var(--accent);
+        }
+
+        .banner-input::placeholder {
+            color: var(--muted);
+        }
+
+        .banner-actions {
+            display: flex;
+            gap: .4rem;
+            margin-top: .5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         .data-table th {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--muted); padding: 0.7rem 1.25rem;
-            text-align: left; border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.015);
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+            padding: .7rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .015);
         }
-        .data-table td {
-            padding: 0.7rem 1.25rem; font-size: 0.855rem; color: var(--text-primary);
-            border-bottom: 1px solid var(--border); vertical-align: middle;
-        }
-        .data-table tr:last-child td { border-bottom: none; }
-        .data-table tbody tr:hover td { background: var(--surface-hover); }
 
-        /* ── Avatar ── */
+        .data-table td {
+            padding: .7rem 1.25rem;
+            font-size: .855rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover td {
+            background: var(--surface-hover);
+        }
+
         .avatar {
-            width: 30px; height: 30px; border-radius: 50%;
-            font-size: 0.78rem; font-weight: 700; display: inline-flex;
-            align-items: center; justify-content: center; text-transform: uppercase;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: .78rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
             flex-shrink: 0;
         }
-        .avatar-blue   { background: var(--accent-soft); color: var(--accent); }
-        .avatar-purple { background: #2a1040; color: #c084fc; }
-        .avatar-muted  { background: var(--surface-hover); color: var(--muted); }
-        .user-cell { display: flex; align-items: center; gap: 0.65rem; }
 
-        /* ── Role tags ── */
-        .role-tag {
-            display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+        .avatar-blue {
+            background: var(--accent-soft);
+            color: var(--accent);
         }
-        .role-admin { background: #2a1040; color: #c084fc; border: 1px solid #5b2a8a; }
-        .role-mod   { background: var(--accent-soft); color: var(--accent); border: 1px solid #1e4a9a; }
-        .role-user  { background: var(--surface-hover); color: var(--muted); border: 1px solid var(--border); }
 
-        /* ── Log entries ── */
+        .avatar-purple {
+            background: #2a1040;
+            color: #c084fc;
+        }
+
+        .avatar-muted {
+            background: var(--surface-hover);
+            color: var(--muted);
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .role-tag {
+            display: inline-block;
+            padding: .15rem .5rem;
+            border-radius: 4px;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background: #2a1040;
+            color: #c084fc;
+            border: 1px solid #5b2a8a;
+        }
+
+        .role-mod {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #1e4a9a;
+        }
+
+        .role-suspended {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border: 1px solid #7a2020;
+        }
+
+        .role-user {
+            background: var(--surface-hover);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
         .log-row {
             display: grid;
             grid-template-columns: 145px 110px 1fr;
-            gap: 0.75rem; align-items: start;
-            padding: 0.8rem 1.75rem; border-bottom: 1px solid var(--border);
-        }
-        .log-row:last-child { border-bottom: none; }
-        .log-time {
-            font-size: 0.75rem; color: var(--muted);
-            font-family: var(--font-mono); padding-top: 0.1rem; white-space: nowrap;
-        }
-        .log-actor { font-size: 0.82rem; font-weight: 600; color: var(--accent); }
-        .log-body  { font-size: 0.855rem; color: var(--text-primary); line-height: 1.5; }
-        .log-reason { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem; }
-
-        /* ── Suspend log row ── */
-        .suspend-row {
-            display: grid;
-            grid-template-columns: 145px 100px 120px 1fr;
-            gap: 0.75rem; align-items: start;
-            padding: 0.8rem 1.75rem; border-bottom: 1px solid var(--border);
-        }
-        .suspend-row:last-child { border-bottom: none; }
-        .suspend-time { font-size: 0.75rem; color: var(--muted); font-family: var(--font-mono); padding-top: 0.1rem; }
-        .suspend-admin  { font-size: 0.82rem; font-weight: 600; color: var(--accent); }
-        .suspend-target { font-size: 0.82rem; font-weight: 600; color: var(--danger); }
-        .suspend-reason { font-size: 0.855rem; color: var(--text-secondary); }
-
-        /* ── Log column header ── */
-        .log-header {
-            display: grid; gap: 0.75rem; align-items: center;
-            padding: 0.55rem 1.75rem; border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.015);
-        }
-        .log-header-admin    { grid-template-columns: 145px 110px 1fr; }
-        .log-header-suspend  { grid-template-columns: 145px 100px 120px 1fr; }
-        .log-col {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--muted);
-        }
-
-        /* ── Empty state ── */
-        .empty-state {
-            padding: 2.5rem 1.75rem; text-align: center;
-            color: var(--muted); font-size: 0.875rem; font-style: italic;
-        }
-
-        /* ── Section title row (with action) ── */
-        .section-title-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.75rem 1.75rem; border-bottom: 1px solid var(--border);
-            background: rgba(255,255,255,0.015);
-        }
-        .section-title-text {
-            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.1em; color: var(--muted);
-            display: flex; align-items: center; gap: 0.6rem;
-        }
-        .invite-count {
-            font-size: 0.72rem; font-weight: 600; text-transform: none;
-            letter-spacing: 0; color: var(--text-secondary);
-        }
-
-        /* ── Invite codes ── */
-        .invite-scroll {
-            max-height: 280px; overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-        }
-        .invite-scroll::-webkit-scrollbar { width: 6px; }
-        .invite-scroll::-webkit-scrollbar-track { background: transparent; }
-        .invite-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        .invite-row {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 0.65rem 1.75rem; border-bottom: 1px solid var(--border);
-        }
-        .invite-row:last-child { border-bottom: none; }
-        .invite-code {
-            font-family: var(--font-mono); font-size: 0.9rem; font-weight: 600;
-            color: var(--accent); letter-spacing: 0.06em;
-            background: var(--accent-soft); border: 1px solid #1e4a9a;
-            border-radius: 5px; padding: 0.25rem 0.65rem;
-            user-select: all;
-        }
-        .invite-hint { font-size: 0.775rem; color: var(--muted); }
-
-        /* ── Pagination ── */
-        .pagination-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.75rem 1.75rem; border-top: 1px solid var(--border);
-            background: rgba(255,255,255,0.01);
-        }
-        .page-info { font-size: 0.78rem; color: var(--muted); }
-
-        /* ── Input ── */
-        .input-sm {
-            background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
-            color: var(--text-primary); font-family: var(--font); font-size: 0.82rem;
-            padding: 0.35rem 0.65rem; outline: none; transition: border-color 0.15s;
-        }
-        .input-sm:focus { border-color: var(--accent); }
-        .input-sm::placeholder { color: var(--muted); }
-
-        /* ── People grid (admins / mods) ── */
-        .people-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 0;
-        }
-        .people-card {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.9rem 1.25rem; border-right: 1px solid var(--border);
+            gap: .75rem;
+            align-items: start;
+            padding: .8rem 1.75rem;
             border-bottom: 1px solid var(--border);
         }
-        .people-card:nth-child(4n) { border-right: none; }
-        .people-info { min-width: 0; }
-        .people-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .people-sub  { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
 
-        /* ── Two-col layout for admins+mods ── */
+        .log-row:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-size: .75rem;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            padding-top: .1rem;
+            white-space: nowrap;
+        }
+
+        .log-actor {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .log-body {
+            font-size: .855rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .log-reason {
+            font-size: .78rem;
+            color: var(--text-secondary);
+            margin-top: .2rem;
+        }
+
+        .suspend-row {
+            display: grid;
+            grid-template-columns: 145px 100px 110px 120px 1fr;
+            gap: .75rem;
+            align-items: start;
+            padding: .8rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .suspend-row:last-child {
+            border-bottom: none;
+        }
+
+        .suspend-time {
+            font-size: .75rem;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            padding-top: .1rem;
+        }
+
+        .suspend-admin {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .suspend-target {
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--danger);
+        }
+
+        .suspend-reason {
+            font-size: .855rem;
+            color: var(--text-secondary);
+        }
+
+        .suspend-bool {
+            font-size: .855rem;
+            color: var(--text-secondary);
+        }
+
+        .log-header {
+            display: grid;
+            gap: .75rem;
+            align-items: center;
+            padding: .55rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .015);
+        }
+
+        .log-header-admin {
+            grid-template-columns: 145px 110px 1fr;
+        }
+
+        .log-header-suspend {
+            grid-template-columns: 145px 100px 110px 120px 1fr;
+        }
+
+        .log-header-suspend-bool {
+            grid-template-columns: 145px 100px 110px 120px 1fr;
+        }
+
+        .log-col {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted);
+        }
+
+        .empty-state {
+            padding: 2.5rem 1.75rem;
+            text-align: center;
+            color: var(--muted);
+            font-size: .875rem;
+            font-style: italic;
+        }
+
+        .section-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .75rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, .015);
+        }
+
+        .section-title-text {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .invite-count {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0;
+            color: var(--text-secondary);
+        }
+
+        .invite-scroll {
+            max-height: 280px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .invite-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .invite-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .invite-scroll::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .invite-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: .65rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .invite-row:last-child {
+            border-bottom: none;
+        }
+
+        .invite-code {
+            font-family: var(--font-mono);
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: .06em;
+            background: var(--accent-soft);
+            border: 1px solid #1e4a9a;
+            border-radius: 5px;
+            padding: .25rem .65rem;
+            user-select: all;
+        }
+
+        .invite-hint {
+            font-size: .775rem;
+            color: var(--muted);
+        }
+
+        .pagination-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .75rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: rgba(255, 255, 255, .01);
+        }
+
+        .page-info {
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        .input-sm {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: .82rem;
+            padding: .35rem .65rem;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .input-sm:focus {
+            border-color: var(--accent);
+        }
+
+        .input-sm::placeholder {
+            color: var(--muted);
+        }
+
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0;
+        }
+
+        .people-card {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .9rem 1.25rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .people-card:nth-child(4n) {
+            border-right: none;
+        }
+
+        .people-info {
+            min-width: 0;
+        }
+
+        .people-name {
+            font-size: .875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .people-sub {
+            font-size: .75rem;
+            color: var(--muted);
+            margin-top: .1rem;
+        }
+
         .staff-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
         }
-        .staff-col { }
-        .staff-col:first-child { border-right: 1px solid var(--border); }
-        .staff-col .section-title { border-top: none; }
 
-        /* ── Inline form (registration toggles) ── */
-        .toggle-row {
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 1rem; padding: 0.875rem 1.75rem; border-bottom: 1px solid var(--border);
+        .staff-col:first-child {
+            border-right: 1px solid var(--border);
         }
-        .toggle-row:last-child { border-bottom: none; }
-        .toggle-left { display: flex; align-items: center; gap: 0.75rem; }
-        /* ── Flash messages ── */
+
+        .staff-col .section-title {
+            border-top: none;
+        }
+
+        /* === SUSPENDED GRID: full-width, no border-right === */
+        .suspended-grid {
+            display: block;
+            width: 100%;
+        }
+
+        .suspended-grid .staff-col {
+            border-right: none;
+        }
+
+        .suspended-grid .people-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: .875rem 1.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-left {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
         .info {
             background: var(--accent-soft);
             color: var(--accent);
             border: 1px solid #4c86e7;
             border-radius: var(--radius);
-            padding: 0.6rem 1rem;
+            padding: .6rem 1rem;
             margin-bottom: 1rem;
-            font-size: 0.875rem;
+            font-size: .875rem;
+        }
+
+        /* === Admin Action Forms === */
+        .action-forms-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .action-form-cell {
+            padding: 1.1rem 1.75rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .action-form-cell:nth-child(2n) {
+            border-right: none;
+        }
+
+        .action-form-cell:nth-last-child(-n+2) {
+            border-bottom: none;
+        }
+
+        .action-form-label {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .09em;
+            color: var(--muted);
+            margin-bottom: .65rem;
+        }
+
+        .action-form-row {
+            display: flex;
+            gap: .5rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .action-form-row .input-sm {
+            flex: 1;
+            min-width: 110px;
         }
     </style>
-
 </head>
 <body>
 <div class="container">
 
-    <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
     <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-
-    <!-- ── Top bar ── -->
+    <!-- Top bar -->
     <div class="topbar">
         <h1>Admin Panel</h1>
         <div class="topbar-actions">
-            <a class="btn-icon"
-               href="/notifications"
-               th:classappend="${notification_count > 0} ? ' has-alert' : ''">
-                🔔
+            <a class="btn-icon" href="/notifications" th:classappend="${notification_count > 0} ? ' has-alert' : ''">
+                &#128276;
                 <span class="badge" th:if="${notification_count > 0}" th:text="${notification_count}"></span>
             </a>
             <a class="btn btn-secondary" href="/profile">My Profile</a>
@@ -390,32 +926,31 @@
         </div>
     </div>
 
-    <!-- ── Stats ── -->
+    <!-- Stats -->
     <div class="card">
         <div class="stats-grid">
             <div class="stat-block">
                 <div class="stat-label">Total Users</div>
-                <div class="stat-value" th:text="${site_stats.totalUsers}">—</div>
+                <div class="stat-value" th:text="${site_stats.totalUsers}">-</div>
             </div>
             <div class="stat-block">
                 <div class="stat-label">Total Posts</div>
-                <div class="stat-value" th:text="${site_stats.totalPosts}">—</div>
+                <div class="stat-value" th:text="${site_stats.totalPosts}">-</div>
             </div>
             <div class="stat-block">
                 <div class="stat-label">Total Comments</div>
-                <div class="stat-value" th:text="${site_stats.totalComments}">—</div>
+                <div class="stat-value" th:text="${site_stats.totalComments}">-</div>
             </div>
             <div class="stat-block">
                 <div class="stat-label">Suspended Users</div>
-                <div class="stat-value danger" th:text="${site_stats.totalSuspendedUsers}">—</div>
+                <div class="stat-value danger" th:text="${site_stats.totalSuspendedUsers}">-</div>
             </div>
         </div>
     </div>
 
-    <!-- ── Staff ── -->
+    <!-- Staff -->
     <div class="card">
         <div class="staff-grid">
-            <!-- Admins -->
             <div class="staff-col">
                 <div class="section-title">Administrators</div>
                 <div class="people-grid" th:if="${site_stats.adminList != null and !site_stats.adminList.isEmpty()}">
@@ -427,58 +962,170 @@
                         </div>
                     </div>
                 </div>
-                <div class="empty-state" th:if="${site_stats.adminList == null or site_stats.adminList.isEmpty()}">No admins found.</div>
+                <div class="empty-state" th:if="${site_stats.adminList == null or site_stats.adminList.isEmpty()}">No
+                    admins found.
+                </div>
             </div>
-            <!-- Moderators -->
             <div class="staff-col">
                 <div class="section-title">Moderators</div>
-                <div class="people-grid" th:if="${site_stats.moderatorList != null and !site_stats.moderatorList.isEmpty()}">
+                <div class="people-grid"
+                     th:if="${site_stats.moderatorList != null and !site_stats.moderatorList.isEmpty()}">
                     <div class="people-card" th:each="moderator : ${site_stats.moderatorList}">
-                        <div class="avatar avatar-blue" th:text="${#strings.substring(moderator.username, 0, 1)}">M</div>
+                        <div class="avatar avatar-blue" th:text="${#strings.substring(moderator.username, 0, 1)}">M
+                        </div>
                         <div class="people-info">
                             <div class="people-name" th:text="${moderator.username}">username</div>
                             <span class="role-tag role-mod">Mod</span>
                         </div>
                     </div>
                 </div>
-                <div class="empty-state" th:if="${site_stats.moderatorList == null or site_stats.moderatorList.isEmpty()}">No moderators found.</div>
+                <div class="empty-state"
+                     th:if="${site_stats.moderatorList == null or site_stats.moderatorList.isEmpty()}">No moderators
+                    found.
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ── Server Banner Messages ── -->
+    <!-- Suspended Users -->
+    <div class="card">
+        <div class="suspended-grid">
+            <div class="staff-col">
+                <div class="section-title">Suspended Users</div>
+                <div class="people-grid"
+                     th:if="${site_stats.suspendedUserList != null and !site_stats.suspendedUserList.isEmpty()}">
+                    <div class="people-card" th:each="suspended : ${site_stats.suspendedUserList}">
+                        <div class="avatar avatar-muted" th:text="${#strings.substring(suspended.username, 0, 1)}">S
+                        </div>
+                        <div class="people-info">
+                            <div class="people-name" th:text="${suspended.username}">username</div>
+                            <span class="role-tag role-suspended">Suspended</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state"
+                     th:if="${site_stats.suspendedUserList == null or site_stats.suspendedUserList.isEmpty()}">No
+                    suspended users found.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="card">
+        <div class="section-title">Admin Actions</div>
+        <div class="action-forms-grid">
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Suspend User</div>
+                <form th:action="'/admin/suspend'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-danger btn-sm">Suspend</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Unsuspend User</div>
+                <form th:action="'/admin/unsuspend'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-success btn-sm">Unsuspend</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Grant Admin Role</div>
+                <form th:action="'/admin/give'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <button type="submit" class="btn btn-primary btn-sm">Grant Admin</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Revoke Admin Role</div>
+                <form th:action="'/admin/take'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-warning btn-sm">Revoke Admin</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Grant Moderator Role</div>
+                <form th:action="'/moderator/give'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <button type="submit" class="btn btn-primary btn-sm">Grant Mod</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Revoke Moderator Role</div>
+                <form th:action="'/moderator/take'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="username" placeholder="Username" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-warning btn-sm">Revoke Mod</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Delete Post by ID</div>
+                <form th:action="'/admin/post/delete'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="postId" placeholder="Post ID" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell" style="background:rgba(255,255,255,0.005)"></div>
+
+        </div>
+    </div>
+
+    <!-- Server Banner Messages -->
     <div class="card">
         <div class="section-title">Server Banner Messages</div>
         <div class="banner-grid">
-
-            <!-- MOTD -->
             <div class="banner-panel">
                 <div class="banner-panel-label">Message of the Day (MOTD)</div>
-                <div class="banner-current" th:classappend="${motd_message == null or motd_message.isEmpty()} ? ' empty' : ''">
+                <div class="banner-current"
+                     th:classappend="${motd_message == null or motd_message.isEmpty()} ? ' empty' : ''">
                     <span th:if="${motd_message != null and !motd_message.isEmpty()}" th:text="${motd_message}"></span>
                     <span th:if="${motd_message == null or motd_message.isEmpty()}">No MOTD set.</span>
                 </div>
                 <form th:action="'/admin/motd/set'" method="post">
-                    <div class="banner-form">
-                        <input class="banner-input" type="text" name="motd" placeholder="New MOTD…" th:value="${motd_message}">
-                    </div>
+                    <div class="banner-form"><input class="banner-input" type="text" name="motd"
+                                                    placeholder="New MOTD..." th:value="${motd_message}"></div>
                     <div class="banner-actions">
                         <button type="submit" class="btn btn-primary btn-sm">Save MOTD</button>
                         <button type="submit" name="clear" value="true" class="btn btn-danger btn-sm">Clear</button>
                     </div>
                 </form>
             </div>
-            <!-- Info Message -->
             <div class="banner-panel">
                 <div class="banner-panel-label">Info / Announcement Message</div>
-                <div class="banner-current" th:classappend="${info_message == null or info_message.isEmpty()} ? ' empty' : ''">
+                <div class="banner-current"
+                     th:classappend="${info_message == null or info_message.isEmpty()} ? ' empty' : ''">
                     <span th:if="${info_message != null and !info_message.isEmpty()}" th:text="${info_message}"></span>
                     <span th:if="${info_message == null or info_message.isEmpty()}">No info message set.</span>
                 </div>
                 <form th:action="'/admin/infomessage/set'" method="post">
-                    <div class="banner-form">
-                        <input class="banner-input" type="text" name="message" placeholder="New info message…" th:value="${info_message}">
-                    </div>
+                    <div class="banner-form"><input class="banner-input" type="text" name="message"
+                                                    placeholder="New info message..." th:value="${info_message}"></div>
                     <div class="banner-actions">
                         <button type="submit" class="btn btn-primary btn-sm">Save Message</button>
                         <button type="submit" name="clear" value="true" class="btn btn-danger btn-sm">Clear</button>
@@ -488,20 +1135,19 @@
         </div>
     </div>
 
-    <!-- ── Registration ── -->
+    <!-- Registration -->
     <div class="card">
         <div class="section-title">Registration</div>
         <div class="toggle-row">
             <div class="toggle-left">
                 <span class="field-label">New signups</span>
                 <span class="pill pill-green" th:if="${!signups_open}"><span class="dot"></span> Open</span>
-                <span class="pill pill-red"   th:unless="${!signups_open}"><span class="dot"></span> Suspended</span>
+                <span class="pill pill-red" th:unless="${!signups_open}"><span class="dot"></span> Suspended</span>
             </div>
             <form th:action="'/admin/signups/toggle'" method="post">
                 <button type="submit"
                         th:class="${signups_open} ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'"
-                        th:text="${signups_open} ? 'Re-enable Signups' : 'Suspend Signups'">
-                </button>
+                        th:text="${signups_open} ? 'Re-enable Signups' : 'Suspend Signups'"></button>
             </form>
         </div>
         <div class="toggle-row">
@@ -513,8 +1159,7 @@
             <form th:action="'/admin/inviteonly/toggle'" method="post">
                 <button type="submit"
                         th:class="${invite_only} ? 'btn btn-warning btn-sm' : 'btn btn-secondary btn-sm'"
-                        th:text="${invite_only} ? 'Disable Invite-only' : 'Enable Invite-only'">
-                </button>
+                        th:text="${invite_only} ? 'Disable Invite-only' : 'Enable Invite-only'"></button>
             </form>
         </div>
     </div>
@@ -537,74 +1182,73 @@
                 <span class="invite-hint">share with a new user</span>
             </div>
         </div>
-        <div class="empty-state" th:if="${invite_code_list == null or invite_code_list.isEmpty()}">
-            No invite codes yet — generate one above.
+        <div class="empty-state" th:if="${invite_code_list == null or invite_code_list.isEmpty()}">No invite codes yet -
+            generate one above.
         </div>
     </div>
 
-
-
-    <!-- ── Suspension Log ── -->
+    <!-- Suspension Log -->
     <div class="card">
         <div class="section-title">Suspension Log</div>
         <div th:if="${suspend_log_entries != null and !suspend_log_entries.isEmpty()}">
-            <div class="log-header log-header-suspend">
-                <span class="log-col">Time</span>
-                <span class="log-col">By Admin</span>
-                <span class="log-col">Suspended User</span>
-                <span class="log-col">Reason</span>
+            <div class="log-header log-header-suspend log-header-suspend-bool">
+                <span class="log-col">Time</span><span class="log-col">By Admin</span><span class="log-col">Suspend</span> <span class="log-col">Suspended User</span><span
+                    class="log-col">Reason</span>
             </div>
             <div class="suspend-row" th:each="entry : ${suspend_log_entries}">
                 <span class="suspend-time" th:text="${#temporals.format(entry.time, 'yyyy-MM-dd HH:mm')}">2025-01-01 00:00</span>
                 <span class="suspend-admin" th:text="${entry.adminUsername}">admin</span>
+                <span class="suspend-bool" th:text="${entry.suspend} ? 'Suspended' : 'Unsuspended'"></span>
                 <span class="suspend-target" th:text="${entry.suspendedUsername}">user</span>
-                <span class="suspend-reason" th:text="${entry.reason != null and !entry.reason.isEmpty()} ? ${entry.reason} : '—'">reason</span>
+                <span class="suspend-reason"
+                      th:text="${entry.reason != null and !entry.reason.isEmpty()} ? ${entry.reason} : '-'">reason</span>
             </div>
         </div>
-        <div class="empty-state" th:if="${suspend_log_entries == null or suspend_log_entries.isEmpty()}">No suspension records found.</div>
+        <div class="empty-state" th:if="${suspend_log_entries == null or suspend_log_entries.isEmpty()}">No suspension
+            records found.
+        </div>
         <div class="pagination-row" th:if="${admin_suspension_log_total_pages > 1}">
-            <span class="page-info" th:text="|Page ${admin_suspension_log_page} of ${admin_suspension_log_total_pages}|"></span>
+            <span class="page-info"
+                  th:text="|Page ${admin_suspension_log_page} of ${admin_suspension_log_total_pages}|"></span>
             <div class="btn-group">
-                <a class="btn btn-secondary btn-sm"
-                   th:if="${admin_suspension_log_page > 1}"
-                   th:href="|/admin/?suspendPage=${admin_suspension_log_page - 1}|">← Prev</a>
+                <a class="btn btn-secondary btn-sm" th:if="${admin_suspension_log_page > 1}"
+                   th:href="|/admin/?suspendPage=${admin_suspension_log_page - 1}|">Prev</a>
                 <a class="btn btn-secondary btn-sm"
                    th:if="${admin_suspension_log_page < admin_suspension_log_total_pages}"
-                   th:href="|/admin/?suspendPage=${admin_suspension_log_page + 1}|">Next →</a>
+                   th:href="|/admin/?suspendPage=${admin_suspension_log_page + 1}|">Next</a>
             </div>
         </div>
     </div>
 
-    <!-- ── Admin Action Log ── -->
+    <!-- Admin Action Log -->
     <div class="card">
         <div class="section-title">Admin Action Log</div>
         <div th:if="${admin_log_entries != null and !admin_log_entries.isEmpty()}">
             <div class="log-header log-header-admin">
-                <span class="log-col">Time</span>
-                <span class="log-col">Admin</span>
-                <span class="log-col">Action / Reason</span>
+                <span class="log-col">Time</span><span class="log-col">Admin</span><span
+                    class="log-col">Action / Reason</span>
             </div>
             <div class="log-row" th:each="entry : ${admin_log_entries}">
                 <span class="log-time" th:text="${#temporals.format(entry.timestamp, 'yyyy-MM-dd HH:mm')}">2025-01-01 00:00</span>
                 <span class="log-actor" th:text="${entry.adminName}">admin</span>
                 <div>
                     <div class="log-body" th:text="${entry.actionString}">Action description</div>
-                    <div class="log-reason"
-                         th:if="${entry.reason != null and !entry.reason.isEmpty()}"
-                         th:text="|Reason: ${entry.reason}|">Reason: …</div>
+                    <div class="log-reason" th:if="${entry.reason != null and !entry.reason.isEmpty()}"
+                         th:text="|Reason: ${entry.reason}|">Reason: ...
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="empty-state" th:if="${admin_log_entries == null or admin_log_entries.isEmpty()}">No admin actions logged yet.</div>
+        <div class="empty-state" th:if="${admin_log_entries == null or admin_log_entries.isEmpty()}">No admin actions
+            logged yet.
+        </div>
         <div class="pagination-row" th:if="${admin_log_total_pages > 1}">
             <span class="page-info" th:text="|Page ${admin_log_page} of ${admin_log_total_pages}|"></span>
             <div class="btn-group">
-                <a class="btn btn-secondary btn-sm"
-                   th:if="${admin_log_page > 1}"
-                   th:href="|/admin/?page=${admin_log_page - 1}|">← Prev</a>
-                <a class="btn btn-secondary btn-sm"
-                   th:if="${admin_log_page < admin_log_total_pages}"
-                   th:href="|/admin/?page=${admin_log_page + 1}|">Next →</a>
+                <a class="btn btn-secondary btn-sm" th:if="${admin_log_page > 1}"
+                   th:href="|/admin/?page=${admin_log_page - 1}|">Prev</a>
+                <a class="btn btn-secondary btn-sm" th:if="${admin_log_page < admin_log_total_pages}"
+                   th:href="|/admin/?page=${admin_log_page + 1}|">Next</a>
             </div>
         </div>
     </div>

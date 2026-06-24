@@ -16,6 +16,10 @@ data class ModeratorList(
     val username: String,
 )
 
+data class SuspendedUserList(
+    val username: String,
+)
+
 data class SiteStats(
     val totalPosts: Long,
     val totalComments: Long,
@@ -23,6 +27,7 @@ data class SiteStats(
     val totalSuspendedUsers: Long,
     val adminList: List<AdminList>,
     val moderatorList: List<ModeratorList>,
+    val suspendedUserList: List<SuspendedUserList>
 )
 
 
@@ -56,6 +61,21 @@ fun getModeratorList(): List<ModeratorList>? {
     }
 }
 
+fun getSuspendedUsersList(): List<SuspendedUserList>? {
+    return try {
+        transaction {
+            Users.selectAll().where { Users.isSuspended eq true }.map {
+                SuspendedUserList(
+                    it[Users.userName],
+                )
+            }
+        }
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while fetching admins" }
+        null
+    }
+}
+
 
 fun getSiteStats(): SiteStats? {
     return try {
@@ -75,7 +95,8 @@ fun getSiteStats(): SiteStats? {
                 userCount,
                 totalSuspendedUsers,
                 getAdminList() ?: return@transaction null,
-                getModeratorList() ?: return@transaction null
+                getModeratorList() ?: return@transaction null,
+                getSuspendedUsersList() ?: return@transaction null
             )
         }
 

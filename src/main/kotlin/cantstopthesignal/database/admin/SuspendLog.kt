@@ -35,6 +35,7 @@ fun insertSuspendEntry(userId: Long, reasonString: String, suspendedUser: Long):
         transaction {
             SuspendLog.insert {
                 it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
+                it[suspend] = true
                 it[adminId] = userId
                 it[suspendedUserId] = suspendedUser
                 it[reason] = reasonString
@@ -56,6 +57,7 @@ fun insertUnsuspendEntry(userId: Long, reasonString: String, suspendedUser: Long
         transaction {
             SuspendLog.insert {
                 it[timestamp] = LocalDateTime.now(ZoneOffset.UTC)
+                it[suspend] = false
                 it[adminId] = userId
                 it[suspendedUserId] = suspendedUser
                 it[reason] = reasonString
