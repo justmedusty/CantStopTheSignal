@@ -95,8 +95,19 @@ fun updatePublicKey(userId: Long, keyContents: String): Boolean {
 fun doesUserHavePublicKey(userId: Long): Boolean {
     return try {
         ProfileData.selectAll().where { ProfileData.userId eq userId }
-            .map { it[ProfileData.publicKey] } // Assuming publicKey is the column name for storing public keys
-            .singleOrNull() != null // Check if public key exists for the user
+            .map { it[ProfileData.publicKey] }
+            .singleOrNull() != null
+    } catch (e: Exception) {
+        logger.error { e.message }
+        false
+    }
+}
+
+fun doesPublicKeyExist(publicKey: String): Boolean {
+    return try {
+        transaction {
+            ProfileData.selectAll().where { ProfileData.publicKey eq publicKey }.count() > 0
+        }
     } catch (e: Exception) {
         logger.error { e.message }
         false
@@ -112,8 +123,8 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                 val isAdmin = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isAdmin)
                 val isModerator = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isModerator)
                 val isSuspended = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isSuspended)
-                val totalPosts = Posts.selectAll().where{ Posts.posterId eq userId }.count()
-                val totalComments = Comments.selectAll().where{ Comments.commenterId eq userId }.count()
+                val totalPosts = Posts.selectAll().where { Posts.posterId eq userId }.count()
+                val totalComments = Comments.selectAll().where { Comments.commenterId eq userId }.count()
 
 
                 profileDataEntry = ProfileDataEntry(
@@ -127,7 +138,7 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     isModerator = isModerator ?: false,
                     totalPosts = totalPosts,
                     totalComments = totalComments,
-                    )
+                )
             }
         }
     } catch (e: Exception) {

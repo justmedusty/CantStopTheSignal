@@ -103,7 +103,7 @@ fun Application.configurePostRouting() {
 
                 if (postList == null) {
                     val error = "The post you requested was not found"
-                    return@get call.respondRedirect { "/feed/?error=$error" }
+                    return@get call.respondRedirect("/feed?error=$error")
                 }
 
                 val post = postList?.get(0)

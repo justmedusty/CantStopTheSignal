@@ -56,8 +56,8 @@ fun Application.configureAdminRoutes() {
                 val inviteOnly = isInviteOnlyEnabled()
 
                 val inviteCodes: List<String>? = getAllValidLoginCodes(
-                    user, 1, 100
-                )//Im just gonna show 100, you should never need to page through these so don't think I'll implement it. If you need to give out an invite code, why would you page through them? Just pick one.
+                    user, 1, Length.MAX_USERNAME_LENGTH.value
+                )//Im just gonna show Length.MAX_USERNAME_LENGTH.value, you should never need to page through these so don't think I'll implement it. If you need to give out an invite code, why would you page through them? Just pick one.
 
 
                 val map = buildMap {
@@ -288,7 +288,7 @@ fun Application.configureAdminRoutes() {
 
                 val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                if (username.length > 100) {
+                if (username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
@@ -324,7 +324,7 @@ fun Application.configureAdminRoutes() {
                 val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                if (reason.length > 300 || username.length > 100) {
+                if (reason.length > Length.MAX_REASON_LENGTH.value || username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
@@ -357,14 +357,14 @@ fun Application.configureAdminRoutes() {
                 val params = call.receiveParameters()
                 val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                if (username.length > 100) {
+                if (username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
 
-                val ret = giveAdmin(userId, user)
+                val ret = giveModerator(userId, user)
 
                 if (!ret) {
                     val error = "An error occurred while giving ${username} moderator"
@@ -395,21 +395,21 @@ fun Application.configureAdminRoutes() {
                 val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
-                if (reason.length > 300 || username.length > 100) {
+                if (reason.length > Length.MAX_REASON_LENGTH.value || username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
                 val userId = getUserId(username) ?: return@post call.respondRedirect("/admin?error=$username not found")
 
-                val ret = takeAdmin(userId, user, reason)
+                val ret = takeModerator(userId, user, reason)
 
                 if (!ret) {
-                    val error = "An error occurred while giving ${username} moderator"
+                    val error = "An error occurred while taking moderator from ${username}"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val success = "Successfully gave $username moderator"
+                val success = "Successfully took moderator from $username"
                 return@post call.respondRedirect("/admin?success=$success")
             }
 
@@ -425,7 +425,7 @@ fun Application.configureAdminRoutes() {
                 val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
 
-                if (reason.length > 300 || username.length > 100) {
+                if (reason.length > Length.MAX_REASON_LENGTH.value || username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
@@ -460,7 +460,7 @@ fun Application.configureAdminRoutes() {
                 val params = call.receiveParameters()
                 val username = params["username"] ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                if (reason.length > 300 || username.length > 100) {
+                if (reason.length > Length.MAX_REASON_LENGTH.value || username.length > Length.MAX_USERNAME_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
@@ -493,7 +493,7 @@ fun Application.configureAdminRoutes() {
                 val params = call.receiveParameters()
                 val postId = params["postId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                if (reason.length > 300) {
+                if (reason.length > Length.MAX_REASON_LENGTH.value) {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
@@ -503,14 +503,14 @@ fun Application.configureAdminRoutes() {
                     val error = "This post (ID: $postId) was not found"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
-/*
 
+                val ret = takeDownPost(postId,user,reason)
 
                 if (!ret) {
-                    val error = "An error occurred while suspending ${username}"
+                    val error = "An error occurred while removing post of id ${postId}"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
-*/
+
                 val success = "Successfully removed post"
                 return@post call.respondRedirect("/admin?success=$success")
             }

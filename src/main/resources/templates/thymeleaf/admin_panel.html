@@ -1212,10 +1212,10 @@
                   th:text="|Page ${admin_suspension_log_page} of ${admin_suspension_log_total_pages}|"></span>
             <div class="btn-group">
                 <a class="btn btn-secondary btn-sm" th:if="${admin_suspension_log_page > 1}"
-                   th:href="|/admin/?suspendPage=${admin_suspension_log_page - 1}|">Prev</a>
+                   th:href="|/admin?suspendPage=${admin_suspension_log_page - 1}|">Prev</a>
                 <a class="btn btn-secondary btn-sm"
                    th:if="${admin_suspension_log_page < admin_suspension_log_total_pages}"
-                   th:href="|/admin/?suspendPage=${admin_suspension_log_page + 1}|">Next</a>
+                   th:href="|/admin?suspendPage=${admin_suspension_log_page + 1}|">Next</a>
             </div>
         </div>
     </div>
@@ -1246,9 +1246,9 @@
             <span class="page-info" th:text="|Page ${admin_log_page} of ${admin_log_total_pages}|"></span>
             <div class="btn-group">
                 <a class="btn btn-secondary btn-sm" th:if="${admin_log_page > 1}"
-                   th:href="|/admin/?page=${admin_log_page - 1}|">Prev</a>
+                   th:href="|/admin?page=${admin_log_page - 1}|">Prev</a>
                 <a class="btn btn-secondary btn-sm" th:if="${admin_log_page < admin_log_total_pages}"
-                   th:href="|/admin/?page=${admin_log_page + 1}|">Next</a>
+                   th:href="|/admin?page=${admin_log_page + 1}|">Next</a>
             </div>
         </div>
     </div>

@@ -1,5 +1,6 @@
 package cantstopthesignal.table_definitions
 
+import cantstopthesignal.enums.Length
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.Table
@@ -13,7 +14,7 @@ import java.time.LocalDateTime
  ****************************************************************************************************************************************************************/
 object Users : Table(name = "Users") {
     val id: Column<Long> = long("id").autoIncrement()
-    val userName: Column<String> = varchar("user_name", 45).uniqueIndex()
+    val userName: Column<String> = varchar("user_name", Length.MAX_USERNAME_LENGTH.value.toInt()).uniqueIndex()
     val passwordHash =
         text("password_hash").nullable() // Making this nullable in the case a user wishes to disable password login for better account security
     val isAdmin = bool("is_admin").default(false)
@@ -37,7 +38,7 @@ object ProfileData : Table(name = "ProfileData") {
 object Conversations : Table(name = "Conversations") {
     val id: Column<Long> = long("id").autoIncrement()
     val isGroup: Column<Boolean> = bool("is_group").default(false)
-    val name: Column<String?> = varchar("name", 100).nullable()  // null for DMs
+    val name: Column<String?> = varchar("name", Length.MAX_GROUPNAME_LENGTH.value.toInt()).nullable()  // null for DMs
     val createdBy: Column<Long> = long("created_by").references(Users.id)
     val transientMessages: Column<Boolean> =
         bool("transient_messages").default(false) // This will schedule messages for deletion after so long
@@ -103,10 +104,10 @@ object MessageNotifications : Table(name = "MessageNotifications") {
 object Posts : Table(name = "Posts") {
     val id: Column<Long> = long("id").autoIncrement()
     val posterId: Column<Long> = long("posterId").references(Users.id, ReferenceOption.CASCADE)
-    val topic: Column<String> = varchar("topic", 60)
+    val topic: Column<String> = varchar("topic", Length.MAX_TOPIC_LENGTH.value.toInt())
     val timestamp: Column<LocalDateTime> = datetime("timestamp").defaultExpression(CurrentDateTime)
     val deleted: Column<Boolean> = bool("deleted").default(false)
-    val deletedReason: Column<Long?> = long("deleted_reason").nullable().default(null) /* soft deletion */
+    val deletedReason: Column<String?> = varchar("deleted_reason", 300).nullable().default(null) /* soft deletion */
 
     override val primaryKey = PrimaryKey(id)
 }

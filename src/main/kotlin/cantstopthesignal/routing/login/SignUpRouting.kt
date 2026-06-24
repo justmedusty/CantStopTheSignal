@@ -5,16 +5,17 @@ import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.invite_only.consumeInviteCode
 import cantstopthesignal.database.invite_only.isValidInviteCode
+import cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
+import cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
 import cantstopthesignal.database.users.User
 import cantstopthesignal.database.users.createUser
 import cantstopthesignal.database.users.createUserWithoutPassword
+import cantstopthesignal.database.users.doesPublicKeyExist
 import cantstopthesignal.database.users.userNameAlreadyExists
-import cantstopthesignal.log.logger
-import cantstopthesignal.database.sitewide_permissions.areSignupsSuspended
-import cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RegexPatterns
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -57,6 +58,12 @@ fun Application.configureSignupRoutes() {
             }
             val params = call.receiveParameters()
 
+            val inviteCode = if (siteConfig.inviteOnly) {
+                params["invite-code"]
+                    ?: return@post call.respondRedirect("/signup?error=You must provide an invite code")
+            } else {
+                null
+            }
 
             //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
             val username =
@@ -69,12 +76,7 @@ fun Application.configureSignupRoutes() {
             val confirmPassword = params["confirm-password"]
                 ?: if (siteConfig?.pgpLoginOnly == false) return@post call.respondRedirect("/signup?error=You must confirm your password") else null
 
-            val inviteCode = if (siteConfig?.inviteOnly == true) {
-                params["invite-code"]
-                    ?: return@post call.respondRedirect("/signup?error=You must provide an invite code")
-            } else {
-                null
-            }
+
 
             if (password != confirmPassword) {
                 val errorMesage = "Your passwords do not match"
@@ -92,14 +94,22 @@ fun Application.configureSignupRoutes() {
             }
 
             var pgpPublickey = params["pgp"]
-                ?: if (siteConfig?.pgpLoginOnly == true) return@post call.respondRedirect("/signup?error=You must provide a valid PGP public key, it is required to be able to log in to your account") else null
+                ?: if (siteConfig.pgpLoginOnly) return@post call.respondRedirect("/signup?error=You must provide a valid PGP public key, it is required to be able to log in to your account") else null
 
             if (!pgpPublickey.isNullOrEmpty() && !isValidOpenPGPPublicKey(pgpPublickey)) {
                 return@post call.respondRedirect("/signup?error=The PGP key provided is not valid")
             }
-            if (pgpPublickey != null) {
+
+            if (!pgpPublickey.isNullOrEmpty()) {
                 pgpPublickey = convertPgpMessageOrKey(pgpPublickey)
+
+                if(doesPublicKeyExist(pgpPublickey)){
+                    val error = "The provided PGP key is already in use by another account"
+                    return@post call.respondRedirect("/signup?error=$error")
+                }
             }
+
+
 
 
             val user = User(

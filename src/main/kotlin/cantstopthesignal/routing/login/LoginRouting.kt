@@ -1,20 +1,16 @@
-package cantstopthesignal.routing
+package cantstopthesignal.routing.login
 
-import cantstopthesignal.cryptography.convertSignedPgpMessage
-import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
+import cantstopthesignal.cryptography.*
+import cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
 import cantstopthesignal.database.users.getPublicKey
 import cantstopthesignal.database.users.getUserId
 import cantstopthesignal.database.users.userNameAlreadyExists
 import cantstopthesignal.database.users.verifyCredentials
+import cantstopthesignal.enums.Length
+import cantstopthesignal.enums.ThymeLeafMapKeys
 import cantstopthesignal.log.logger
 import cantstopthesignal.security.JWTConfig
 import cantstopthesignal.security.createJWT
-import cantstopthesignal.cryptography.pgpChallengeHashSet
-import cantstopthesignal.cryptography.registerNewChallenge
-import cantstopthesignal.cryptography.verifySignature
-import cantstopthesignal.database.sitewide_permissions.isInviteOnlyEnabled
-import cantstopthesignal.enums.Length
-import cantstopthesignal.enums.ThymeLeafMapKeys
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -182,41 +178,23 @@ fun Application.configureLoginRoutes() {
             val params = call.receiveParameters()
 
             //These two shouldn't be able to happen under normal conditons, but they are thrown a page with the proper error just in case
-            val username = params["username"] ?: return@post call.respond(
-                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a username"))
-            )
+            val username = params["username"] ?: return@post call.respondRedirect("/login?error=You must provide a username")
 
-            val password = params["password"] ?: return@post call.respond(
-                ThymeleafContent("login", mapOf(ThymeLeafMapKeys.ERROR.value to "You must provide a password"))
-            )
+            val password = params["password"] ?: return@post call.respondRedirect("/login?error=You must provide a password")
 
             if (!verifyCredentials(username, password)) {
-                val model = buildMap {
-                    put(
-                        ThymeLeafMapKeys.ERROR.value,
-                        "Invalid credentials, make sure your user and password are correct."
-                    )
-                }
-                return@post call.respond(
-                    ThymeleafContent("login", model)
-                )
-            }
-            val model = buildMap {
-
-                put(
-                    ThymeLeafMapKeys.SERVER_CONFIG.value,
-                    siteConfig
-                )
+                val error = "Invalid credentials, make sure your user and password are correct."
+                return@post call.respondRedirect("/login?error=$error")
             }
 
 
             val token = (createJWT(
                 JWTConfig(
-                    siteConfig?.audience ?: "someoneisbadanddidntsetthis",
-                    siteConfig?.issuer ?: "someoneisbadanddidntsetthis",
+                    siteConfig.audience ?: "someoneisbadanddidntsetthis",
+                    siteConfig.issuer ?: "someoneisbadanddidntsetthis",
                     System.getenv("JWT_SECRET"),
                     getUserId(username)!!, // We can force assert this as not null due to the verifiy credentials call above, it cannot get here if the user info is bogus
-                    (siteConfig?.tokenLifetimeMinutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
+                    (siteConfig.tokenLifetimeMinutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
                 ),
             ))
             call.response.cookies.append(

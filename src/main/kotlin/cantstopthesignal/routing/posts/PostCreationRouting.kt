@@ -12,6 +12,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import io.ktor.util.toLowerCasePreservingASCIIRules
 
 data class PostCreationFields(
     val title: String,
@@ -102,6 +103,15 @@ fun Application.configurePostCreationRouting() {
                     )
                 }
 
+                if (!topic.all { it.isLetterOrDigit() }){
+                    return@post call.respond(
+                        ThymeleafContent(
+                            "create_post",
+                            mapOf(ThymeLeafMapKeys.ERROR.value to "Your topic must be alphanumeric")
+                        )
+                    )
+                }
+
                 if (contents.length > Length.MAX_CONTENT_LENGTH.value) {
                     return@post call.respond(
                         ThymeleafContent(
@@ -112,7 +122,7 @@ fun Application.configurePostCreationRouting() {
                 }
 
 
-                val success = createPost(userId!!, contents, topic, title)
+                val success = createPost(userId!!, contents, topic.toLowerCasePreservingASCIIRules() /* this just makes it easier to find posts */, title)
 
                 if (success == RetValues.ALREADY_EXISTS.value) {
                     val error = "This exact post already exists. You cannot create duplicates."
@@ -139,7 +149,7 @@ fun Application.configurePostCreationRouting() {
 
 
                 val successMessage = "Post created successfully."
-                return@post call.respondRedirect("/posts/?success=${successMessage}")
+                return@post call.respondRedirect("/posts/$success?success=${successMessage}")
             }
 
         }

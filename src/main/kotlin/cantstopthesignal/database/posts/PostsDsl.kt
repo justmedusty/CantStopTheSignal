@@ -1,21 +1,14 @@
 package cantstopthesignal.database.posts
 
-import cantstopthesignal.table_definitions.Comments
-import cantstopthesignal.table_definitions.PostContents
-import cantstopthesignal.table_definitions.PostDislikes
-import cantstopthesignal.table_definitions.PostEdits
-import cantstopthesignal.table_definitions.PostLikes
-import cantstopthesignal.table_definitions.Posts
-import cantstopthesignal.table_definitions.Users
-import cantstopthesignal.database.posts.*
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
-import cantstopthesignal.helper.getDeletionReasonString
-import cantstopthesignal.log.logger
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RetValues
 import cantstopthesignal.helper.isThisCode
+import cantstopthesignal.log.logger
+import cantstopthesignal.table_definitions.*
+import io.ktor.util.toLowerCasePreservingASCIIRules
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -207,7 +200,7 @@ fun fetchPostsByTopic(
         }
 
         return transaction {
-            val queryParam = "%$postTopic%"
+            val queryParam = "%${postTopic.toLowerCasePreservingASCIIRules()}%"
             val relevantPostIds = Posts.selectAll().where(Posts.topic like queryParam).map { it[Posts.id] }
             val totalPages = ceil(relevantPostIds.count().toDouble() / limit.toDouble()).toLong()
             val query = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).leftJoin(PostDislikes)
@@ -252,7 +245,7 @@ fun fetchPostsByTopic(
                     } else "*Deleted Post*",
                     if (!it[Posts.deleted]) {
                         it[PostContents.content]
-                    } else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isPostLikedByMe,
@@ -260,7 +253,7 @@ fun fetchPostsByTopic(
                     lastEdited,
                     commentCount,
                     it[Posts.deleted],
-                    if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (!it[Posts.deleted]) null else it[Posts.deletedReason]!!,
                     userId == it[Posts.posterId],
                     isThisCode(it[PostContents.content]),
                     totalPages,
@@ -270,6 +263,7 @@ fun fetchPostsByTopic(
         }
     } catch (e: Exception) {
         logger.error { "Error fetching posts: ${e.message}" }
+        e.printStackTrace()
         return null
     }
 }
@@ -309,7 +303,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
                         it[PostLikes.postId.count()],
                         it[PostDislikes.postId.count()],
                         isPostLikedByMe,
@@ -317,7 +311,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) null else (it[Posts.deletedReason]!!),
                         it[Posts.posterId] == callerId,
                         isThisCode(it[PostContents.content]),
                         totalPages,
@@ -366,7 +360,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         liked,
@@ -374,7 +368,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) null else (it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         isThisCode(it[PostContents.content]),
                         totalPages,
@@ -421,7 +415,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         likedByMe,
@@ -429,7 +423,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         lastEdited,
                         commentCount,
                         it[Posts.deleted],
-                        if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                        if (!it[Posts.deleted]) null else (it[Posts.deletedReason]!!),
                         it[Posts.posterId] == userId,
                         isThisCode(it[PostContents.content]),
                         0 //Just one post so no point
@@ -503,7 +497,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     } else "*Deleted Post*",
                     if (!it[Posts.deleted]) {
                         it[PostContents.content]
-                    } else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isPostLikedByMe,
@@ -511,7 +505,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     lastEdited,
                     commentCount,
                     it[Posts.deleted],
-                    if (it[Posts.deletedReason] == null) null else getDeletionReasonString(it[Posts.deletedReason]!!),
+                    if (!it[Posts.deleted]) null else (it[Posts.deletedReason]!!),
                     it[Posts.posterId] == userId,
                     isThisCode(it[PostContents.content]),
                     totalPages,
@@ -568,7 +562,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     } else "*Deleted Post*",
                     if (!row[Posts.deleted]) {
                         row[PostContents.content]
-                    } else getDeletionReasonString(row[Posts.deletedReason]!!),
+                    } else "This post was removed by staff because :" + row[Posts.deletedReason]!!,
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isLikedByMe,
@@ -576,7 +570,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     lastEdited,
                     commentCount,
                     row[Posts.deleted],
-                    if (row[Posts.deletedReason] == null) null else getDeletionReasonString(row[Posts.deletedReason]!!),
+                    if (!row[Posts.deleted]) null else (row[Posts.deletedReason]!!),
                     row[Posts.id] == userId,
                     isThisCode(row[PostContents.content]),
                     totalPages

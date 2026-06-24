@@ -481,7 +481,7 @@ fun giveModerator(userId: Long, requesterId: Long): Boolean {
 
         return insertAdminLogEntry(
             requesterId,
-            "Admin ${getUserName(requesterId)} (ID ${requesterId}) has given admin to ${getUserName(userId)} (ID ${userId})",
+            "Admin ${getUserName(requesterId)} (ID ${requesterId}) has given moderator to ${getUserName(userId)} (ID ${userId})",
             "Gave admin to ${getUserName(userId)}"
         )
     }
@@ -508,14 +508,14 @@ fun takeModerator(userId: Long, requesterId: Long, reason: String): Boolean {
         }
 
         if (!success) {
-            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            logger.error { "An error occurred updating user $userId trying to take moderator status" }
             return false
         }
 
         return insertAdminLogEntry(
             requesterId,
-            "Admin ${getUserName(requesterId)} (ID ${requesterId} has taken admin status from ${getUserName(userId)} (ID ${userId} for reason ${reason})",
-            "Took admin status from ${getUserName(userId)} (ID ${userId}"
+            reason,
+            "Took moderator status from ${getUserName(userId)} (ID ${userId})"
         )
     }
     return false
@@ -570,14 +570,14 @@ fun takeAdmin(userId: Long, requesterId: Long, reason: String): Boolean {
         }
 
         if (!success) {
-            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            logger.error { "An error occurred updating user $userId trying to take their admin status" }
             return false
         }
 
         return insertAdminLogEntry(
             requesterId,
-            "Admin ${getUserName(requesterId)} (ID ${requesterId} has taken admin status from ${getUserName(userId)} (ID ${userId} for reason ${reason})",
-            "Took admin status from ${getUserName(userId)} (ID ${userId}"
+            reason,
+            "Took admin status from ${getUserName(userId)} (ID ${userId})"
         )
     }
     return false

@@ -35,7 +35,7 @@ fun setInfoMessage(userId: Long, newMessage: String): Boolean {
         "${getUserName(userId)} changed the info message to $newMessage"
     )
 
-    siteConfig?.infoMessage = newMessage
+    siteConfig.infoMessage = newMessage
 
     return true
 }
