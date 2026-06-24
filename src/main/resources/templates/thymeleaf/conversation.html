@@ -504,8 +504,8 @@
 
         .page-shell {
             width: 100%;
-            max-width: 40vw;
-            min-width: 680px;
+            max-width: 50vw;
+            min-width: 780px;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -528,8 +528,10 @@
                 <span th:text="${conversation.name != null} ? ${conversation.name} : ${conversation.lastSender}">Conversation</span>
             </div>
             <span class="topbar-members">Members:</span>
-            <div class="topbar-members"
-                 th:text="${#strings.listJoin(conversation.members, ', ')}">Members
+            <div class="topbar-members">
+                <th:block th:each="member, iter : ${conversation.members}">
+                    <a style="color: #ffffff" th:href="|/profile/name/${member}|" th:text="${member}"></a><th:block th:if="${!iter.last}">, </th:block>
+                </th:block>
             </div>
             <br>
             <div class="topbar-members" th:text="${server_config.pgpHelp}"></div>
