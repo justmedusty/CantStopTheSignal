@@ -6,10 +6,10 @@ import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.database.users.ProfileDataEntry
 import cantstopthesignal.database.users.getProfileDataEntry
 import cantstopthesignal.database.users.getUserId
-import cantstopthesignal.log.logger
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -80,7 +80,7 @@ fun Application.configureProfileRoutes() {
                 val username = call.parameters["username"] ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val id = getUserId(username)
 
-                if(userId == null) {
+                if (userId == null) {
                     val error = "No user by the name $username found..."
                     return@get call.respondRedirect { "/feed?error=$error" }
                 }
@@ -91,8 +91,8 @@ fun Application.configureProfileRoutes() {
 
             get("/profile") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-
-
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
                 val profile =
                     getProfileDataEntry(userId!!) // This should always be valid , if it isn't it means something very very bad has happened so we do not care to give a nice error message through an html template
 
@@ -112,10 +112,16 @@ fun Application.configureProfileRoutes() {
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(userId!!))
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(userId!!))
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+
+                    /* These values can be passed as query params to avoid doing a ton of setup in other call routines, its easier to redirect with a query param instead of duplicating code everywhere */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
                 }
-
-                logger.debug{"PROFILE ISADMIN ${profile.isAdmin} PROFILE ISMOD ${profile.isModerator} PROFILE ISSUSPENDED ${profile.isSuspended}"}
-
                 return@get call.respond(
                     ThymeleafContent("my_profile", model)
                 )

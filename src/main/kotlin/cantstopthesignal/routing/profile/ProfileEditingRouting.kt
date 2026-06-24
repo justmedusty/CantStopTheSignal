@@ -3,9 +3,9 @@ package cantstopthesignal.routing.profile
 import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isValidOpenPGPPublicKey
 import cantstopthesignal.database.users.*
-import cantstopthesignal.log.logger
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -274,10 +274,32 @@ fun Application.configureEditProfileRoutes() {
 
             }
 
-            post("/profile/edit/pgp/remove") {
 
-            }
-            get("/profile/edit/password/remove") {
+            post("/profile/edit/password/remove") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@post call.respond(
+                    HttpStatusCode.BadRequest
+                )
+
+                if(!doesUserHavePublicKey(user)){
+                    val error = "You must have a valid public key uploaded to your profile in order to delete your password"
+                    return@post call.respondRedirect("/profile?error=$error")
+                }
+
+                if(!doesUserHavePassword(user)){
+                    val error = "You already do not have a password associated with your account"
+                    return@post call.respondRedirect("/profile?error=${error}")
+                }
+
+                val ret = removePassword(user)
+
+                if (!ret) {
+                    val error = "Password removal failed !"
+                    return@post call.respondRedirect("/profile?error=${error}")
+                }
+
+                val success = "Password removed successfully!"
+                return@post call.respondRedirect("/profile?success=${success}")
+
 
             }
         }

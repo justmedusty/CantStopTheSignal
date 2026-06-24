@@ -94,9 +94,11 @@ fun updatePublicKey(userId: Long, keyContents: String): Boolean {
 
 fun doesUserHavePublicKey(userId: Long): Boolean {
     return try {
-        ProfileData.selectAll().where { ProfileData.userId eq userId }
-            .map { it[ProfileData.publicKey] }
-            .singleOrNull() != null
+        transaction {
+            ProfileData.selectAll().where { ProfileData.userId eq userId }
+                .map { it[ProfileData.publicKey] }
+                .singleOrNull() != null
+        }
     } catch (e: Exception) {
         logger.error { e.message }
         false
@@ -110,6 +112,32 @@ fun doesPublicKeyExist(publicKey: String): Boolean {
         }
     } catch (e: Exception) {
         logger.error { e.message }
+        false
+    }
+}
+
+fun doesUserHavePassword(userId: Long): Boolean {
+    return try {
+        transaction {
+            Users.selectAll().where((Users.id eq userId)).singleOrNull()?.get(Users.passwordHash) != null
+        }
+
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to remove user password" }
+        false
+    }
+}
+
+fun removePassword(userId: Long): Boolean {
+    return try {
+        transaction {
+            Users.update({ (Users.id eq userId) }) {
+                it[Users.passwordHash] = null
+            } > 0
+        }
+
+    } catch (e: Exception) {
+        logger.error { "${e.message} occurred while trying to remove user password" }
         false
     }
 }

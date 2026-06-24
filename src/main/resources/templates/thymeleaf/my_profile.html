@@ -335,6 +335,15 @@
             background: #2d1a1a;
             color: #e06060;
         }
+        #pw-confirm-toggle ~ .btn[type="submit"] {
+            display: none;
+        }
+        #pw-confirm-toggle:checked ~ .btn[type="submit"] {
+            display: inline-flex;
+        }
+        #pw-confirm-toggle:checked ~ label {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -405,7 +414,12 @@
         <div class="field-row">
             <span class="field-label"></span>
             <span class="field-value empty">Remove your password if you wish to only allow PGP login.</span>
-            <a class="btn btn-danger btn-sm" href="/profile/edit/password/remove">Remove password</a>
+
+            <form action="/profile/edit/password/remove" method="post">
+                <input type="checkbox" id="pw-confirm-toggle" style="display:none"/>
+                <label class="btn btn-danger btn-sm" for="pw-confirm-toggle">Remove password</label>
+                <button class="btn btn-danger btn-sm" type="submit">⚠ Are you sure?</button>
+            </form>
         </div>
 
 
@@ -442,12 +456,6 @@
             <a class="btn btn-secondary btn-sm"
                href="/profile/edit/pgp"
                th:text="${#strings.isEmpty(profile_data.publicKey)} ? '+ Add' : '✏ Edit'">✏ Edit</a>
-        </div>
-
-        <div class="field-row" th:if="${not #strings.isEmpty(profile_data.publicKey)}">
-            <span class="field-label"></span>
-            <span class="field-value empty">Remove your PGP key if you no longer need encrypted messaging.</span>
-            <a class="btn btn-danger btn-sm" href="/profile/edit/pgp/remove">Remove Key</a>
         </div>
     </div>
 
