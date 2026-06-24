@@ -1,4 +1,4 @@
-package cantstopthesignal
+package cantstopthesignal.config
 
 import io.ktor.server.application.*
 import io.ktor.server.thymeleaf.Thymeleaf
