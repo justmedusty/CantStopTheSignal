@@ -459,6 +459,68 @@ fun unSuspendUser(userId: Long, requesterId: Long, reason: String): Boolean {
 
 }
 
+fun giveModerator(userId: Long, requesterId: Long): Boolean {
+
+    if (isUserAdmin(requesterId)) {
+        val success = try {
+            transaction {
+                Users.update({ Users.id eq userId }) {
+                    it[isModerator] = true
+                }
+                true
+            }
+        } catch (e: Exception) {
+            logger.error { e.message }
+            false
+        }
+
+        if (!success) {
+            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            return false
+        }
+
+        return insertAdminLogEntry(
+            requesterId,
+            "Admin ${getUserName(requesterId)} (ID ${requesterId}) has given admin to ${getUserName(userId)} (ID ${userId})",
+            "Gave admin to ${getUserName(userId)}"
+        )
+    }
+    return false
+
+}
+
+/*
+    Taking it away requires more of an explanation than giving it so we will require an explicit admin given string for this
+ */
+fun takeModerator(userId: Long, requesterId: Long, reason: String): Boolean {
+
+    if (isUserAdmin(requesterId)) {
+        val success = try {
+            transaction {
+                Users.update({ Users.id eq userId }) {
+                    it[isModerator] = false
+                }
+                true
+            }
+        } catch (e: Exception) {
+            logger.error { e.message }
+            false
+        }
+
+        if (!success) {
+            logger.error { "An error occurred updating user $userId trying to give them admin" }
+            return false
+        }
+
+        return insertAdminLogEntry(
+            requesterId,
+            "Admin ${getUserName(requesterId)} (ID ${requesterId} has taken admin status from ${getUserName(userId)} (ID ${userId} for reason ${reason})",
+            "Took admin status from ${getUserName(userId)} (ID ${userId}"
+        )
+    }
+    return false
+}
+
 fun giveAdmin(userId: Long, requesterId: Long): Boolean {
 
     if (isUserAdmin(requesterId)) {
