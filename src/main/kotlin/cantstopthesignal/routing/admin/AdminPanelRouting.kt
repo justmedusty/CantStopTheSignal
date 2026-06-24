@@ -3,6 +3,7 @@ package cantstopthesignal.routing.admin
 import cantstopthesignal.database.admin.*
 import cantstopthesignal.database.invite_only.generateNewInviteCode
 import cantstopthesignal.database.invite_only.getAllValidLoginCodes
+import cantstopthesignal.database.posts.fetchPostById
 import cantstopthesignal.database.sitewide_permissions.*
 import cantstopthesignal.database.users.*
 import cantstopthesignal.enums.Length
@@ -479,6 +480,38 @@ fun Application.configureAdminRoutes() {
                 }
 
                 val success = "Successfully unsuspended user ${username}"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+
+            post("/admin/post/delete") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+                val params = call.receiveParameters()
+                val postId = params["postId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (reason.length > 300) {
+                    val error = "Invalid parameter lengths"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+               val post = fetchPostById(postId,user)
+
+                if (post.isNullOrEmpty()) {
+                    val error = "This post (ID: $postId) was not found"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+/*
+
+
+                if (!ret) {
+                    val error = "An error occurred while suspending ${username}"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+*/
+                val success = "Successfully removed post"
                 return@post call.respondRedirect("/admin?success=$success")
             }
 
