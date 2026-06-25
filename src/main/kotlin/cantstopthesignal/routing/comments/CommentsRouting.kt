@@ -1,12 +1,15 @@
 package cantstopthesignal.routing.comments
 
 
+import cantstopthesignal.database.comments.deleteCommentById
+import cantstopthesignal.database.comments.getCommentById
 import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.comments.postComment
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.database.posts.fetchPostById
 import cantstopthesignal.database.posts.verifyPostId
+import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RetValues
 import cantstopthesignal.enums.ThymeLeafMapKeys
@@ -84,6 +87,54 @@ fun Application.configureCommentsRouting() {
 
                 val success = "Comment posted successfully."
                 return@post call.respondRedirect("/comments/$postId?success=$success")
+            }
+
+            post("/comments/delete/{commentId}") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@post call.respond(
+                    HttpStatusCode.BadRequest
+                )
+                val params = call.receiveParameters()
+                val redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val commentId =
+                    call.parameters["commentId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = call.parameters["reason"]
+
+                val comment = getCommentById(commentId, userId)
+
+                if (comment == null) {
+                    val error = "This comment does not exist"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                if (comment.deleted) {
+                    val error = "Comment is already deleted"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val isStaff = isUserAdminOrModerator(userId)
+                val adminDeletion = (comment.commenterId != userId && isStaff)
+                if (comment.commenterId != userId && !isStaff) {
+                    return@post call.respond(HttpStatusCode.Forbidden)
+                }
+                if (reason != null && reason.length > Length.MAX_REASON_LENGTH.value) {
+                    val error = "Deletion reason is too long"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val finalReasonString =
+                    if (!isStaff && reason == null) "***Deleted by poster***" else "***Deleted by staff because : ${reason!!}***"
+
+                val ret = deleteCommentById(commentId, userId, finalReasonString)
+
+                if (!ret) {
+                    val error = "An error occurred while deleting comment"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val success = "Comment deleted successfully."
+                return@post call.respondRedirect("/comments/$commentId?success=$success")
+
+
             }
 
 

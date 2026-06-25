@@ -1,22 +1,24 @@
 package cantstopthesignal.database.comments
 
 import cantstopthesignal.database.notifications.insertNotification
+import cantstopthesignal.database.posts.getPostOwnerId
 import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdmin
 import cantstopthesignal.database.users.isUserSuspended
-import cantstopthesignal.helper.getDeletionReasonString
+import cantstopthesignal.enums.Notif
+import cantstopthesignal.enums.RetValues
+import cantstopthesignal.helper.isThisCode
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.CommentDislikes
 import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.Comments.parentCommentId
-import cantstopthesignal.database.posts.getPostOwnerId
-import cantstopthesignal.enums.Notif
-import cantstopthesignal.enums.RetValues
-import cantstopthesignal.helper.isThisCode
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.ceil
@@ -185,11 +187,14 @@ fun isIdCommentPoster(userId: Long, commentId: Long): Boolean {
     }
 }
 
-fun deleteCommentById(commentId: Long, requesterId: Long): Boolean {
+fun deleteCommentById(commentId: Long, requesterId: Long, reason: String): Boolean {
     return if (isUserAdmin(requesterId) || isIdCommentPoster(requesterId, commentId)) {
         try {
             transaction {
-                val success = Comments.deleteWhere { id eq commentId }
+                val success = Comments.update({ Comments.id eq commentId }) {
+                    it[deleted] = true
+                    it[deletedReason] = reason
+                }
                 success > 0 // Check if any rows were deleted
             }
         } catch (e: Exception) {
@@ -234,10 +239,10 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
-                    if(!it[Comments.deleted]) {
+                    if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        (getDeletionReasonString(it[Comments.deletedReason]))
+                        it[Comments.deletedReason]!!
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -253,7 +258,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
                     isThisCode(it[Comments.content]),
                     0 //no pages for a 1 comment query
                 )
@@ -331,10 +336,10 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 
                 Comment(
                     it[Comments.id],
-                    if(!it[Comments.deleted]) {
+                    if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        (getDeletionReasonString(it[Comments.deletedReason]))
+                        (it[Comments.deletedReason]!!)
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -350,7 +355,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
                     isThisCode(it[Comments.content]),
                     totalPages
                 )
@@ -379,10 +384,10 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
 
                     Comment(
                         it[Comments.id],
-                        if(!it[Comments.deleted]) {
+                        if (!it[Comments.deleted]) {
                             it[Comments.content]
                         } else {
-                            (getDeletionReasonString(it[Comments.deletedReason]))
+                            (it[Comments.deletedReason]!!)
                         },
                         it[Comments.postId],
                         it[Comments.commenterId],
@@ -398,7 +403,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         numReplies,
                         it[Comments.commenterId] == requesterId,
                         it[Comments.deleted],
-                        if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                        if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
                         isThisCode(it[Comments.content]),
                         totalPages
                     )
@@ -448,10 +453,10 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 val username: String = getUserName(it[Comments.commenterId]) ?: "Couldn't load"
                 Comment(
                     it[Comments.id],
-                    if(!it[Comments.deleted]) {
+                    if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        (getDeletionReasonString(it[Comments.deletedReason]))
+                        ((it[Comments.deletedReason]!!))
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -467,7 +472,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     numReplies,
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
                     isThisCode(it[Comments.content]),
                     0
                 )
@@ -508,7 +513,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
 
                 Comment(
                     it[Comments.id],
-                    it[Comments.content],
+                    if (!it[Comments.deleted]) it[Comments.content] else it[Comments.deletedReason]!!,
                     it[Comments.postId],
                     it[Comments.commenterId],
                     username,
@@ -523,7 +528,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     numReplies,
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else getDeletionReasonString(it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
                     isThisCode(it[Comments.content]),
                     totalPages
                 )

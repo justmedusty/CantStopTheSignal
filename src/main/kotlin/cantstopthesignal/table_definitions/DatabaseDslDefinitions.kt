@@ -166,7 +166,7 @@ object Comments : Table(name = "Comments") {
         long("parentCommentId").references(id, onDelete = ReferenceOption.CASCADE).nullable().default(null)
     val timeStamp: Column<LocalDateTime> = datetime("time_posted").defaultExpression(CurrentDateTime)
     val deleted: Column<Boolean> = bool("deleted").default(false)
-    val deletedReason: Column<Long?> = long("deleted_reason").nullable().default(null) /* soft deletion */
+    val deletedReason: Column<String?> = text("deleted_reason").nullable().default(null) /* soft deletion */
 
 
     override val primaryKey = PrimaryKey(id)

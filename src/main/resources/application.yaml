@@ -28,6 +28,7 @@ ktor:
       - cantstopthesignal.routing.admin.AdminPanelRoutingKt.configureAdminRoutes
       - cantstopthesignal.routing.posts.PostSearchRoutingKt.configurePostSearchRouting
       - cantstopthesignal.routing.posts.PostEditRoutingKt.configurePostEditingRouting
+      - cantstopthesignal.routing.comments.CommentEditsRoutingKt.configureCommentEditRouting
 
 
 

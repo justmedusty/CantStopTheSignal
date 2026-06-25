@@ -1098,7 +1098,7 @@
 
     <!-- Server Banner Messages -->
     <div class="card">
-        <div class="section-title">Server Banner Messages</div>
+        <div class="section-title">Server Banner Messages (Changed values do NOT persist across server restarts)</div>
         <div class="banner-grid">
             <div class="banner-panel">
                 <div class="banner-panel-label">Message of the Day (MOTD)</div>
@@ -1146,7 +1146,7 @@
             </div>
             <form th:action="'/admin/signups/toggle'" method="post">
                 <button type="submit"
-                        th:class="${signups_open} ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'"
+                        th:class="${signups_open} ? 'btn btn-success btn-sm' : 'btn btn-danger btn-sm'"
                         th:text="${signups_open} ? 'Re-enable Signups' : 'Suspend Signups'"></button>
             </form>
         </div>
@@ -1158,7 +1158,7 @@
             </div>
             <form th:action="'/admin/inviteonly/toggle'" method="post">
                 <button type="submit"
-                        th:class="${invite_only} ? 'btn btn-warning btn-sm' : 'btn btn-secondary btn-sm'"
+                        th:class="${invite_only} ? 'btn btn-warning btn-sm' : 'btn btn-danger btn-sm'"
                         th:text="${invite_only} ? 'Disable Invite-only' : 'Enable Invite-only'"></button>
             </form>
         </div>
@@ -1192,7 +1192,8 @@
         <div class="section-title">Suspension Log</div>
         <div th:if="${suspend_log_entries != null and !suspend_log_entries.isEmpty()}">
             <div class="log-header log-header-suspend log-header-suspend-bool">
-                <span class="log-col">Time</span><span class="log-col">By Admin</span><span class="log-col">Suspend</span> <span class="log-col">Suspended User</span><span
+                <span class="log-col">Time</span><span class="log-col">By Admin</span><span
+                    class="log-col">Suspend</span> <span class="log-col">Suspended User</span><span
                     class="log-col">Reason</span>
             </div>
             <div class="suspend-row" th:each="entry : ${suspend_log_entries}">
