@@ -548,6 +548,42 @@ fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConvers
                 it[blockedById] = caller
             }[PrivateMessageBlockList.id]
 
+            if (removeFromExistingConversations) {
+                val conversationsToLeave = Conversations.innerJoin(ConversationMembers)
+                    .select(ConversationMembers.userId inList listOf(caller, target)).where(
+                        (ConversationMembers.userId eq caller) and (ConversationMembers.userId eq target)
+                    ).map { it[Conversations.id] }
+
+
+                for (id in conversationsToLeave) {
+                    leaveConversation(caller, id)
+                }
+
+            }
+
+            return@transaction success > 0
+        }
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to block user from messaging" + e.message }
+        false
+    }
+
+}
+
+fun unblockUserFromMessaging(caller: Long, target: Long): Boolean {
+    return try {
+        transaction {
+            val exists = PrivateMessageBlockList.selectAll()
+                .where { (PrivateMessageBlockList.blockedById eq caller and (PrivateMessageBlockList.blockedUser eq target)) or ((PrivateMessageBlockList.blockedById eq target) and (PrivateMessageBlockList.blockedUser eq caller)) }
+                .count() > 0
+            if (!exists) {
+                return@transaction true
+            }
+
+            //The order match is very important here otherwise you could unblock yourself when another user blocked you
+            val success =
+                PrivateMessageBlockList.deleteWhere { (PrivateMessageBlockList.blockedUser eq target) and (PrivateMessageBlockList.blockedById eq caller) }
+
             return@transaction success > 0
         }
     } catch (e: Exception) {

@@ -367,6 +367,52 @@ fun Application.configureMessageRouting() {
             }
 
 
+            post("/user/block") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLong() ?: return@post call.respond(
+                    HttpStatusCode.Unauthorized
+                )
+                val params = call.receiveParameters()
+                val userToBlock =
+                    call.parameters["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val leaveConversations = call.parameters["leaveConversations"].toBoolean()
+
+                val userIdToBlock = getUserId(userToBlock)
+                    ?: return@post call.respondRedirect("/messages?error=User ${userToBlock} not found")
+
+                val ret = blockUserFromMessaging(userId, userIdToBlock, leaveConversations)
+
+                if (!ret) {
+                    val error = "An error occurred while trying to block user ${userIdToBlock} in conversation"
+                    return@post call.respondRedirect("/messages/conversations/${userIdToBlock}/$error")
+                }
+
+                val success = "Successfully blocked user ${userToBlock}"
+                return@post call.respondRedirect("/messages?success=$success")
+            }
+
+            post("/user/unblock") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLong() ?: return@post call.respond(
+                    HttpStatusCode.Unauthorized
+                )
+                val params = call.receiveParameters()
+                val userToUnblock =
+                    call.parameters["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                val userIdToBlock = getUserId(userToUnblock)
+                    ?: return@post call.respondRedirect("/messages?error=User ${userToUnblock} not found")
+
+                val ret = unblockUserFromMessaging(userId, userIdToBlock)
+
+                if (!ret) {
+                    val error = "An error occurred while trying to block user ${userIdToBlock} in conversation"
+                    return@post call.respondRedirect("/messages/conversations/${userIdToBlock}/$error")
+                }
+
+                val success = "Successfully blocked user ${userToUnblock}"
+                return@post call.respondRedirect("/messages?success=$success")
+            }
+
+
         }
     }
 }
