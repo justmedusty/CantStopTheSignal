@@ -30,8 +30,11 @@ fun Application.configureMessageRouting() {
     routing {
         authenticate("jwt") {
             get("/messages") {
-                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
+                val error = call.queryParameters["error"]
+                val success = call.queryParameters["success"]
+                val blockList = getBlockList(userId)
 
 
                 val messageList =
@@ -43,9 +46,13 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION.value, messageList)
+                    put(ThymeLeafMapKeys.MESSAGE_BLOCK_LIST.value, blockList)
                     put(
                         ThymeLeafMapKeys.TOTAL_PAGES.value, if (messageList.isEmpty()) 1 else messageList[0].totalPages
                     )
+
+                    if (error != null) put(ThymeLeafMapKeys.ERROR.value, error)
+                    if (success != null) put(ThymeLeafMapKeys.SUCCESS.value, success)
                 }
 
                 return@get call.respond(
@@ -374,17 +381,16 @@ fun Application.configureMessageRouting() {
                 )
                 val params = call.receiveParameters()
                 val userToBlock =
-                   params["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val leaveConversations = call.parameters["leaveConversations"]?.toBooleanStrictOrNull() ?: true
+                    params["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val userIdToBlock = getUserId(userToBlock)
                     ?: return@post call.respondRedirect("/messages?error=User ${userToBlock} not found")
 
-                val ret = blockUserFromMessaging(userId, userIdToBlock, leaveConversations)
+                val ret = blockUserFromMessaging(userId, userIdToBlock, true)
 
                 if (!ret) {
                     val error = "An error occurred while trying to block user ${userIdToBlock} in conversation"
-                    return@post call.respondRedirect("/messages/conversations/${userIdToBlock}/$error")
+                    return@post call.respondRedirect("/messages?error=$error")
                 }
 
                 val success = "Successfully blocked user ${userToBlock}"
@@ -407,10 +413,10 @@ fun Application.configureMessageRouting() {
 
                 if (!ret) {
                     val error = "An error occurred while trying to block user ${userIdToBlock} in conversation"
-                    return@post call.respondRedirect("/messages/conversations/${userIdToBlock}/$error")
+                    return@post call.respondRedirect("/messages?error=$error")
                 }
 
-                val success = "Successfully blocked user ${userToUnblock}"
+                val success = "Successfully unblocked user ${userToUnblock}"
                 return@post call.respondRedirect("/messages?success=$success")
             }
 

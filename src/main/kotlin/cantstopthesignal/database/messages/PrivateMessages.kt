@@ -547,6 +547,7 @@ fun getBlockList(user: Long): List<String>? {
                 getUserName(it[PrivateMessageBlockList.blockedUser])!! //Because this is an FK it cant return a null user
             }
 
+
             return@transaction list
         }
     } catch (e: Exception) {
@@ -570,15 +571,25 @@ fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConvers
                 it[blockedById] = caller
             }[PrivateMessageBlockList.id]
 
+            //I decided to make this obligatory so we will probably end up removing this branch
             if (removeFromExistingConversations) {
-                val conversationsToLeave = Conversations.innerJoin(ConversationMembers)
-                    .select(ConversationMembers.userId inList listOf(caller, target)).where(
-                        (ConversationMembers.userId eq caller) and (ConversationMembers.userId eq target)
-                    ).map { it[Conversations.id] }
+                val callerConversations = ConversationMembers
+                    .selectAll().where { ConversationMembers.userId eq caller }
+                    .map { it[ConversationMembers.conversationId] }
+                    .toSet()
+
+                val targetConversations = ConversationMembers
+                    .selectAll().where { ConversationMembers.userId eq target }
+                    .map { it[ConversationMembers.conversationId] }
+                    .toSet()
+
+                val conversationsToLeave = callerConversations intersect targetConversations
 
 
                 for (id in conversationsToLeave) {
-                    leaveConversation(caller, id)
+                    logger.debug { id }
+                    val ret = leaveConversation(caller, id)
+                    logger.debug { ret }
                 }
 
             }

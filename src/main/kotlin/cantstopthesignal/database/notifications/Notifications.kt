@@ -66,8 +66,7 @@ fun insertNotification(
     return try {
         transaction {
             if (doesNotificationAlreadyExist(postId, commentId, user, userWhoInteracted, notifType)) {
-                logger.info { "Notification already exists post $postId comment $commentId user $user userwhointeracted $userWhoInteracted notiftype $notifType" }
-                return@transaction false
+                return@transaction true
             }
             Notifications.insert {
                 it[Notifications.postId] = postId
