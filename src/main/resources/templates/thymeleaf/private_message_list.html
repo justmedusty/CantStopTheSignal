@@ -23,6 +23,8 @@
             --dm-pill: #1a3324;
             --dm-pill-text: #4ecb82;
             --enc-color: #f5c842;
+            --danger: #e55;
+            --danger-hover: #c44;
             --radius: 10px;
             --font: 'Segoe UI', system-ui, sans-serif;
         }
@@ -35,11 +37,139 @@
             padding: 2rem 1rem;
         }
 
-        .container {
-            max-width: 40vw;
-            min-width: 680px;
+        .page-layout {
+            max-width: 56vw;
+            min-width: 820px;
             margin: 0 auto;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
         }
+
+        .main-col {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ── Block list sidebar ── */
+        .blocklist-col {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .blocklist-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .blocklist-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .blocklist-add {
+            padding: 0.65rem 0.85rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .blocklist-add input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.78rem;
+            padding: 0.3rem 0.5rem;
+            outline: none;
+        }
+
+        .blocklist-add input[type="text"]:focus {
+            border-color: var(--danger);
+        }
+
+        .btn-block {
+            padding: 0.3rem 0.65rem;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-block:hover {
+            background: var(--danger-hover);
+        }
+
+        .blocklist-items {
+            padding: 0.35rem 0;
+        }
+
+        .blocklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.45rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .blocklist-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .blocklist-username {
+            font-size: 0.82rem;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-unblock {
+            padding: 0.2rem 0.55rem;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-unblock:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .blocklist-empty {
+            padding: 0.75rem 1rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .blocklist-footer {
+            padding: 0.5rem 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        /* ── existing styles below (unchanged) ── */
 
         .alert {
             padding: 0.75rem 1rem;
@@ -91,9 +221,7 @@
             transition: opacity .15s;
         }
 
-        .btn:hover {
-            opacity: .85;
-        }
+        .btn:hover { opacity: .85; }
 
         .btn-secondary {
             background: var(--surface);
@@ -124,13 +252,8 @@
             transition: background .15s;
         }
 
-        .conv-row:last-child {
-            border-bottom: none;
-        }
-
-        .conv-row:hover {
-            background: var(--surface-hover);
-        }
+        .conv-row:last-child { border-bottom: none; }
+        .conv-row:hover { background: var(--surface-hover); }
 
         .conv-avatar {
             width: 42px;
@@ -149,10 +272,7 @@
             text-align: center;
         }
 
-        .conv-body {
-            flex: 1;
-            min-width: 0;
-        }
+        .conv-body { flex: 1; min-width: 0; }
 
         .conv-header {
             display: flex;
@@ -174,10 +294,7 @@
             color: var(--text);
         }
 
-        .enc-icon {
-            font-size: 0.75rem;
-            color: var(--enc-color);
-        }
+        .enc-icon { font-size: 0.75rem; color: var(--enc-color); }
 
         .conv-time {
             font-size: 0.72rem;
@@ -247,19 +364,10 @@
             transition: background .15s;
         }
 
-        .page-btn:hover:not(.disabled) {
-            background: var(--surface-hover);
-        }
+        .page-btn:hover:not(.disabled) { background: var(--surface-hover); }
+        .page-btn.disabled { opacity: .35; pointer-events: none; }
 
-        .page-btn.disabled {
-            opacity: .35;
-            pointer-events: none;
-        }
-
-        .page-info {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
+        .page-info { font-size: 0.8rem; color: var(--text-secondary); }
 
         .unread-badge {
             font-size: 0.72rem;
@@ -273,131 +381,132 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 8px 2px rgba(91, 138, 245, 0.55);
+            box-shadow: 0 0 8px 2px rgba(91,138,245,.55);
             animation: pulse-glow 2s ease-in-out infinite;
         }
 
         @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 6px 1px rgba(91, 138, 245, 0.45);
-            }
-            50% {
-                box-shadow: 0 0 14px 4px rgba(91, 138, 245, 0.75);
-            }
+            0%, 100% { box-shadow: 0 0 6px 1px rgba(91,138,245,.45); }
+            50%       { box-shadow: 0 0 14px 4px rgba(91,138,245,.75); }
         }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="page-layout">
 
-    <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
-    <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+    <!-- ═══════════════════════════════ MAIN COLUMN ═══════════════════════════════ -->
+    <div class="main-col">
 
-    <div class="topbar">
-        <h1>Messages</h1>
-        <div class="topbar-actions">
-            <a class="btn btn-secondary" href="/feed">← Home</a>
-            <a class="btn btn-primary" href="/messages/conversation/create">+ New</a>
-        </div>
-    </div>
+        <div class="alert alert-error"   th:if="${error}"   th:text="${error}"></div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
-    <div class="card">
-
-        <th:block th:if="${message_conversations != null and not #lists.isEmpty(message_conversations)}">
-            <!--
-                th:each iterates over MessageConversationObject instances.
-                The avatar initials are derived from the lastSender name.
-                The lock icon appears when pgpKey is present and non-empty.
-                Clicking the row navigates to /messages/conversations/{id}.
-            -->
-            <a class="conv-row"
-               th:each="convo : ${message_conversations}"
-               th:href="|/messages/conversations/${convo.id}|">
-
-                <div class="conv-avatar"
-                     th:text="${convo.lastSender != null} ?
-               (${#strings.length(convo.lastSender) > 1} ?
-                ${#strings.substring(convo.lastSender, 0, 1)} :
-                ${convo.lastSender}) :
-               'Empty'">
-                    ?
-                </div>
-
-                <div class="conv-body">
-
-                    <div class="conv-header">
-                        <span class="conv-name">
-                             <div class="conv-name"
-                                  th:text="${convo.name}">
-                        Name
-                    </div>
-
-                            <span class="enc-icon"
-                                  title="PGP-Keys-Available">Always Encrypt With Member Keys🔒</span>
-                        </span>
-                        <span class="conv-time"
-                              th:text="${#temporals.format(convo.timeOfLastMessage, 'MMM d, HH:mm')}">
-                            now
-                        </span>
-                    </div>
-
-                    <div class="conv-members">
-                        <span th:text="'Last sender: ' + ${convo.lastSender}">Sender</span>
-                    </div>
-
-                    <!-- Members list, excluding the current user if isMe is true -->
-                    <div class="conv-members"
-                         th:text="'Members: ' + ${#strings.listJoin(convo.members, ', ') + ', you'}">
-                        Members
-                    </div>
-
-                    <div class="enc-icon" th:text="${convo.transientMessages} ? 'Self Deleting Message ON' : 'Self Deleting Messages OFF' "></div>
-
-                </div>
-
-                <div class="conv-indicators">
-                    <span class="type-pill">DM</span>
-                    <span class="me-badge" th:if="${convo.isMe}">You sent last message</span>
-                    <!-- Unread badge — only shown when numUnreadMessages > 0 -->
-                    <span class="unread-badge"
-                          th:if="${convo.numUnreadMessages != null and convo.numUnreadMessages > 0}"
-                          th:text="${convo.numUnreadMessages}">
-                    </span>
-                </div>
-
-            </a>
-        </th:block>
-
-        <div class="empty-state"
-             th:if="${message_conversations == null or #lists.isEmpty(message_conversations)}">
-            No conversations yet.
+        <div class="topbar">
+            <h1>Messages</h1>
+            <div class="topbar-actions">
+                <a class="btn btn-secondary" href="/feed">← Home</a>
+                <a class="btn btn-primary"   href="/messages/conversation/create">+ New</a>
+            </div>
         </div>
 
-        <!-- ─── Pagination ─── -->
-        <div class="pagination"
-             th:if="${total_pages > 0}">
+        <div class="card">
+            <th:block th:if="${message_conversations != null and not #lists.isEmpty(message_conversations)}">
+                <a class="conv-row"
+                   th:each="convo : ${message_conversations}"
+                   th:href="|/messages/conversations/${convo.id}|">
 
-            <a class="page-btn"
-               th:classappend="${current_page == 1} ? 'disabled'"
-               th:href="|/messages?page=${current_page - 1}|">
-                &#8592; Prev
-            </a>
+                    <div class="conv-avatar"
+                         th:text="${convo.lastSender != null} ?
+                             (${#strings.length(convo.lastSender) > 1} ?
+                              ${#strings.substring(convo.lastSender,0,1)} :
+                              ${convo.lastSender}) : 'Empty'">?</div>
 
-            <span class="page-info"
-                  th:text="|Page ${current_page} of ${total_pages}|">
-        Page 1 of 1
-    </span>
+                    <div class="conv-body">
+                        <div class="conv-header">
+                            <span class="conv-name">
+                                <div class="conv-name" th:text="${convo.name}">Name</div>
+                                <span class="enc-icon" title="PGP-Keys-Available">Always Encrypt With Member Keys🔒</span>
+                            </span>
+                            <span class="conv-time"
+                                  th:text="${#temporals.format(convo.timeOfLastMessage,'MMM d, HH:mm')}">now</span>
+                        </div>
+                        <div class="conv-members">
+                            <span th:text="'Last sender: ' + ${convo.lastSender}">Sender</span>
+                        </div>
+                        <div class="conv-members"
+                             th:text="'Members: ' + ${#strings.listJoin(convo.members,', ') + ', you'}">Members</div>
+                        <div class="enc-icon"
+                             th:text="${convo.transientMessages} ? 'Self Deleting Message ON' : 'Self Deleting Messages OFF'"></div>
+                    </div>
 
-            <a class="page-btn"
-               th:classappend="${current_page == total_pages} ? 'disabled'"
-               th:href="|/messages?page=${current_page + 1}|">
-                Next &#8594;
-            </a>
+                    <div class="conv-indicators">
+                        <span class="type-pill">DM</span>
+                        <span class="me-badge" th:if="${convo.isMe}">You sent last message</span>
+                        <span class="unread-badge"
+                              th:if="${convo.numUnreadMessages != null and convo.numUnreadMessages > 0}"
+                              th:text="${convo.numUnreadMessages}"></span>
+                    </div>
+                </a>
+            </th:block>
 
+            <div class="empty-state"
+                 th:if="${message_conversations == null or #lists.isEmpty(message_conversations)}">
+                No conversations yet.
+            </div>
+
+            <div class="pagination" th:if="${total_pages > 0}">
+                <a class="page-btn"
+                   th:classappend="${current_page == 1} ? 'disabled'"
+                   th:href="|/messages?page=${current_page - 1}|">&#8592; Prev</a>
+                <span class="page-info" th:text="|Page ${current_page} of ${total_pages}|">Page 1 of 1</span>
+                <a class="page-btn"
+                   th:classappend="${current_page == total_pages} ? 'disabled'"
+                   th:href="|/messages?page=${current_page + 1}|">Next &#8594;</a>
+            </div>
         </div>
 
-    </div><!-- /card -->
+    </div><!-- /main-col -->
 
-</div><!-- /container -->
+    <!-- ══════════════════════════════ BLOCK LIST SIDEBAR ════════════════════════ -->
+    <div class="blocklist-col">
+        <div class="blocklist-card">
+
+            <div class="blocklist-header">Blocked users</div>
+
+            <!-- Block form -->
+            <div class="blocklist-add">
+                <form th:action="|/user/block|" method="post"
+                      style="display:flex;gap:0.4rem;width:100%">
+                    <input type="text" name="userToBlock" placeholder="User To Block" required/>
+                    <button type="submit" class="btn-block">Block</button>
+                </form>
+            </div>
+
+
+            <!-- Blocked list -->
+            <div class="blocklist-items">
+                <th:block th:if="${block_list != null and not #lists.isEmpty(block_list)}">
+                    <div class="blocklist-item" th:each="blocked : ${block_list}">
+                        <span class="blocklist-username" th:text="${blocked}">username</span>
+                        <form th:action="|/user/unblock|" method="post">
+                            <input type="hidden" name="userToUnblock" th:value="${blocked}"/>
+                            <button type="submit" class="btn-unblock">Unblock</button>
+                        </form>
+                    </div>
+                </th:block>
+
+                <div class="blocklist-empty"
+                     th:if="${block_list == null or #lists.isEmpty(block_list)}">
+                    No blocked users.
+                </div>
+            </div>
+
+            <div class="blocklist-footer"
+                 th:if="${block_list != null}"
+                 th:text="${#lists.size(block_list)} + ' blocked'">0 blocked</div>
+
+        </div>
+    </div><!-- /blocklist-col -->
+
+</div><!-- /page-layout -->
 </body>
 </html>

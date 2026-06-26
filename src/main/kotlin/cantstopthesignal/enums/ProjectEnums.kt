@@ -18,6 +18,7 @@ enum class Length(val value: Long) {
     MAX_GROUPNAME_LENGTH(100),
     MAX_MEMBERS_IN_CONVERSATION(15),
     MAX_REASON_LENGTH(400),
+    MAX_BLOCKED_USERS(50),
     JWT_TOKEN_LIFETIME_MS(1000 * 60 * 20) //20 minutes, this mostly serves as a backup ins case the application.yaml value is taken out for some reason, don't do that. But I prepared just in case you do.
 }
 
@@ -85,8 +86,10 @@ enum class ThymeLeafMapKeys(val value: String) {
     EDIT_TITLE("edit_title"),
     EDIT_CONTENTS("edit_contents"),
     REDIRECT_URI("redirect_uri"),
+    MESSAGE_BLOCK_LIST("block_list"),
 
 }
+
 enum class RetStrings(val value: String) {
     MAX_REACHED("max_reached"),
 }

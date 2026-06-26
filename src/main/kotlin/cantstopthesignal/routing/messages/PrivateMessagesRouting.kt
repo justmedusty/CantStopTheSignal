@@ -90,6 +90,7 @@ fun Application.configureMessageRouting() {
                     put(ThymeLeafMapKeys.PRIVATE_MESSAGE_LIST.value, messagesList)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.TOTAL_PAGES.value, conversation.totalPages)
+                    put(ThymeLeafMapKeys.MESSAGE_BLOCK_LIST.value, getBlockList(userId))
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
                     *
@@ -373,8 +374,8 @@ fun Application.configureMessageRouting() {
                 )
                 val params = call.receiveParameters()
                 val userToBlock =
-                    call.parameters["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
-                val leaveConversations = call.parameters["leaveConversations"].toBoolean()
+                   params["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val leaveConversations = call.parameters["leaveConversations"]?.toBooleanStrictOrNull() ?: true
 
                 val userIdToBlock = getUserId(userToBlock)
                     ?: return@post call.respondRedirect("/messages?error=User ${userToBlock} not found")
@@ -390,13 +391,14 @@ fun Application.configureMessageRouting() {
                 return@post call.respondRedirect("/messages?success=$success")
             }
 
+
             post("/user/unblock") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLong() ?: return@post call.respond(
                     HttpStatusCode.Unauthorized
                 )
                 val params = call.receiveParameters()
                 val userToUnblock =
-                    call.parameters["userToBlock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                    params["userToUnblock"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 
                 val userIdToBlock = getUserId(userToUnblock)
                     ?: return@post call.respondRedirect("/messages?error=User ${userToUnblock} not found")

@@ -531,6 +531,28 @@ fun isUserBlocked(user: Long, target: Long): Boolean {
         logger.error { "An error occurred while trying to determine is a user was blocked. The error message contents is ${e.message}" }
         false
     }
+
+}
+
+fun getBlockList(user: Long): List<String>? {
+    return try {
+        transaction {
+/*
+    We will silently limit it but not expose that to the user theyll just see most recent limit, im not going to make it accomodate looking through 100s of blocked users because that is ridiculous.
+   this feature is meant to be for harassment only. Just show most recent 50 blocked users, if there are more than 50, you better remember who you blocked if you ever want to unblock them.
+ */
+            val list = PrivateMessageBlockList.selectAll().where(PrivateMessageBlockList.blockedById eq user).limit(
+                Length.MAX_BLOCKED_USERS.value.toInt()
+            ).orderBy(PrivateMessageBlockList.id, SortOrder.DESC).map {
+                getUserName(it[PrivateMessageBlockList.blockedUser])!! //Because this is an FK it cant return a null user
+            }
+
+            return@transaction list
+        }
+    } catch (e: Exception) {
+        logger.error { "An error occurred while trying to block user from messaging" + e.message }
+        null
+    }
 }
 
 fun blockUserFromMessaging(caller: Long, target: Long, removeFromExistingConversations: Boolean): Boolean {
