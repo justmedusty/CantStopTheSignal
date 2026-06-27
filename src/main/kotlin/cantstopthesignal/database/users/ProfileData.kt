@@ -95,9 +95,9 @@ fun updatePublicKey(userId: Long, keyContents: String): Boolean {
 fun doesUserHavePublicKey(userId: Long): Boolean {
     return try {
         transaction {
-            ProfileData.selectAll().where { ProfileData.userId eq userId }
+            !ProfileData.selectAll().where { ProfileData.userId eq userId }
                 .map { it[ProfileData.publicKey] }
-                .singleOrNull() != null
+                .singleOrNull().isNullOrEmpty()
         }
     } catch (e: Exception) {
         logger.error { e.message }
