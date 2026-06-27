@@ -471,7 +471,7 @@
                      th:if="${profile_data.totalComments != 0}"
                      th:text="${profile_data.totalComments}"></div>
                 <span class="empty"
-                      th:if="${profile_data.totalComments == 0}">None</span>
+                      th:if="${profile_data.totalComments == 0}">0</span>
             </div>
             <span class="field-label">Total posts:</span>
             <div class="field-value">
@@ -479,8 +479,26 @@
                      th:if="${profile_data.totalPosts != 0}"
                      th:text="${profile_data.totalPosts}"></div>
                 <span class="empty"
-                      th:if="${profile_data.totalPosts == 0}">None</span>
+                      th:if="${profile_data.totalPosts == 0}">0</span>
             </div>
+        </div>
+            <div class="field-row">
+                <span class="field-label">Total likes:</span>
+                <div class="field-value">
+                    <div class="field-label"
+                         th:if="${profile_data.totalLikes != 0}"
+                         th:text="${profile_data.totalLikes}"></div>
+                    <span class="empty"
+                          th:if="${profile_data.totalLikes == 0}">0</span>
+                </div>
+                <span class="field-label">Total dislikes:</span>
+                <div class="field-value">
+                    <div class="field-label"
+                         th:if="${profile_data.totalDislikes != 0}"
+                         th:text="${profile_data.totalDislikes}"></div>
+                    <span class="empty"
+                          th:if="${profile_data.totalDislikes == 0}">0</span>
+                </div>
         </div>
     </div>
 

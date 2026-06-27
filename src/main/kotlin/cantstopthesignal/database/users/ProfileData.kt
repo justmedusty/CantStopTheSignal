@@ -2,11 +2,18 @@ package cantstopthesignal.database.users
 
 
 import cantstopthesignal.log.logger
+import cantstopthesignal.table_definitions.CommentDislikes
+import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
+import cantstopthesignal.table_definitions.PostDislikes
+import cantstopthesignal.table_definitions.PostLikes
 import cantstopthesignal.table_definitions.Posts
 import cantstopthesignal.table_definitions.ProfileData
 import cantstopthesignal.table_definitions.Users
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.leftJoin
+import org.jetbrains.exposed.v1.core.rightJoin
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
@@ -24,6 +31,8 @@ data class ProfileDataEntry(
     val isSuspended: Boolean,
     val totalPosts: Long,
     val totalComments: Long,
+    val totalLikes: Long,
+    val totalDislikes: Long
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -153,7 +162,11 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                 val isSuspended = Users.selectAll().where { Users.id eq userId }.firstOrNull()?.get(Users.isSuspended)
                 val totalPosts = Posts.selectAll().where { Posts.posterId eq userId }.count()
                 val totalComments = Comments.selectAll().where { Comments.commenterId eq userId }.count()
-
+                val totalLikes = CommentLikes.leftJoin(Comments).selectAll().where { Comments.commenterId eq userId }
+                    .count() + PostLikes.leftJoin(Posts).selectAll().where { Posts.posterId eq userId }.count()
+                val totalDislikes =
+                    CommentDislikes.leftJoin(Comments).selectAll().where { Comments.commenterId eq userId }
+                        .count() + PostDislikes.leftJoin(Posts).selectAll().where { Posts.posterId eq userId }.count()
 
                 profileDataEntry = ProfileDataEntry(
                     userName = getUserName(userId) ?: "Could not get username",
@@ -166,6 +179,9 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                     isModerator = isModerator ?: false,
                     totalPosts = totalPosts,
                     totalComments = totalComments,
+                    totalLikes = totalLikes,
+                    totalDislikes = totalDislikes,
+
                 )
             }
         }
