@@ -25,7 +25,7 @@ fun Application.configurePostLikesRouting() {
                     return@post call.respond(HttpStatusCode.BadRequest)
                 }
                 val success = likePost(userId!!, postId)
-                val successMessage = "Post liked"
+                val successMessage = "Operation successful"
                 val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
@@ -47,7 +47,7 @@ fun Application.configurePostLikesRouting() {
                 }
                 val validPostId = verifyPostId(postId) ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val success = dislikePost(userId!!, postId)
-                val successMessage = "Post disliked"
+                val successMessage = "Operation successful"
                 val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
