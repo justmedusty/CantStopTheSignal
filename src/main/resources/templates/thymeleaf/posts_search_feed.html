@@ -9,6 +9,7 @@
             margin: 0;
             padding: 0;
         }
+
         a {
             color: #ffffff;
             text-decoration: underline;
@@ -470,6 +471,7 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
         /* ── Search bar ── */
         .search-wrapper {
             max-height: 0;
@@ -489,7 +491,49 @@
             color: var(--accent);
         }
 
-        .search-inner { padding: 0.125rem 0; }
+        /* ── Reaction Bar ── */
+        .reaction-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface-hover);
+        }
+
+        .btn-like {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #2d3f7a;
+        }
+
+        .btn-like.active, .btn-like:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-dislike {
+            background: var(--danger-soft);
+            color: var(--danger);
+            border-color: #7a2020;
+        }
+
+        .btn-dislike.active, .btn-dislike:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+
+        .btn-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+
+        .search-inner {
+            padding: 0.125rem 0;
+        }
 
         .search-bar {
             display: flex;
@@ -502,7 +546,9 @@
             transition: border-color 0.15s;
         }
 
-        .search-bar:focus-within { border-color: var(--accent); }
+        .search-bar:focus-within {
+            border-color: var(--accent);
+        }
 
         .search-type {
             background: var(--surface-hover);
@@ -521,7 +567,9 @@
             background-position: right 0.45rem center;
         }
 
-        .search-type:focus { border-color: var(--accent); }
+        .search-type:focus {
+            border-color: var(--accent);
+        }
 
         .search-input {
             flex: 1;
@@ -533,7 +581,9 @@
             font-size: 0.9rem;
         }
 
-        .search-input::placeholder { color: var(--muted); }
+        .search-input::placeholder {
+            color: var(--muted);
+        }
 
         .search-submit {
             background: var(--accent);
@@ -552,14 +602,20 @@
             transition: opacity 0.15s;
         }
 
-        .search-submit:hover { opacity: 0.85; }
+        .search-submit:hover {
+            opacity: 0.85;
+        }
 
         .search-submit svg {
-            width: 14px; height: 14px;
-            stroke: currentColor; fill: none;
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
             stroke-width: 2.5;
-            stroke-linecap: round; stroke-linejoin: round;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
+
         .sort-bar {
             display: flex;
             align-items: center;
@@ -602,6 +658,7 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
         /* ── Flash messages ── */
         .error {
             background: var(--danger-soft);
@@ -622,6 +679,7 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
         .info {
             background: var(--accent-soft);
             color: #ffffff;
@@ -739,7 +797,8 @@
             <div class="post-header">
                 <h2 class="post-title" th:text="${post.title}">Post Title</h2>
                 <p class="post-meta">
-                    topic: <a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|" th:text="${post.topic}">topic</a>
+                    topic: <a th:href="|/posts/search?searchField=topic&searchText=${post.topic}|"
+                              th:text="${post.topic}">topic</a>
                     &nbsp;·&nbsp;
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
@@ -754,25 +813,28 @@
             </div>
 
         </div>
-
         <!-- Reaction / action bar -->
-        <div class="post-actions">
-            <div class="post-actions-left">
-                <!-- Read-only reaction summary -->
-                <div class="post-reaction-bar">
-                    <span class="reaction-pill">&#9650; <span th:text="${post.likeCount}">0</span></span>
-                    <span class="reaction-pill dislike">&#9660; <span th:text="${post.dislikeCount}">0</span></span>
-                </div>
-                <span class="comment-count">
-                    💬 <span th:text="${post.commentCount}">0</span>
-                </span>
-            </div>
+        <div class="reaction-bar">
+            <form th:action="|/posts/like/${post.id}?redirect=${redirect_uri}|" method="post">
+                <button type="submit" class="btn btn-like" th:classappend="${post.likedByMe} ? 'active'">
+                    &#9650; <span th:text="${post.likeCount}">0</span>
+                </button>
+            </form>
 
-            <div class="post-actions-right" th:if="${post.myPost}">
+            <form th:action="|/posts/dislike/${post.id}?redirect=${redirect_uri}|" method="post">
+                <button type="submit" class="btn btn-dislike" th:classappend="${post.dislikedByMe} ? 'active'">
+                    &#9660; <span th:text="${post.dislikeCount}">0</span>
+                </button>
+            </form>
+
+            <span class="comment-count">💬 <span th:text="${post.commentCount}">0</span></span>
+
+
+            <div style="margin-left: auto; display: flex; gap: 0.5rem;" th:if="${post.myPost}">
                 <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
-                <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
             </div>
         </div>
+
 
         <!-- Read more / view comments — both go to the same post detail page -->
         <a class="btn-read-more" th:href="|/posts/${post.id}|">

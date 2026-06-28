@@ -11,9 +11,11 @@ import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.uri
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
+import java.net.URLEncoder
 
 fun Application.configurePostSearchRouting() {
     routing {
@@ -24,6 +26,9 @@ fun Application.configurePostSearchRouting() {
                 val searchText = call.request.queryParameters["searchText"] ?: return@get call.respondRedirect("/feed?error=You must specify a search term")
                 val searchField = call.request.queryParameters["searchField"] ?: return@get call.respondRedirect("/feed?error=You must specify a search field (topic,title, or contents")
                 var sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+
 
                 if(sortOrder != "newest" && sortOrder != "old" && sortOrder != "liked" && sortOrder != "disliked" && sortOrder != "comments") {
                     sortOrder = "newest"
@@ -61,6 +66,7 @@ fun Application.configurePostSearchRouting() {
                     put(ThymeLeafMapKeys.SEARCH_FIELD.value, searchField)
                     put(ThymeLeafMapKeys.SEARCH_TEXT.value, searchText)
                     put(ThymeLeafMapKeys.SEARCH_INFO.value, info)
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
 
                     when (sortOrder) {
                         "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)

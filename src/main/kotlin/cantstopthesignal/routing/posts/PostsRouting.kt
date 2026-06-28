@@ -10,6 +10,7 @@ import cantstopthesignal.database.posts.totalTopicPages
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
 import cantstopthesignal.siteConfig
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -54,7 +55,7 @@ fun Application.configurePostRouting() {
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
                     put(ThymeLeafMapKeys.POSTS.value, postList)
-                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if(postList.isEmpty()) 0 else postList[0].totalPages)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if (postList.isEmpty()) 0 else postList[0].totalPages)
                     put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
                     put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
                     put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
@@ -87,7 +88,7 @@ fun Application.configurePostRouting() {
             get("/posts/{id}") {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
+                val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val currentPath = call.request.uri
@@ -99,16 +100,16 @@ fun Application.configurePostRouting() {
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
-                val postList = fetchPostById(id, userId!!)
+                val postList = fetchPostById(id, userId)
 
                 if (postList == null) {
                     val error = "The post you requested was not found"
                     return@get call.respondRedirect("/feed?error=$error")
                 }
 
-                val post = postList?.get(0)
+                val post = postList[0]
 
-                val comments = getCommentsByPost(post!!.id, limit, page, userId, sortOrder)
+                val comments = getCommentsByPost(post.id, limit, page, userId, sortOrder)
 
 
                 val model = buildMap {
@@ -144,7 +145,9 @@ fun Application.configurePostRouting() {
             get("/posts/topics") {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
-                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respondRedirect("/logout")
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respondRedirect(
+                    "/logout"
+                )
                 val currentPath = call.request.uri
                 val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
