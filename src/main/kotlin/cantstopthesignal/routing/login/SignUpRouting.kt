@@ -58,7 +58,7 @@ fun Application.configureSignupRoutes() {
             }
             val params = call.receiveParameters()
 
-            val inviteCode = if (siteConfig.inviteOnly) {
+            val inviteCode = if (isInviteOnlyEnabled()) {
                 params["invite-code"]
                     ?: return@post call.respondRedirect("/signup?error=You must provide an invite code")
             } else {
