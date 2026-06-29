@@ -8,7 +8,6 @@ import cantstopthesignal.enums.RetValues
 import cantstopthesignal.helper.isThisCode
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.*
-import io.ktor.util.toLowerCasePreservingASCIIRules
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -222,9 +221,19 @@ fun fetchPostsByTopic(
 
             val sortedQuery = when (order) {
                 "old" -> baseQuery.orderBy(Posts.id, SortOrder.ASC)
-                "liked" -> baseQuery.orderBy(PostLikes.postId.count(), SortOrder.DESC)
-                "disliked" -> baseQuery.orderBy(PostDislikes.postId.count(), SortOrder.DESC)
-                "comments" -> baseQuery.orderBy(Comments.postId.count(), SortOrder.DESC)
+                "liked" -> baseQuery.orderBy(
+                    PostLikes.postId.countDistinct() to SortOrder.DESC,
+
+                    )
+
+                "disliked" -> baseQuery.orderBy(
+                    PostDislikes.postId.countDistinct() to SortOrder.DESC,
+                )
+
+                "comments" -> baseQuery.orderBy(
+                    Comments.postId.countDistinct() to SortOrder.DESC,
+                )
+
                 else -> baseQuery.orderBy(Posts.id, SortOrder.DESC)
             }
 
@@ -240,9 +249,7 @@ fun fetchPostsByTopic(
                 val posterId = it[Posts.posterId]
                 val likeCount = getLikesForPost(postId)
                 val dislikeCount = getDislikesForPost(postId)
-                val commentCount = it[Comments.postId.count()]
-
-
+                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                 val username = getUserName(posterId) ?: "Could not get username"
                 val isLikedByMe = isPostLikedByUser(postId, userId)
                 val isDislikedByMe = isPostDislikedByUser(postId, userId)
@@ -291,8 +298,9 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                 Posts.deleted,
                 Posts.deletedReason,
                 PostContents.content,
-                PostLikes.postId.count(),
-                PostDislikes.postId.count()
+                PostLikes.postId.countDistinct(),
+                PostDislikes.postId.countDistinct(),
+                Comments.postId.countDistinct(),
             ).where(Posts.posterId eq userId).groupBy(Posts.id).orderBy(PostLikes.id.count(), SortOrder.DESC)
                 .limit(limit).offset(((page - 1) * limit).toLong()).map {
                     val postId = it[Posts.id]
@@ -452,9 +460,9 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
         return transaction {
             val baseQuery = Posts
                 .innerJoin(PostContents, { Posts.id }, { PostContents.postId })
-                .leftJoin(PostLikes)
-                .leftJoin(PostDislikes)
-                .leftJoin(Comments)
+                .leftJoin(PostLikes, { Posts.id }, { PostLikes.postId })
+                .leftJoin(PostDislikes, { Posts.id }, { PostDislikes.postId })
+                .leftJoin(Comments, { Posts.id }, { Comments.postId })
                 .select(
                     Posts.id,
                     Posts.posterId,
@@ -482,9 +490,18 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
 
             val sortedQuery = when (order) {
                 "old" -> baseQuery.orderBy(Posts.id, SortOrder.ASC)
-                "liked" -> baseQuery.orderBy(PostLikes.postId.count(), SortOrder.DESC)
-                "disliked" -> baseQuery.orderBy(PostDislikes.postId.count(), SortOrder.DESC)
-                "comments" -> baseQuery.orderBy(Comments.postId.count(), SortOrder.DESC)
+                "liked" -> baseQuery.orderBy(
+                    PostLikes.postId.count() to SortOrder.DESC,
+                )
+
+                "disliked" -> baseQuery.orderBy(
+                    PostDislikes.postId.count() to SortOrder.DESC,
+                )
+
+                "comments" -> baseQuery.orderBy(
+                    Comments.postId.count() to SortOrder.DESC,
+                )
+
                 else -> baseQuery.orderBy(Posts.id, SortOrder.DESC) // "new" + default
             }
 
@@ -498,8 +515,8 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             pagedQuery.map {
                 val postId = it[Posts.id]
                 val posterId = it[Posts.posterId]
-                val likeCount = getLikesForPost(postId)
-                val dislikeCount = getDislikesForPost(postId)
+                val likeCount = it[PostLikes.postId.count()]
+                val dislikeCount =  it[PostDislikes.postId.count()]
                 val commentCount = it[Comments.postId.count()]
 
 
