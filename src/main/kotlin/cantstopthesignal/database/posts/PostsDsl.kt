@@ -515,9 +515,9 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             pagedQuery.map {
                 val postId = it[Posts.id]
                 val posterId = it[Posts.posterId]
-                val likeCount = it[PostLikes.postId.count()]
-                val dislikeCount =  it[PostDislikes.postId.count()]
-                val commentCount = it[Comments.postId.count()]
+                val likeCount = getLikesForPost(postId)
+                val dislikeCount = getDislikesForPost(postId)
+                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
 
 
                 val username = getUserName(posterId) ?: "Could not get username"
