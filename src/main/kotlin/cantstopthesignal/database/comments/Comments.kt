@@ -286,12 +286,12 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
         }
 
         "likes" -> {
-            orderByCount = CommentLikes.commentId.count()
+            orderByCount = CommentLikes.commentId.countDistinct()
             sortOrder = SortOrder.DESC
         }
 
         "dislikes" -> {
-            orderByCount = CommentDislikes.commentId.count()
+            orderByCount = CommentDislikes.commentId.countDistinct()
             sortOrder = SortOrder.DESC
         }
 
