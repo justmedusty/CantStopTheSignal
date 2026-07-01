@@ -188,11 +188,33 @@ fun fetchPostsByTopic(
 ): List<Post>? {
     try {
         return transaction {
+            val likeCount = PostLikes.postId.count().alias("like_count")
+            val likesSubquery = PostLikes
+                .select(PostLikes.postId, likeCount)
+                .groupBy(PostLikes.postId)
+                .alias("likes_sub")
+
+            val dislikeCount = PostDislikes.postId.count().alias("dislike_count")
+            val dislikesSubquery = PostDislikes
+                .select(PostDislikes.postId, dislikeCount)
+                .groupBy(PostDislikes.postId)
+                .alias("dislikes_sub")
+
+            val commentCount = Comments.postId.count().alias("comment_count")
+            val commentCountSubquery = Comments.select(Comments.postId, commentCount)
+                .groupBy(Comments.postId)
+                .alias("comment_sub")
+
+            val likeCountCoalesced = coalesce(likesSubquery[likeCount], longLiteral(0))
+            val dislikeCountCoalesced = coalesce(dislikesSubquery[dislikeCount], longLiteral(0))
+            val commentCountCoalesced = coalesce(commentCountSubquery[commentCount], longLiteral(0))
+
+
             val baseQuery = Posts
                 .innerJoin(PostContents, { Posts.id }, { PostContents.postId })
-                .leftJoin(PostLikes)
-                .leftJoin(PostDislikes)
-                .leftJoin(Comments)
+                .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
                 .select(
                     Posts.id,
                     Posts.posterId,
@@ -202,38 +224,17 @@ fun fetchPostsByTopic(
                     PostContents.content,
                     Posts.deleted,
                     Posts.deletedReason,
-                    PostLikes.postId.count().alias("likeCount"),
-                    PostDislikes.postId.count().alias("dislikeCount"),
-                    Comments.postId.count().alias("commentCount"),
-                )
-                .where { Posts.topic like "%$postTopic%" }
-                .groupBy(
-                    Posts.id,
-                    Posts.posterId,
-                    Posts.topic,
-                    Posts.timestamp,
-                    PostContents.title,
-                    PostContents.content,
-                    Posts.deleted,
-                    Posts.deletedReason,
-                )
+                    likeCountCoalesced,
+                    dislikeCountCoalesced,
+                    commentCountCoalesced,
+                ).where(Posts.topic like "%$postTopic%")
 
 
             val sortedQuery = when (order) {
                 "old" -> baseQuery.orderBy(Posts.id, SortOrder.ASC)
-                "liked" -> baseQuery.orderBy(
-                    PostLikes.postId.countDistinct() to SortOrder.DESC,
-
-                    )
-
-                "disliked" -> baseQuery.orderBy(
-                    PostDislikes.postId.countDistinct() to SortOrder.DESC,
-                )
-
-                "comments" -> baseQuery.orderBy(
-                    Comments.postId.countDistinct() to SortOrder.DESC,
-                )
-
+                "liked" -> baseQuery.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "disliked" -> baseQuery.orderBy(dislikeCountCoalesced to SortOrder.DESC)
+                "comments" -> baseQuery.orderBy(commentCountCoalesced to SortOrder.DESC)
                 else -> baseQuery.orderBy(Posts.id, SortOrder.DESC)
             }
 
@@ -247,9 +248,6 @@ fun fetchPostsByTopic(
             pagedQuery.map {
                 val postId = it[Posts.id]
                 val posterId = it[Posts.posterId]
-                val likeCount = getLikesForPost(postId)
-                val dislikeCount = getDislikesForPost(postId)
-                val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
                 val username = getUserName(posterId) ?: "Could not get username"
                 val isLikedByMe = isPostLikedByUser(postId, userId)
                 val isDislikedByMe = isPostDislikedByUser(postId, userId)
@@ -265,12 +263,12 @@ fun fetchPostsByTopic(
                     title = if (!isDeleted) it[PostContents.title] else "*Deleted Post*",
                     content = if (!isDeleted) it[PostContents.content]
                     else "This post was removed by staff because: ${it[Posts.deletedReason]!!}",
-                    likeCount = likeCount,
-                    dislikeCount = dislikeCount,
+                    likeCount = it[likeCountCoalesced],
+                    dislikeCount = it[dislikeCountCoalesced],
                     likedByMe = isLikedByMe,
                     dislikedByMe = isDislikedByMe,
                     lastEdited = lastEdited,
-                    commentCount = commentCount,
+                    commentCount = it[commentCountCoalesced],
                     deleted = isDeleted,
                     deletedReason = if (!isDeleted) null else it[Posts.deletedReason],
                     myPost = posterId == userId,
