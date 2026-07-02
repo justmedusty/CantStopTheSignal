@@ -13,6 +13,9 @@ import cantstopthesignal.table_definitions.CommentDislikes
 import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.Comments.parentCommentId
+import cantstopthesignal.table_definitions.PostDislikes
+import cantstopthesignal.table_definitions.PostLikes
+import cantstopthesignal.table_definitions.Posts
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -422,29 +425,6 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
             val orderByColumn = Comments.id
             var orderByCount: Count? = null
 
-            when (order) {
-                "oldest" -> {
-                    sortOrder = SortOrder.ASC
-                }
-
-                "newest" -> {
-                    sortOrder = SortOrder.DESC
-                }
-
-                "likes" -> {
-                    orderByCount = CommentLikes.commentId.count()
-                    sortOrder = SortOrder.DESC
-                }
-
-                "dislikes" -> {
-                    orderByCount = CommentDislikes.commentId.count()
-                    sortOrder = SortOrder.DESC
-                }
-
-                else -> {
-                    sortOrder = SortOrder.DESC
-                }
-            }
 
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val numReplies = numCommentReplies(commentId)
@@ -481,29 +461,47 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 Comments.selectAll().where { parentCommentId eq commentId }.count()
                     .toDouble() / pageSize.toDouble()
             ).toLong()
+            val likeCount = CommentLikes.commentId.count().alias("like_count")
+            val likesSubquery = CommentLikes
+                .select(CommentLikes.commentId, likeCount)
+                .groupBy(CommentLikes.commentId)
+                .alias("likes_sub")
 
-            val query = Comments.leftJoin(CommentLikes).leftJoin(CommentDislikes).select(
-                Comments.id,
-                Comments.content,
-                Comments.postId,
-                Comments.commenterId,
-                Comments.isReply,
-                parentCommentId,
-                Comments.timeStamp,
-                Comments.deleted,
-                Comments.deletedReason
-            ).where { (parentCommentId eq commentId) }
+            val dislikeCount = CommentDislikes.commentId.count().alias("dislike_count")
+            val dislikesSubquery = CommentDislikes
+                .select(CommentDislikes.commentId, dislikeCount)
+                .groupBy(CommentDislikes.commentId)
+                .alias("dislikes_sub")
+
+            val likeCountCoalesced = coalesce(likesSubquery[likeCount], longLiteral(0))
+            val dislikeCountCoalesced = coalesce(dislikesSubquery[dislikeCount], longLiteral(0))
+
+            val query = Comments.leftJoin(likesSubquery, { Comments.id }, { likesSubquery[CommentLikes.commentId] })
+                .leftJoin(dislikesSubquery, { Comments.id }, { dislikesSubquery[CommentDislikes.commentId] }).select(
+                    Comments.id,
+                    Comments.content,
+                    Comments.postId,
+                    Comments.commenterId,
+                    Comments.isReply,
+                    parentCommentId,
+                    Comments.timeStamp,
+                    Comments.deleted,
+                    Comments.deletedReason,
+                    likeCountCoalesced,
+                    dislikeCountCoalesced
+                ).where { (parentCommentId eq commentId) }
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
 
-            if (orderByCount != null) {
-                query.orderBy(orderByCount, sortOrder).groupBy(Comments.id)
-            } else {
-                query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
+            when (order) {
+                "old" -> query.orderBy(Comments.id, SortOrder.ASC)
+                "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
+                else -> query.orderBy(Comments.id, SortOrder.DESC)
             }
 
             val childComments = query.map {
-                val commentLikes: Long = getLikesForComment(it[Comments.id])
-                val commentDislikes: Long = getDislikesForComment(it[Comments.id])
+                val commentLikes: Long = it[likeCountCoalesced]
+                val commentDislikes: Long = it[dislikeCountCoalesced]
                 val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
                 val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], requesterId)
                 val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], requesterId)
