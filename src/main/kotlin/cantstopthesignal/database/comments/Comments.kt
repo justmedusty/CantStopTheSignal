@@ -279,57 +279,55 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
     val orderByColumn = Comments.id
     var orderByCount: Count? = null
 
-    when (order) {
-        "oldest" -> {
-            sortOrder = SortOrder.ASC
-        }
+    val likeCount = CommentLikes.commentId.count().alias("like_count")
+    val likesSubquery = CommentLikes
+        .select(CommentLikes.commentId, likeCount)
+        .groupBy(CommentLikes.commentId)
+        .alias("likes_sub")
 
-        "newest" -> {
-            sortOrder = SortOrder.DESC
-        }
+    val dislikeCount = CommentDislikes.commentId.count().alias("dislike_count")
+    val dislikesSubquery = CommentDislikes
+        .select(CommentDislikes.commentId, dislikeCount)
+        .groupBy(CommentDislikes.commentId)
+        .alias("dislikes_sub")
 
-        "likes" -> {
-            orderByCount = CommentLikes.commentId.countDistinct()
-            sortOrder = SortOrder.DESC
-        }
+    val likeCountCoalesced = coalesce(likesSubquery[likeCount], longLiteral(0))
+    val dislikeCountCoalesced = coalesce(dislikesSubquery[dislikeCount], longLiteral(0))
 
-        "dislikes" -> {
-            orderByCount = CommentDislikes.commentId.countDistinct()
-            sortOrder = SortOrder.DESC
-        }
 
-        else -> {
-            sortOrder = SortOrder.DESC
-        }
-    }
 
     return try {
         transaction {
-            val query = Comments.leftJoin(CommentLikes).leftJoin(CommentDislikes).select(
-                Comments.id,
-                Comments.content,
-                Comments.postId,
-                Comments.commenterId,
-                Comments.isReply,
-                parentCommentId,
-                Comments.timeStamp,
-                Comments.deleted,
-                Comments.deletedReason
-            ).where { (Comments.postId eq postId) and (Comments.isReply eq false) }
+            val query = Comments.leftJoin(likesSubquery, { Comments.id }, { likesSubquery[CommentLikes.commentId] })
+                .leftJoin(dislikesSubquery, { Comments.id }, { dislikesSubquery[CommentDislikes.commentId] }).select(
+                    Comments.id,
+                    Comments.content,
+                    Comments.postId,
+                    Comments.commenterId,
+                    Comments.isReply,
+                    parentCommentId,
+                    Comments.timeStamp,
+                    Comments.deleted,
+                    Comments.deletedReason,
+                    likeCountCoalesced,
+                    dislikeCountCoalesced
+                ).where { (Comments.postId eq postId) and (Comments.isReply eq false) }
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
 
-            if (orderByCount != null) {
-                query.orderBy(orderByCount, sortOrder).groupBy(Comments.id)
-            } else {
-                query.orderBy(orderByColumn, sortOrder).groupBy(Comments.id)
+            when (order) {
+                "old" -> query.orderBy(Comments.id, SortOrder.ASC)
+                "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
+                else -> query.orderBy(Comments.id, SortOrder.DESC)
             }
+
             val totalPages = ceil(Comments.selectAll().where {
                 (Comments.postId eq postId) and (Comments.isReply eq Op.FALSE)
             }.count().toDouble() / pageSize.toDouble()).toLong()
 
             query.map {
-                val commentLikes: Long = getLikesForComment(it[Comments.id])
-                val commentDislikes: Long = getDislikesForComment(it[Comments.id])
+                val commentLikes: Long = it[likeCountCoalesced]
+                val commentDislikes: Long = it[dislikeCountCoalesced]
                 val lastEdited: LocalDateTime? = getLastCommentEdit(it[Comments.id])
                 val isCommentLiked: Boolean = isCommentLikedByUser(it[Comments.id], userId)
                 val isCommentDisliked: Boolean = isCommentDisLikedByUser(it[Comments.id], userId)
