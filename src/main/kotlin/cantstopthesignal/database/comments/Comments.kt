@@ -245,7 +245,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        it[Comments.deletedReason]!!
+                        ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**")
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -261,7 +261,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**"),
                     isThisCode(it[Comments.content]),
                     0 //no pages for a 1 comment query
                 )
@@ -340,7 +340,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        (it[Comments.deletedReason]!!)
+                        ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**")
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -356,7 +356,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     numReplies,
                     it[Comments.commenterId] == userId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**"),
                     isThisCode(it[Comments.content]),
                     totalPages
                 )
@@ -388,7 +388,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         if (!it[Comments.deleted]) {
                             it[Comments.content]
                         } else {
-                            (it[Comments.deletedReason]!!)
+                            ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**")
                         },
                         it[Comments.postId],
                         it[Comments.commenterId],
@@ -404,7 +404,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         numReplies,
                         it[Comments.commenterId] == requesterId,
                         it[Comments.deleted],
-                        if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
+                        if (it[Comments.deletedReason] == null) null else ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**"),
                         isThisCode(it[Comments.content]),
                         totalPages
                     )
@@ -434,7 +434,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     if (!it[Comments.deleted]) {
                         it[Comments.content]
                     } else {
-                        ((it[Comments.deletedReason]!!))
+                        ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**")
                     },
                     it[Comments.postId],
                     it[Comments.commenterId],
@@ -509,7 +509,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
 
                 Comment(
                     it[Comments.id],
-                    if (!it[Comments.deleted]) it[Comments.content] else it[Comments.deletedReason]!!,
+                    if (!it[Comments.deleted]) it[Comments.content] else ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**"),
                     it[Comments.postId],
                     it[Comments.commenterId],
                     username,
@@ -524,7 +524,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     numReplies,
                     it[Comments.commenterId] == requesterId,
                     it[Comments.deleted],
-                    if (it[Comments.deletedReason] == null) null else (it[Comments.deletedReason]!!),
+                    if (it[Comments.deletedReason] == null) null else ("**This comment has been deleted for reason: " + it[Comments.deletedReason]!! + "**"),
                     isThisCode(it[Comments.content]),
                     totalPages
                 )
