@@ -143,17 +143,6 @@ fun postComment(content: String, commenterId: Long, postId: Long, isReply: Boole
     }
 }
 
-fun getParentId(commentId: Long): Long? {
-    return try {
-        transaction {
-            val comment = Comments.select(Comments.id eq commentId).singleOrNull() ?: return@transaction null
-            comment[parentCommentId]!!
-        }
-
-    } catch (ex: Exception) {
-        null
-    }
-}
 
 fun numCommentReplies(commentId: Long): Long {
     return try {
@@ -275,10 +264,6 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
 }
 
 fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, order: String?): List<Comment>? {
-    val sortOrder: SortOrder?
-    val orderByColumn = Comments.id
-    var orderByCount: Count? = null
-
     val likeCount = CommentLikes.commentId.count().alias("like_count")
     val likesSubquery = CommentLikes
         .select(CommentLikes.commentId, likeCount)
@@ -419,10 +404,6 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
 fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Long?, order: String?): List<Comment>? {
     return try {
         transaction {
-            val sortOrder: SortOrder?
-            val orderByColumn = Comments.id
-            var orderByCount: Count? = null
-
 
             val parentComment = Comments.selectAll().where { Comments.id eq commentId }.singleOrNull()
             val numReplies = numCommentReplies(commentId)
