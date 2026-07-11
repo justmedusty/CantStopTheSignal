@@ -1116,13 +1116,13 @@
                             </form>
                         </div>
 
-                        <!-- Edit / Delete (owner only) -->
+                        <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-tiny"
-                               th:href="|/comments/${id}/edit/${reply.id}|">Edit</a>
+                               th:href="|/comments/edit/${reply.id}|">Edit</a>
                             <a class="btn-tiny"
                                style="color: var(--danger); border-color: #f3c6c6;"
-                               th:href="|/comments/${id}/delete/${reply.id}|">Delete</a>
+                               th:href="|/comments/delete/${reply.id}|">Delete</a>
                         </th:block>
                     </div>
                 </div>

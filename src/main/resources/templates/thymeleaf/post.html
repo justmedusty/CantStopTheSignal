@@ -1057,10 +1057,10 @@
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">
                                 <a class="btn-tiny"
-                                   th:href="|/comments/${id}/edit/${comment.id}|">Edit</a>
+                                   th:href="|/comments/edit/${comment.id}|">Edit</a>
                                 <a class="btn-tiny"
                                    style="color: var(--danger); border-color: #f3c6c6;"
-                                   th:href="|/comments/${id}/delete/${comment.id}|">Delete</a>
+                                   th:href="|/comments/delete/${comment.id}|">Delete</a>
                             </th:block>
 
                         </div>
