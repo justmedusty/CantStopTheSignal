@@ -1119,10 +1119,10 @@
                         <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-tiny"
-                               th:href="|/comments/edit/${reply.id}|">Edit</a>
+                               th:href="|/comments/edit/${reply.id}?redirect=${redirect_uri}|">Edit</a>
                             <a class="btn-tiny"
                                style="color: var(--danger); border-color: #f3c6c6;"
-                               th:href="|/comments/delete/${reply.id}|">Delete</a>
+                               th:href="|/comments/delete/${reply.id}?redirect=${redirect_uri}|">Delete</a>
                         </th:block>
                     </div>
                 </div>

@@ -15,13 +15,12 @@ import io.ktor.server.thymeleaf.*
 fun Application.configureCommentEditRouting() {
     routing {
         authenticate("jwt") {
-            get("/comments/{id}/edit") {
-                val params = call.receiveParameters()
+            get("/comments/edit/{id}") {
                 val id = call.parameters["id"]?.toLong() ?: return@get call.respond(HttpStatusCode.BadRequest)
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respond(
                     HttpStatusCode.Forbidden
                 )
-                val redirect = params["redirect"] ?: "/feed"
+                val redirect = call.queryParameters["redirect"] ?: "/feed"
                 val error = call.queryParameters["error"]
 
                 val comment = getCommentById(id, user)
@@ -38,6 +37,7 @@ fun Application.configureCommentEditRouting() {
                 val map = buildMap {
                     put(ThymeLeafMapKeys.COMMENTS.value, comment)
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
 
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
@@ -48,12 +48,15 @@ fun Application.configureCommentEditRouting() {
 
             }
 
-            post("/comments/{id}/edit") {
+            post("/comments/edit{id}") {
                 val params = call.receiveParameters()
                 val id = call.parameters["id"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@post call.respond(
                     HttpStatusCode.Forbidden
                 )
+                val redirect = call.request.queryParameters["redirect"] ?: "/feed"
+
+
 
 
             }
