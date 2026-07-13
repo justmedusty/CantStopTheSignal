@@ -13,9 +13,6 @@ import cantstopthesignal.table_definitions.CommentDislikes
 import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.Comments.parentCommentId
-import cantstopthesignal.table_definitions.PostDislikes
-import cantstopthesignal.table_definitions.PostLikes
-import cantstopthesignal.table_definitions.Posts
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
@@ -171,8 +168,10 @@ fun getCommentOwnerId(commentId: Long): Long? {
 
 fun isIdCommentPoster(userId: Long, commentId: Long): Boolean {
     return try {
-        val match = Comments.select((Comments.id eq commentId) and (Comments.commenterId eq userId))
-        match.count() > 0
+        transaction {
+            val match = Comments.selectAll().where { (Comments.id eq commentId) and (Comments.commenterId eq userId) }
+            match.count() > 0
+        }
     } catch (e: Exception) {
         logger.error { "Error checking who is comment poster" }
         false
