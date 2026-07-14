@@ -261,13 +261,14 @@
             margin-top: 0.75rem;
             border-top: 1px solid var(--border);
             background: #13161f;
-            font-family: var(--font-serif),serif;
+            font-family: var(--font-serif), serif;
             white-space: pre-wrap;
             overflow: hidden;
             min-width: 0;
             overflow-wrap: break-word;
             letter-spacing: 0.01em;
         }
+
         .post-content-wrap.overflows::after {
             content: '';
             position: absolute;
@@ -837,7 +838,10 @@
                     by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                     &nbsp;·&nbsp;
                     <span th:text="|Posted at ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
-
+                    ·&nbsp;
+                    <span class="post-edited" th:if="${post.numEdits > 0}"
+                          th:text="|Edited ${post.numEdits} time(s)|"></span>
+                    ·&nbsp;
                     <span th:if="${post.lastEdited != null}"
                           th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
 </span></p>
@@ -845,7 +849,9 @@
             <!-- Truncated content (~500 chars via CSS line-clamp) -->
             <div class="post-content-wrap"
                  th:classappend="${#strings.length(post.content) > 400} ? 'overflows'">
-                <div th:class="${post.isCode}  ? 'post-content-code' : 'post-content'" th:text="${post.content}">Post content preview…</div>
+                <div th:class="${post.isCode}  ? 'post-content-code' : 'post-content'" th:text="${post.content}">Post
+                    content preview…
+                </div>
             </div>
 
         </div>

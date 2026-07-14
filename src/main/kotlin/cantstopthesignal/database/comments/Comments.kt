@@ -10,6 +10,7 @@ import cantstopthesignal.enums.RetValues
 import cantstopthesignal.helper.isThisCode
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.CommentDislikes
+import cantstopthesignal.table_definitions.CommentEdits
 import cantstopthesignal.table_definitions.CommentLikes
 import cantstopthesignal.table_definitions.Comments
 import cantstopthesignal.table_definitions.Comments.parentCommentId
@@ -35,6 +36,7 @@ data class Comment(
     val commentLikes: Long,
     val commentDislikes: Long,
     val lastEdited: LocalDateTime?,
+    val numEdits: Long,
     val isCommentLikedByMe: Boolean,
     val isCommentDislikedByMe: Boolean,
     val numReplies: Long,
@@ -244,6 +246,7 @@ fun getCommentById(id: Long, userId: Long?): Comment? {
                     commentLikes,
                     commentDislikes,
                     lastEdited,
+                    CommentEdits.selectAll().where { CommentEdits.commentId eq id }.count(),
                     isCommentLiked,
                     isCommentDisliked,
                     numReplies,
@@ -335,6 +338,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                     commentLikes,
                     commentDislikes,
                     lastEdited,
+                    CommentEdits.selectAll().where { CommentEdits.commentId eq it[Comments.id] }.count(),
                     isCommentLiked,
                     isCommentDisliked,
                     numReplies,
@@ -383,6 +387,7 @@ fun getCommentsByUser(userId: Long, pageSize: Int, page: Int, requesterId: Long?
                         commentLikes,
                         commentDislikes,
                         lastEdited,
+                        CommentEdits.selectAll().where { CommentEdits.commentId eq it[Comments.id] }.count(),
                         isCommentLiked,
                         isCommentDisliked,
                         numReplies,
@@ -425,6 +430,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     getLikesForComment(it[Comments.id]),
                     getDislikesForComment(it[Comments.id]),
                     getLastCommentEdit(it[Comments.id]),
+                    CommentEdits.selectAll().where { CommentEdits.commentId eq it[Comments.id] }.count(),
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     isCommentLikedByUser(it[Comments.id], requesterId),
                     numReplies,
@@ -499,6 +505,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                     commentLikes,
                     commentDislikes,
                     lastEdited,
+                    CommentEdits.selectAll().where { CommentEdits.commentId eq it[Comments.id] }.count(),
                     isCommentLiked,
                     isCommentDisliked,
                     numReplies,

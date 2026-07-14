@@ -757,6 +757,7 @@
             color: var(--text-secondary);
             transition: background 0.15s, border-color 0.15s;
         }
+
         /* ── Action bar ── */
         .post-actions {
             display: flex;
@@ -834,6 +835,7 @@
         .btn.delete:hover {
             background: var(--danger-soft);
         }
+
         .sort-pill:hover {
             background: var(--surface-hover);
             border-color: var(--accent);
@@ -896,14 +898,18 @@
                 by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                 &nbsp;·&nbsp;
                 <span th:text="|Posted: ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
+                ·&nbsp;
+                <span class="post-edited" th:if="${post.numEdits > 0}"
+                      th:text="|Edited ${post.numEdits} time(s)|"></span>
+                ·&nbsp;
+                <span class="post-edited" th:if="${post.lastEdited != null}"
+                      th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|"></span>
             </p>
 
             <div th:class="${post.isCode} ? 'post-content-code' : 'post-content'" th:text="${post.content}">Post content
                 goes here.
             </div>
 
-            <p class="post-edited" th:if="${post.lastEdited != null}"
-               th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited
         </div>
 
         <!-- Reaction Bar -->
@@ -1007,9 +1013,10 @@
                             <a th:href="|/profile/${comment.commenterId}|" th:text="${comment.commenterUsername}">username</a>
                               <span class="comment-time"
                                     th:text="|Posted: ${#temporals.format(comment.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
-                            <span class="comment-edited"
-                                  th:if="${comment.lastEdited != null and comment.lastEdited != 'null'}"
-                                  th:text="| edited ${comment.lastEdited}|">· edited …</span>
+                    <span class="comment-edited" th:if="${comment.numEdits > 0}"
+                          th:text="|Edited ${comment.numEdits} time(s), |"></span>
+                            <span class="comment-edited" th:if="${comment.lastEdited != null}"
+                                  th:text="|Last edited at ${#temporals.format(comment.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited  </span>
                     </span>
                         </div>
 
@@ -1027,7 +1034,8 @@
                         <div class="comment-actions">
 
                             <!-- Like -->
-                            <form th:action="|/comments/${post.id}/like/${comment.id}?redirect=${redirect_uri}|" method="post">
+                            <form th:action="|/comments/${post.id}/like/${comment.id}?redirect=${redirect_uri}|"
+                                  method="post">
                                 <button type="submit"
                                         class="btn btn-like"
                                         th:classappend="${comment.isCommentLikedByMe} ? 'active'">
@@ -1036,7 +1044,8 @@
                             </form>
 
                             <!-- Dislike -->
-                            <form th:action="|/comments/${post.id}/dislike/${comment.id}?redirect=${redirect_uri}|" method="post">
+                            <form th:action="|/comments/${post.id}/dislike/${comment.id}?redirect=${redirect_uri}|"
+                                  method="post">
                                 <button type="submit"
                                         class="btn btn-dislike"
                                         th:classappend="${comment.isCommentDislikedByMe} ? 'active'">

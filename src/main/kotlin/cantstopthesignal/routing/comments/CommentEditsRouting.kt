@@ -24,6 +24,7 @@ fun Application.configureCommentEditRouting() {
                 )
                 val redirect = call.queryParameters["redirect"] ?: "/feed"
                 val error = call.queryParameters["error"]
+                val success = call.queryParameters["success"]
 
                 val comment = getCommentById(id, user)
 
@@ -44,6 +45,9 @@ fun Application.configureCommentEditRouting() {
 
                     if (error != null) {
                         put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                 }
 
