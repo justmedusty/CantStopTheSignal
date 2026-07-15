@@ -228,7 +228,7 @@ fun fetchPostsByTopic(
                     likeCountCoalesced,
                     dislikeCountCoalesced,
                     commentCountCoalesced,
-                ).where(Posts.topic like "%$postTopic%")
+                ).where { (Posts.topic like "%$postTopic%") and (Posts.deleted eq false) }
 
 
             val sortedQuery = when (order) {
@@ -501,7 +501,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     likeCountCoalesced,
                     dislikeCountCoalesced,
                     commentCountCoalesced,
-                )
+                ).where { Posts.deleted eq false }
 
 
             val sortedQuery = when (order) {
@@ -577,7 +577,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                 Posts.deletedReason,
                 Users.userName
             )
-                .where { (PostContents.title.lowerCase() like query) or (PostContents.content.lowerCase() like query) or (Users.userName.lowerCase() like query) }
+                .where { (Posts.deleted eq false) and ((PostContents.title.lowerCase() like query) or (PostContents.content.lowerCase() like query) or (Users.userName.lowerCase() like query)) }
 
             val totalPages = ceil(postsWithContents.count().toDouble() / limit.toDouble()).toLong()
 

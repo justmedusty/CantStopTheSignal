@@ -818,8 +818,8 @@
 
         .btn.edit {
             background: transparent;
-            color: var(--text-secondary);
-            border-color: var(--border);
+            color: var(--text-primary);
+            border-color: var(--accent);
         }
 
         .btn.delete {
@@ -829,12 +829,13 @@
         }
 
         .btn.edit:hover {
-            background: var(--surface-hover);
+            background: var(--accent-soft);
         }
 
         .btn.delete:hover {
             background: var(--danger-soft);
         }
+
 
         .sort-pill:hover {
             background: var(--surface-hover);
@@ -1065,9 +1066,9 @@
 
                             <!-- Edit / Delete (only for comment owner) -->
                             <th:block th:if="${comment.myComment}">
-                                <a class="btn-tiny"
+                                <a class="btn edit"
                                    th:href="|/comments/edit/${comment.id}?redirect=${redirect_uri}|">Edit</a>
-                                <a class="btn-tiny"
+                                <a class="btn delete"
                                    style="color: var(--danger); border-color: #f3c6c6;"
                                    th:href="|/comments/delete/${comment.id}?redirect=${redirect_uri}|">Delete</a>
                             </th:block>
