@@ -1068,9 +1068,13 @@
                             <th:block th:if="${comment.myComment}">
                                 <a class="btn edit"
                                    th:href="|/comments/edit/${comment.id}?redirect=${redirect_uri}|">Edit</a>
-                                <a class="btn delete"
-                                   style="color: var(--danger); border-color: #f3c6c6;"
-                                   th:href="|/comments/delete/${comment.id}?redirect=${redirect_uri}|">Delete</a>
+                                <form th:action="|/comments/delete/${comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                                    <button type="submit"
+                                            class="btn delete"
+                                            style="color: var(--danger); border-color: #f3c6c6;">
+                                        Delete
+                                    </button>
+                                </form>
                             </th:block>
 
                         </div>
