@@ -122,7 +122,7 @@ fun Application.configureCommentsRouting() {
                 }
 
                 val finalReasonString =
-                    if (!isStaff && reason == null) "***Deleted by poster***" else "***Deleted by staff because : ${reason!!}***"
+                    if (!adminDeletion && reason == null) "***Deleted by poster***" else "***Deleted by staff because : ${reason!!}***"
 
                 val ret = deleteCommentById(commentId, userId, finalReasonString)
 
