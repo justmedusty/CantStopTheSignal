@@ -198,7 +198,6 @@ fun deleteCommentById(commentId: Long, requesterId: Long, reason: String): Boole
 
 }
 
-
 fun updateComment(userId: Long, commentId: Long, newComment: String): Boolean {
     return if (isIdCommentPoster(userId, commentId)) {
         try {
@@ -477,7 +476,7 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
 
             when (order) {
-                "old" -> query.orderBy(Comments.id, SortOrder.ASC)
+                "oldest" -> query.orderBy(Comments.id, SortOrder.ASC)
                 "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
                 "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
                 else -> query.orderBy(Comments.id, SortOrder.DESC)
