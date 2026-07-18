@@ -301,7 +301,7 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
                 .limit(pageSize).offset(((page - 1) * pageSize).toLong())
 
             when (order) {
-                "old" -> query.orderBy(Comments.id, SortOrder.ASC)
+                "oldest" -> query.orderBy(Comments.id, SortOrder.ASC)
                 "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
                 "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
                 else -> query.orderBy(Comments.id, SortOrder.DESC)
