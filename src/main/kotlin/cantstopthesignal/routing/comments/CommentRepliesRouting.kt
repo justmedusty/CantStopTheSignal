@@ -39,7 +39,7 @@ fun Application.configureCommentRepliesRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
-                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "likes"
 
                 /*
                     Since I am going to make the HTML forms require certain fields there shouldn't be any scenarios that I can think of that these things could be missing without
@@ -102,6 +102,7 @@ fun Application.configureCommentRepliesRouting() {
                     }
 
                     when (sortOrder) {
+                        "newest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_NEW.value)
                         "likes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
                         "dislikes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
                         "oldest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)

@@ -1035,7 +1035,7 @@
             <div class="sort-bar" th:if="${replies != null and not #lists.isEmpty(replies) ? replies.size() : 0}">
                 <span class="sort-label">Sort:</span>
                 <a class="sort-pill"
-                   th:classappend="${sort == null or sort == ''} ? 'active'"
+                   th:classappend="${sort == 'new'} ? 'active'"
                    th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=newest'}">
                     🕐 Newest
                 </a>
@@ -1045,7 +1045,7 @@
                     📅 Oldest
                 </a>
                 <a class="sort-pill"
-                   th:classappend="${sort == 'liked'} ? 'active'"
+                   th:classappend="${sort == null or sort == '' or sort == 'liked'} ? 'active'"
                    th:href="${'/comments/' + post.id +  '/replies/' + focal_comment.id + '?orderBy=likes'}">
                     👍 Most Liked
                 </a>

@@ -978,7 +978,7 @@
             <div class="sort-bar">
                 <span class="sort-label">Sort:</span>
                 <a class="sort-pill"
-                   th:classappend="${sort == null or sort == ''} ? 'active'"
+                   th:classappend="${sort == 'new'} ? 'active'"
                    th:href="${'/posts/' + post.id + '?orderBy=newest'}">
                     🕐 Newest
                 </a>
@@ -988,7 +988,7 @@
                     📅 Oldest
                 </a>
                 <a class="sort-pill"
-                   th:classappend="${sort == 'liked'} ? 'active'"
+                   th:classappend="${sort == null or sort == 'liked'} ? 'active'"
                    th:href="${'/posts/' + post.id + '?orderBy=likes'}">
                     👍 Most Liked
                 </a>

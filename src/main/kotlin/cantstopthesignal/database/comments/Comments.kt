@@ -302,9 +302,9 @@ fun getCommentsByPost(postId: Long, pageSize: Int, page: Int, userId: Long?, ord
 
             when (order) {
                 "oldest" -> query.orderBy(Comments.id, SortOrder.ASC)
-                "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "newest" -> query.orderBy(Comments.id, SortOrder.DESC)
                 "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
-                else -> query.orderBy(Comments.id, SortOrder.DESC)
+                else -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
             }
 
             val totalPages = ceil(Comments.selectAll().where {
@@ -477,9 +477,9 @@ fun getReplyComments(commentId: Long, pageSize: Int, page: Int, requesterId: Lon
 
             when (order) {
                 "oldest" -> query.orderBy(Comments.id, SortOrder.ASC)
-                "likes" -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "newest" -> query.orderBy(Comments.id, SortOrder.DESC)
                 "dislikes" -> query.orderBy(dislikeCountCoalesced to SortOrder.DESC)
-                else -> query.orderBy(Comments.id, SortOrder.DESC)
+                else -> query.orderBy(likeCountCoalesced to SortOrder.DESC)
             }
 
             val childComments = query.map {

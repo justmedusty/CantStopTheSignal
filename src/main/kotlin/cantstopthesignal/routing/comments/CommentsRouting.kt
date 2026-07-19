@@ -143,7 +143,7 @@ fun Application.configureCommentsRouting() {
                 val success = call.request.queryParameters["success"]
                 val id = call.parameters["postId"]?.toLongOrNull() ?: throw BadRequestException("Invalid or missing id")
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
-                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "likes"
                 if (userId == null) {
                     return@get call.respondRedirect("/logout")
                 }
@@ -185,6 +185,7 @@ fun Application.configureCommentsRouting() {
                     }
 
                     when (sortOrder) {
+                        "newest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_NEW)
                         "likes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
                         "dislikes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
                         "oldest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)

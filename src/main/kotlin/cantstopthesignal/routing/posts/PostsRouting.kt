@@ -89,7 +89,7 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
                 val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
-                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "likes"
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val currentPath = call.request.uri
                 val redirect = URLEncoder.encode(currentPath, "UTF-8")
@@ -131,6 +131,7 @@ fun Application.configurePostRouting() {
                         put(ThymeLeafMapKeys.SUCCESS.value, success)
                     }
                     when (sortOrder) {
+                        "newest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_NEW.value)
                         "likes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
                         "dislikes" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
                         "oldest" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
