@@ -991,12 +991,17 @@
                     </button>
                 </form>
 
-                <!-- Edit / Delete (owner only) -->
+                <!-- Edit / Delete (only for comment owner) -->
                 <th:block th:if="${focal_comment.myComment}">
-                    <a class="btn btn-muted"
-                       th:href="|/comments/${id}/edit/${focal_comment.id}|">Edit</a>
-                    <a class="btn btn-danger-outline"
-                       th:href="|/comments/${id}/delete/${focal_comment.id})|">Delete</a>
+                    <a class="btn-tiny"
+                       th:href="|/comments/edit/${focal_comment.id}?redirect=${redirect_uri}|">Edit</a>
+                    <form th:action="|/comments/delete/${focal_comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                        <button type="submit"
+                                class="btn delete"
+                                style="color: var(--danger); border-color: #f3c6c6;">
+                            Delete
+                        </button>
+                    </form>
                 </th:block>
 
 
