@@ -9,11 +9,11 @@ import cantstopthesignal.helper.isThisCode
 import cantstopthesignal.log.logger
 import cantstopthesignal.table_definitions.*
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.Locale.getDefault
@@ -127,11 +127,14 @@ fun verifyUserId(userId: Long, postId: Long): Boolean {
     }
 }
 
-fun deletePost(userId: Long, postId: Long): Boolean {
+fun deletePost(userId: Long, postId: Long, reason: String): Boolean {
     return if (verifyUserId(userId, postId) || isUserAdmin(userId)) {
         try {
             transaction {
-                Posts.deleteWhere { id eq postId }
+                Posts.update({ Posts.id eq postId }) {
+                    it[deletedReason] = reason
+                    it[deleted] = true
+                }
                 true
             }
         } catch (e: Exception) {
@@ -143,6 +146,7 @@ fun deletePost(userId: Long, postId: Long): Boolean {
         false
     }
 }
+
 
 fun totalTopicPages(): Long {
     return try {
@@ -263,7 +267,7 @@ fun fetchPostsByTopic(
                     timeStamp = it[Posts.timestamp],
                     title = if (!isDeleted) it[PostContents.title] else "*Deleted Post*",
                     content = if (!isDeleted) it[PostContents.content]
-                    else "This post was removed by staff because: ${it[Posts.deletedReason]!!}",
+                    else "This post was removed because : ${it[Posts.deletedReason]!!}",
                     likeCount = it[likeCountCoalesced],
                     dislikeCount = it[dislikeCountCoalesced],
                     likedByMe = isLikedByMe,
@@ -321,7 +325,7 @@ fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): Lis
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
+                        } else "This post was removed because :" + it[Posts.deletedReason]!!,
                         it[PostLikes.postId.count()],
                         it[PostDislikes.postId.count()],
                         isPostLikedByMe,
@@ -379,7 +383,7 @@ fun fetchPostsInteractedByMe(page: Int, limit: Int, userId: Long, liked: Boolean
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
+                        } else "This post was removed because :" + it[Posts.deletedReason]!!,
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         liked,
@@ -435,7 +439,7 @@ fun fetchPostById(givenId: Long, userId: Long): List<Post>? {
                         } else "*Deleted Post*",
                         if (!it[Posts.deleted]) {
                             it[PostContents.content]
-                        } else "This post was removed by staff because :" + it[Posts.deletedReason]!!,
+                        } else "This post was removed because :" + it[Posts.deletedReason]!!,
                         getLikesForPost(postId),
                         getDislikesForPost(postId),
                         likedByMe,
@@ -538,7 +542,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                     timeStamp = it[Posts.timestamp],
                     title = if (!isDeleted) it[PostContents.title] else "*Deleted Post*",
                     content = if (!isDeleted) it[PostContents.content]
-                    else "This post was removed by staff because: ${it[Posts.deletedReason]!!}",
+                    else "This post was removed because : ${it[Posts.deletedReason]!!}",
                     likeCount = it[likeCountCoalesced],
                     dislikeCount = it[dislikeCountCoalesced],
                     likedByMe = isLikedByMe,
@@ -604,7 +608,7 @@ fun searchPostByTitleOrContents(userId: Long?, queryParam: String, limit: Int, p
                     } else "*Deleted Post*",
                     if (!row[Posts.deleted]) {
                         row[PostContents.content]
-                    } else "This post was removed by staff because :" + row[Posts.deletedReason]!!,
+                    } else "This post was removed because :" + row[Posts.deletedReason]!!,
                     getLikesForPost(postId),
                     getDislikesForPost(postId),
                     isLikedByMe,

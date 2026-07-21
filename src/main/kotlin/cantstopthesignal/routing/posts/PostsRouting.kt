@@ -3,19 +3,16 @@ package cantstopthesignal.routing.posts
 import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
-import cantstopthesignal.database.posts.fetchPopularTopicNames
-import cantstopthesignal.database.posts.fetchPostById
-import cantstopthesignal.database.posts.fetchPosts
-import cantstopthesignal.database.posts.totalTopicPages
+import cantstopthesignal.database.posts.*
+import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
 import cantstopthesignal.siteConfig
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.*
-import io.ktor.server.request.uri
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.thymeleaf.*
@@ -179,6 +176,54 @@ fun Application.configurePostRouting() {
                 return@get call.respond(
                     ThymeleafContent("popular_topics", model)
                 )
+            }
+
+            post("/posts/delete/{postId}") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@post call.respond(
+                    HttpStatusCode.BadRequest
+                )
+                val params = call.receiveParameters()
+                val redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val postId =
+                    call.parameters["postId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"]
+
+                val post = fetchPostById(postId, userId)
+
+                if (post == null) {
+                    val error = "This post does not exist"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                if (post[0].deleted) {
+                    val error = "post is already deleted"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val isStaff = isUserAdminOrModerator(userId)
+                val adminDeletion = (post[0].posterId != userId && isStaff)
+                if (post[0].posterId != userId && !isStaff) {
+                    return@post call.respond(HttpStatusCode.Forbidden)
+                }
+                if (reason != null && reason.length > Length.MAX_REASON_LENGTH.value) {
+                    val error = "Deletion reason is too long"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val finalReasonString =
+                    if (!adminDeletion) "***Deleted by poster***" else "***Deleted by staff because : ${reason!!}***"
+
+                val ret = deletePost(userId, postId, finalReasonString)
+
+                if (!ret) {
+                    val error = "An error occurred while deleting comment"
+                    return@post call.respondRedirect("$redirect?error=$error")
+                }
+
+                val success = "Post deleted successfully."
+                return@post call.respondRedirect("/feed?success=$success")
+
+
             }
 
 

@@ -944,7 +944,13 @@
             <div class="post-actions">
                 <div class="post-actions-right" th:if="${post.myPost}">
                     <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
-                    <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
+                    <form th:action="|/posts/delete/${post.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                        <button type="submit"
+                                class="btn delete"
+                                style="color: var(--danger); border-color: #f3c6c6;">
+                            🗑️ Delete
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
