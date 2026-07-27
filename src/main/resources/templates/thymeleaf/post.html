@@ -849,6 +849,131 @@
             color: var(--accent);
         }
 
+        /*
+         * ── Confirm-on-click pattern (pure CSS) ──
+         *
+         * Each .confirm-wrap contains:
+         *   1. A real <a> (the confirm action) — hidden by default via the checkbox trick
+         *   2. A <label> styled as the "idle" button (dummy trigger)
+         *   3. A hidden <input type="checkbox"> that acts as the toggle
+         *
+         * When the checkbox is :checked, the idle label hides and the
+         * confirm anchor appears in its place.  No JavaScript required.
+         *
+         * Markup order inside .confirm-wrap must be:
+         *   input[type=checkbox]  →  label.idle-btn  →  a.confirm-btn
+         */
+        .confirm-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Hide the real checkbox visually but keep it in the tab order */
+        .confirm-wrap input[type="checkbox"].confirm-toggle {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        /* Idle (dummy) button — the label the user sees first */
+        .idle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: border-color .15s, color .15s;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .idle-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text);
+        }
+
+        /* Danger variant idle button */
+        .idle-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Warn variant idle button */
+        .idle-btn.warn:hover {
+            border-color: var(--warn);
+            color: var(--warn);
+        }
+
+        /* Confirm button — hidden until checkbox is :checked */
+        .confirm-btn {
+            display: none;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.35rem 0.9rem;
+            border-radius: 7px;
+            border: 1px solid;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+            animation: confirm-pop .12s ease-out;
+        }
+
+        @keyframes confirm-pop {
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Danger confirm */
+        .confirm-btn.danger {
+            background: var(--danger-dim);
+            border-color: var(--danger-border);
+            color: var(--danger);
+        }
+
+        .confirm-btn.danger:hover {
+            background: #3d1f1f;
+        }
+
+        /* Warn confirm */
+        .confirm-btn.warn {
+            background: var(--warn-dim);
+            border-color: var(--warn-border);
+            color: var(--warn);
+        }
+
+        .confirm-btn.warn:hover {
+            background: #3d2810;
+        }
+
+        /*
+         * The magic: when the checkbox is checked,
+         * hide the idle label and show the confirm anchor.
+         */
+        .confirm-toggle:checked ~ .idle-btn {
+            display: none;
+        }
+
+        .confirm-toggle:checked ~ .confirm-btn {
+            display: inline-flex;
+        }
+
     </style>
 </head>
 <body>
@@ -941,16 +1066,23 @@
 
 
             <!-- Reaction / action bar -->
+
             <div class="post-actions">
                 <div class="post-actions-right" th:if="${post.myPost}">
                     <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
-                    <form th:action="|/posts/delete/${post.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
-                        <button type="submit"
-                                class="btn delete"
-                                style="color: var(--danger); border-color: #f3c6c6;">
-                            🗑️ Delete
-                        </button>
-                    </form>
+
+                    <div class="confirm-wrap">
+                        <form th:action="|/posts/delete/${post.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                            <input type="checkbox" class="confirm-toggle" id="toggle-delete">
+                            <label class="idle-btn danger" for="toggle-delete"
+                                   title="Delete this post">
+                                ✕ Delete
+                            </label>
+                            <button type="submit" class="confirm-btn danger">
+                                ⚠ Are you sure?
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1074,13 +1206,19 @@
                             <th:block th:if="${comment.myComment}">
                                 <a class="btn edit"
                                    th:href="|/comments/edit/${comment.id}?redirect=${redirect_uri}|">Edit</a>
-                                <form th:action="|/comments/delete/${comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
-                                    <button type="submit"
-                                            class="btn delete"
-                                            style="color: var(--danger); border-color: #f3c6c6;">
-                                        Delete
-                                    </button>
-                                </form>
+
+                                <div class="confirm-wrap">
+                                    <form th:action="|/comments/delete/${comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                                        <input type="checkbox" class="confirm-toggle" id="toggle-leave">
+                                        <label class="idle-btn danger" for="toggle-leave"
+                                               title="Leave this conversation">
+                                            ✕ Delete
+                                        </label>
+                                        <button type="submit" class="confirm-btn danger">
+                                            ⚠ Are you sure?
+                                        </button>
+                                    </form>
+                                </div>
                             </th:block>
 
                         </div>
