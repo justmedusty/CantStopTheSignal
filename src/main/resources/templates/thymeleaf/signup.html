@@ -188,9 +188,9 @@
             <label for="pgp">PGP Public Key</label>
             <input type="text" id="pgp" name="pgp"/>
             <p th:if="${server_config.pgpLoginOnly == false}" class="field-hint">Optional — used for encrypted messaging. Ensure that the name and email attached to
-                the key you use here does NOT reveal more than you intend it to. You may also use your PGP key to login via a signature challenge. Ascii armored PGP public key format only.</p>
+                the key you use here does NOT reveal more than you intend it to. You may also use your PGP key to login via a signature challenge. Ascii armored PGP public key format only. Remove any comments in the key.</p>
 
-            <p th:if="${server_config.pgpLoginOnly == true}" class="field-hint">MANDATORY — This server has turned off password authentication, you must provide a PGP key to sign up and be able to sign a message on demand to log in. Ascii armored PGP public key format only.</p>
+            <p th:if="${server_config.pgpLoginOnly == true}" class="field-hint">MANDATORY — This server has turned off password authentication, you must provide a PGP key to sign up and be able to sign a message on demand to log in. Ascii armored PGP public key format only. No comments in the key.</p>
         </div>
 
         <div class="form-group" th:if="${invite_only == true}">
