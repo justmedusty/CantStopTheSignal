@@ -190,6 +190,12 @@
             color: #80d09e;
         }
 
+        .alert-warn {
+            background: #7e3500;
+            border: 1px solid #be7c1a;
+            color: #ffb45a;
+        }
+
         .topbar {
             display: flex;
             align-items: center;
@@ -408,6 +414,9 @@
             </div>
         </div>
 
+        <div class="alert alert-warn">Always with encrypt with member keys when possible. If not encrypting messages, do not send personally identifiable information in the clear. Happy chatting.</div>
+        <br>
+
         <div class="card">
             <th:block th:if="${message_conversations != null and not #lists.isEmpty(message_conversations)}">
                 <a class="conv-row"
@@ -424,7 +433,6 @@
                         <div class="conv-header">
                             <span class="conv-name">
                                 <div class="conv-name" th:text="${convo.name}">Name</div>
-                                <span class="enc-icon" title="PGP-Keys-Available">Always Encrypt With Member Keys🔒</span>
                             </span>
                             <span class="conv-time"
                                   th:text="${#temporals.format(convo.timeOfLastMessage,'MMM d, HH:mm')}">now</span>
