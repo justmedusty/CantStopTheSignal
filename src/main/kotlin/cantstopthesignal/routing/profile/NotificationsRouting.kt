@@ -21,7 +21,7 @@ fun Application.configureNotificationRoutes() {
             get("/notifications") {
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val page = call.request.queryParameters["page"]?.toLongOrNull() ?: 1
-                val limit: Long = Length.MAX_PAGE_LIMIT.value
+                val limit: Long = Length.MAX_NOTIFICATION_LIMIT.value
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
 
