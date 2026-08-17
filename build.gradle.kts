@@ -2,6 +2,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(ktorLibs.plugins.ktor)
+
 }
 
 group = "com.freedom"
@@ -13,6 +14,14 @@ application {
 
 kotlin {
     jvmToolchain(25)
+}
+
+ktor {
+    docker {
+        jreVersion.set(JavaVersion.VERSION_25)
+        localImageName.set("cant-stop-the-signal")
+        imageTag.set("0.0.1-preview")
+    }
 }
 dependencies {
     implementation(ktorLibs.serialization.jackson)
