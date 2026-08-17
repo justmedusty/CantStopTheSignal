@@ -1,10 +1,9 @@
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(ktorLibs.plugins.ktor)
-
+    kotlin("jvm") version "2.2.20"
+    id("io.ktor.plugin") version "3.5.2"
+    application
 }
-
 group = "com.freedom"
 version = "1.0.0-SNAPSHOT"
 
