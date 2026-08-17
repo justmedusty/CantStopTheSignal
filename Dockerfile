@@ -17,7 +17,7 @@ WORKDIR /home/gradle/src
 RUN gradle buildFatJar --no-daemon
 
 # Stage 3: Create the Runtime Image
-FROM eclipse-temurin:25 AS runtime
+FROM docker.io/library/eclipse-temurin:25 AS runtime
 EXPOSE 8080
 RUN mkdir /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/cantstopthesignal.jar
