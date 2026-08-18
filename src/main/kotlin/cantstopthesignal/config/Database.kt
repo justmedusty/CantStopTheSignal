@@ -13,13 +13,19 @@ import kotlin.system.exitProcess
  *
  */
 fun Application.configureDatabase() {
-    val config = environment.config
-    val url = config.property("storage.jdbcURL").getString()
-    val user = config.property("storage.user").getString()
-    val password = config.property("storage.password").getString()
 
+
+    val dbHost = System.getenv("DATABASE_HOST") ?: "db"
+    val dbPort = System.getenv("DATABASE_PORT") ?: "5432"
+    val dbName = System.getenv("DATABASE_NAME") ?: "main"
+    val dbUser = System.getenv("DATABASE_USER") ?: "postgres"
+    val dbPassword = System.getenv("DATABASE_PASSWORD_FILE")
+
+        ?.let { java.io.File(it).readText().trim() }
+        ?: error("APP_SECRET_KEY_FILE is required")
+    val jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/$dbName"
     try {
-        Database.connect(url, driver = "org.postgresql.Driver", user = user, password = password)
+        Database.connect(jdbcUrl, driver = "org.postgresql.Driver", user = dbUser, password = dbPassword)
     } catch (e: Exception) {
         e.printStackTrace()
         println(e)

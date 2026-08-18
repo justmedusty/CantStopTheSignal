@@ -30,12 +30,6 @@ ktor:
       - cantstopthesignal.routing.posts.PostEditRoutingKt.configurePostEditingRouting
       - cantstopthesignal.routing.comments.CommentEditsRoutingKt.configureCommentEditRouting
 
-storage:
-  driverClassName: "org.postgresql.Driver"
-  jdbcURL: "jdbc:postgresql://localhost:5432/main"
-  user: "postgres"
-  password: "password"
-
 
 site:
   name: "Can't Stop The Signal." # Your service name, displayed as part of the header card

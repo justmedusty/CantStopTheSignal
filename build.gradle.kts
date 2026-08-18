@@ -1,4 +1,3 @@
-
 plugins {
     kotlin("jvm") version "2.4.10"
     id("io.ktor.plugin") version "3.5.2"
@@ -20,8 +19,18 @@ ktor {
         jreVersion.set(JavaVersion.VERSION_25)
         localImageName.set("cant-stop-the-signal")
         imageTag.set("0.0.1-preview")
+        portMappings.set(
+            listOf(
+                io.ktor.plugin.features.DockerPortMapping(
+                    8080,
+                    8080,
+                    io.ktor.plugin.features.DockerPortMappingProtocol.TCP
+                )
+            )
+        )
     }
 }
+
 dependencies {
     implementation(ktorLibs.serialization.jackson)
     implementation(ktorLibs.server.auth)
@@ -47,7 +56,7 @@ dependencies {
     implementation("org.bouncycastle:bcpg-jdk18on:1.84")
     implementation("org.jetbrains.exposed:exposed-java-time:1.2.0")
     implementation("org.mindrot:jbcrypt:0.4")
-    implementation ("org.pgpainless:pgpainless-sop:2.0.3")
+    implementation("org.pgpainless:pgpainless-sop:2.0.3")
 
 
     testImplementation(kotlin("test"))

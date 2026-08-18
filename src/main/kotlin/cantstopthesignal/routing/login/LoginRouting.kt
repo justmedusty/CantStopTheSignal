@@ -11,6 +11,7 @@ import cantstopthesignal.enums.ThymeLeafMapKeys
 import cantstopthesignal.log.logger
 import cantstopthesignal.security.JWTConfig
 import cantstopthesignal.security.createJWT
+import cantstopthesignal.security.jwtSecret
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -137,7 +138,7 @@ fun Application.configureLoginRoutes() {
                 JWTConfig(
                     siteConfig?.audience ?: "someoneisbadanddidntsetthis",
                     siteConfig?.issuer ?: "someoneisbadanddidntsetthis",
-                    System.getenv("JWT_SECRET"),
+                    jwtSecret,
                     getUserId(username)!!, // We can force assert this as not null due to the verifiy credentials call above, it cannot get here if the user info is bogus
                     (siteConfig?.tokenLifetimeMinutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
                 ),
@@ -192,7 +193,7 @@ fun Application.configureLoginRoutes() {
                 JWTConfig(
                     siteConfig.audience ?: "someoneisbadanddidntsetthis",
                     siteConfig.issuer ?: "someoneisbadanddidntsetthis",
-                    System.getenv("JWT_SECRET"),
+                    jwtSecret,
                     getUserId(username)!!, // We can force assert this as not null due to the verifiy credentials call above, it cannot get here if the user info is bogus
                     (siteConfig.tokenLifetimeMinutes?.times(60)?.times(1000) ?: Length.JWT_TOKEN_LIFETIME_MS.value),
                 ),

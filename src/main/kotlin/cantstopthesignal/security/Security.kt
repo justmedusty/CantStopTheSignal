@@ -1,8 +1,8 @@
 package cantstopthesignal.security
 
+import cantstopthesignal.siteConfig
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import cantstopthesignal.siteConfig
 import io.ktor.http.auth.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,14 +17,20 @@ data class Token(
     val time: LocalDateTime
 )
 
+lateinit var jwtSecret: String
+
 fun Application.configureSecurity() {
+    jwtSecret = System.getenv("APP_SECRET_KEY_FILE")
+        ?.let { java.io.File(it).readText().trim() }
+        ?: error("APP_SECRET_KEY_FILE is required")
     authentication {
         jwt(name = "jwt") {
             verifier(
-                JWT.require(Algorithm.HMAC256(System.getenv("JWT_SECRET")))
-                    .withIssuer(siteConfig!!.issuer)
+                JWT.require(Algorithm.HMAC256((jwtSecret)))
+                    .withIssuer(siteConfig.issuer)
                     .build()
             )
+
 
             // tell it to read from the cookie instead of the header
             authHeader { call ->

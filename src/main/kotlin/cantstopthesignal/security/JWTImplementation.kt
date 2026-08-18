@@ -34,5 +34,5 @@ fun createJWT(jwtConfig: JWTConfig): String {
         .withIssuer(jwtConfig.domain)
         .withExpiresAt(Date(System.currentTimeMillis() + jwtConfig.expiresInMS))
         .withSubject(jwtConfig.id.toString())
-        .sign(Algorithm.HMAC256(System.getenv("JWT_SECRET")))
+        .sign(Algorithm.HMAC256(jwtSecret))
 }
