@@ -3,11 +3,7 @@ package cantstopthesignal
 import cantstopthesignal.config.SiteConfig
 import cantstopthesignal.database.messages.doMessageDeletionRound
 import io.ktor.server.netty.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.time.Duration
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
@@ -29,6 +25,6 @@ fun main(args: Array<String>) {
 
     }
 
-    
+
     EngineMain.main(args)
 }
