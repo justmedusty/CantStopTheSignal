@@ -13,6 +13,7 @@ services:
       # Your app must support reading these files.
       APP_SECRET_KEY_FILE: /run/secrets/app_secret_key
       DATABASE_PASSWORD_FILE: /run/secrets/postgres_password
+      ADMIN_PASSWORD: /run/secrets/adminpassword.txt
       DATABASE_HOST: db
       DATABASE_PORT: "5432"
       DATABASE_NAME: main
