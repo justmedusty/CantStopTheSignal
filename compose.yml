@@ -9,11 +9,12 @@ services:
     secrets:
       - app_secret_key
       - postgres_password
+      - adminpassword
     environment:
       # Your app must support reading these files.
       APP_SECRET_KEY_FILE: /run/secrets/app_secret_key
       DATABASE_PASSWORD_FILE: /run/secrets/postgres_password
-      ADMIN_PASSWORD: /run/secrets/adminpassword.txt
+      ADMIN_PASSWORD: /run/secrets/adminpassword
       DATABASE_HOST: db
       DATABASE_PORT: "5432"
       DATABASE_NAME: main
@@ -37,3 +38,5 @@ secrets:
     file: ./secrets/postgres_password.txt
   app_secret_key:
     file: ./secrets/app_secret_key.txt
+  adminpassword:
+    file: ./secrets/adminpassword.txt
