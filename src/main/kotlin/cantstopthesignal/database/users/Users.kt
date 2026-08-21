@@ -148,6 +148,9 @@ fun createUser(user: User): Boolean {
                 val id: Long = Users.insert {
                     it[userName] = user.userName
                     it[passwordHash] = hashPassword(user.passwordHash)
+                    it[isAdmin] = user.isAdmin
+                    it[isModerator] = user.isModerator
+                    it[isSuspended] = user.isSuspended
                 } get Users.id
 
                 ProfileData.insert {

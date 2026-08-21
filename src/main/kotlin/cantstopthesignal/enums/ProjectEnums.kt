@@ -1,6 +1,7 @@
 package cantstopthesignal.enums
 
 enum class Length(val value: Long) {
+    MAX_DATABASE_RETRIES(10),
     MAX_INVITE_CODES(500),
     MAX_CONTENT_LENGTH(20_000),
     MAX_TITLE_LENGTH(300),
