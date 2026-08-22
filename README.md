@@ -1,5 +1,73 @@
 # cantstopthesignal
 
+# Building and Deploying
+
+I built the compose file with podman in mind rather than docker, but docker can be used as well. The instructions will
+use podman. I strongly recommend using Luks encryption for your entire disk, at the very least whichever disk the
+database is on. Use a strong password and do not back it up online or use it online. <br>
+
+1. On your server box, run git clone https://codeberg.org/TemetNosce/CantStopTheSignal.git or if codeberg is down you
+   can also use https://github.com/justmedusty/CantStopTheSignal.git <br>
+2. Inside your build directory, you will **run the secret_setup.sh script** , or place the files that it creates
+   manually yourself. Once the script is run, you can inspect the files in the secrets directory. You may change any of
+   them if you would like. The admin password can be easily changed so that can be simpler so long as you change it, if
+   it is very simple, upon first login. <br>
+3. Ensure that the custom fields in resources/application.yaml match what you want, you can change the name, topic,
+   motd, message_deletion_window_hours, but be aware that choosing invite only , signups_disabled, pgp_login_only,
+   it
+   will NOT be changeable through the admin panel. These can all be set dynamically by admins however that is only
+   if
+   these values are set to false in the config. Otherwise they are **hard set to ON** <br>
+   From the root directory after having all 3 secrets files ready, you will run
+   > podman-compose up -d
+   >
+   and wait for it
+   to be complete, when it is done, you can check the status with (while still in the root directory)
+   > podman-compose ps
+   >
+   and ensure neither the postgres container nor the main server container have exited. <br>
+4. If both containers show status as UP, then you can access the local service either on your server box if you have a
+   browser on it, or on your local network by opening a browser and navigating to local-server-ip:8080. Here you can log
+   in to the admin account with username admin password whatever is in the secrets/adminpassword.txt file. You can
+   change your username or password, add a public key, once you are logged in. <br>
+5. You can create a first post if you wish for when your service is up with an explanation , welcome message, what have
+   you. <br>
+6. From here we will download the i2po router, since i2pd is generally a bit better suited for server usage. On your
+   Linux distro install i2pd, it is usually packaged with most distros, and ensure that the init service is enabled to
+   run on boot <br>
+7. You can either edit /etc/i2pd/tunnels.conf to add the entry or make a special file for it in /etc/i2pd/tunnels.conf.d
+   and make a custom .conf file in there. We will prefer to edit the main tunnels.conf file at
+   /etc/i2pd/tunnels.conf : <br>
+   add
+
+> [your-service-name]<br>
+> type = http<br>
+> host = 127.0.0.1<br>
+> port = 8080<br>
+> keys = your-service-name.dat<br>
+>
+to your tunnels.conf file, and restart i2pd or reboot your server. Afterward navigate to 127.0.0.1:7070 and under the
+i2p tunnels banner, you will see under the Servers banner the b32 beside your-service-name from above. You will
+take ******.b32.i2p and paste that into your browser on a browser set up for I2P to visit your webpage remotely. You can
+share this b32 with anyone who you wish to know about your forum. More info for server tunnel setup
+at https://docs.i2pd.website/en/latest/user-guide/tunnels/.
+You could try setting up encrypted lease sets if you are running a private invite-only instance to keep it a bit more
+private. <br>
+
+8. Your webservice is now up and running and ready to be used by the world in an anonymous fashion. The directory in
+   which you initially git cloned contains a freedom_for_all directory, this directory has your service database in it.
+   This is what you will copy for backups. Inside the same initial root project directory is where you can run
+
+> podman-compose down
+>
+to bring your service down for a backup or some other change you may wish to make. You can start the containers back up
+again with podman-compose up -d from that directory or finding the images in the
+> podman images
+>
+list and running
+
+> podman start image_hash.
+>
 
 # Features
 
@@ -33,7 +101,7 @@ the logs of moderators, create new moderators or admins, suspend signups etc. <b
 There is an option when creating DMs to set auto-delete, if set, has all messages within said conversation wiped every X
 hours as defined in the application.yaml file by the site hoster (only if there are no unread message
 notifications). <br>
-A user can leave a ocnversation, which deletes all of their messages, or remain within the conversation and delete all
+A user can leave a conversation, which deletes all of their messages, or remain within the conversation and delete all
 of their messages from the database. <br>
 
 # Development Note
@@ -59,26 +127,8 @@ the chrysalis by taking the front door, there is no door. It escapes the chrysal
 be no longer be contained by it. With that moment giving birth to something the caterpillar could not have ever
 imagined.
 
-My vision for this project, is to allow free, open communication about deception we endure, about false realities we are
-fed, false limits imposed upon us, false narratives carefully crafted and engineered to steer our emotion and therefore
-our thoughts, beliefs, and perception by extension. This, in turn, leads to real growth and awareness. And growth, will
-lead to the eventual rupture of the chrysalis leading to a future nobody thought was possible. The walls are showing
-signs of cracking. It is not over yet, but through internal transformation made more easily possible via open
-communication, we can change the world together. What thrives on the darkness of deception, cannot survive the blinding
-light of truth.
-
-"And I saw heaven opened, and behold, a white horse, and He who sat on it is called Faithful and True, and in
-righteousness He judges and wages war. His eyes are a flame of fire, and on His head are many crowns; and He has a name
-written on Him which no one knows except Himself."
-
-"असतो मा सद्गमय तमसो मा ज्योतिर्गमय मृत्योर्माऽमृतं गमय"
-
-"From the unreal lead me to the real! From the darkness lead me to the light! From death lead me to immortality!"
-
-The sun will rise again, even after the darkest night.
-
-
 ## Screenshots
+
 ![img.png](img.png)
 
 ![img_13.png](img_13.png)
@@ -105,16 +155,3 @@ The sun will rise again, even after the darkest night.
 
 ![img_14.png](img_14.png)
 
-## Building & Running
-
-To build or run the project, use one of the following tasks:
-
-| Task | Description |
-|------|-------------|
-
-If the server starts successfully, you'll see the following output:
-
-```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
-```

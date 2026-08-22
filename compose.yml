@@ -23,7 +23,7 @@ services:
   db:
     image: docker.io/library/postgres:16
     volumes:
-      - ./tmp/db:/var/lib/postgresql/data
+      - ./freedom_for_all/db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: main
       POSTGRES_USER: postgres
