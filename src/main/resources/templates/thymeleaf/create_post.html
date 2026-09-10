@@ -4,24 +4,28 @@
     <meta charset="UTF-8">
     <title>Create Post</title>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         :root {
-            --bg:            #0f1117;
-            --surface:       #181b24;
+            --bg: #0f1117;
+            --surface: #181b24;
             --surface-hover: #1e2130;
-            --border:        #272b3a;
-            --text-primary:  #e8eaf2;
-            --text-secondary:#7b82a0;
-            --accent:        #5b8af5;
-            --accent-soft:   #1e2d56;
-            --danger:        #e06060;
-            --danger-soft:   #2d1a1a;
-            --muted:         #4a5068;
-            --radius:        10px;
-            --shadow:        0 2px 12px rgba(0,0,0,0.25);
-            --font:          'DM Sans', sans-serif;
-            --font-serif:    'Lora', serif;
+            --border: #272b3a;
+            --text-primary: #e8eaf2;
+            --text-secondary: #7b82a0;
+            --accent: #5b8af5;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #4a5068;
+            --radius: 10px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
         }
 
         body {
@@ -33,7 +37,10 @@
             min-height: 100vh;
         }
 
-        .container { max-width: 760px; margin: 0 auto; }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+        }
 
         /* ── Top bar ── */
         .topbar {
@@ -44,6 +51,7 @@
             gap: 1rem;
             flex-wrap: wrap;
         }
+
         .topbar h1 {
             font-family: var(--font-serif);
             font-size: 2rem;
@@ -62,6 +70,7 @@
             margin-bottom: 1rem;
             font-size: 0.875rem;
         }
+
         .success {
             background: #1a2d1f;
             color: #4ecb82;
@@ -91,11 +100,18 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .card-body { padding: 1.5rem 1.75rem; }
+        .card-body {
+            padding: 1.5rem 1.75rem;
+        }
 
         /* ── Form ── */
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group:last-of-type { margin-bottom: 0; }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 0;
+        }
 
         label {
             display: block;
@@ -128,7 +144,7 @@
         input[type="text"]:focus,
         textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(91,138,245,0.12);
+            box-shadow: 0 0 0 3px rgba(91, 138, 245, 0.12);
         }
 
         .helper {
@@ -164,17 +180,30 @@
             transition: opacity 0.15s, transform 0.1s;
             line-height: 1;
         }
-        .btn:active { transform: scale(0.97); }
 
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { opacity: 0.88; }
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.88;
+        }
 
         .btn-secondary {
             background: transparent;
             color: var(--text-secondary);
             border-color: var(--border);
         }
-        .btn-secondary:hover { background: var(--surface-hover); }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+        }
     </style>
 </head>
 <body>
@@ -185,7 +214,7 @@
         <a class="btn btn-secondary" href="/feed">Home Feed</a>
     </div>
 
-    <div class="error"   th:if="${error}"   th:text="${error}"></div>
+    <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
 
     <div class="card">
@@ -204,7 +233,9 @@
                     <label for="topic">Topic</label>
                     <input id="topic" type="text" name="topic" minlength="2" maxlength="100"
                            placeholder="Enter a topic" required>
-                    <p class="helper">Keep it short and simple — check popular topic names to make this post easier to find. Only letters and numbers, symbols outside of that will be rejected, and you will need to retype your post.</p>
+                    <p class="helper">Keep it short and simple — check popular topic names to make this post easier to
+                        find. Only letters and numbers, symbols outside of that will be rejected, and you will need to
+                        retype your post.</p>
                 </div>
 
                 <div class="form-group">
@@ -212,6 +243,8 @@
                     <textarea id="content" name="content" minlength="5" maxlength="20000"
                               placeholder="Write your post here..." required></textarea>
                     <p class="helper">You can write a longer message, update, or thought here.</p>
+                    <p class="helper"> NOTE: If your post is very long and well-thought-out, I STRONGLY SUGGEST you copy it into a
+                        notepad in case there are connection issues or your token expires.</p>
                 </div>
             </div>
 

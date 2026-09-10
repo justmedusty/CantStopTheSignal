@@ -40,9 +40,9 @@ site:
   audience: "cantstopthesignal"
   issuer: "cantstopthesignal.i2p" #This and the one after is just for your token, it doesnt necessarily matter that much but you should set it your i2p service name for consistency
   baseUrl: "http://cantstopthesignal.i2p"
-  token_lifetime_minutes: "25" #There is no token invalidation done so it is recommended to keep this value below 30 minutes , you can put it higher just bare in mind session hijacking risk grows with this value
+  token_lifetime_minutes: "180" #There is no token invalidation done so keep that in mind
   invite_only: "false" # I will use this to make it so that users require a special invite code or similar to sign up so people can host private forums. This can be changed in the admin panel. If this option here is true, it cannot be overridden from the admin panel. If it is false, then admins can turn it on or off as they wish.
-  rate_limit_window_seconds: "20" #This and the below rate limit va
+  rate_limit_window_seconds: "20" #This and the below rate limit go hand in hand, how many allowed in a window and how long is the window
   rate_limit_num_allowed_in_window: "350"
   rate_limit_window_seconds_login_signup: "5"
   rate_limit_num_allowed_in_window_login_signup: "10"
