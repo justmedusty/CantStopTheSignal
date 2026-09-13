@@ -13,8 +13,8 @@ fun Application.configureRateLimiting() {
             install(RateLimiting) {
                 rateLimiter {
                     type = TokenBucket::class
-                    capacity = siteConfig?.rateLimitNumAllowedInWindow?.toInt() ?: 100
-                    rate = siteConfig?.rateLimitWindowSeconds?.toInt()?.seconds ?: 10.seconds
+                    capacity = siteConfig.rateLimitNumAllowedInWindow?.toInt() ?: 100
+                    rate = siteConfig.rateLimitWindowSeconds?.toInt()?.seconds ?: 10.seconds
                 }
             }
         }
@@ -22,8 +22,8 @@ fun Application.configureRateLimiting() {
             install(RateLimiting) {
                 rateLimiter {
                     type = TokenBucket::class
-                    capacity = siteConfig?.rateLimitNumAllowedInWindowLoginSignup?.toInt() ?: 100
-                    rate = siteConfig?.rateLimitWindowSecondsLoginSignup?.toInt()?.seconds ?: 10.seconds
+                    capacity = siteConfig.rateLimitNumAllowedInWindowLoginSignup?.toInt() ?: 100
+                    rate = siteConfig.rateLimitWindowSecondsLoginSignup?.toInt()?.seconds ?: 10.seconds
                 }
             }
         }
@@ -31,8 +31,8 @@ fun Application.configureRateLimiting() {
             install(RateLimiting) {
                 rateLimiter {
                     type = TokenBucket::class /* I assume you can use something other than the token bucket algorithim, maybe something to check out */
-                    capacity = siteConfig?.rateLimitNumAllowedInWindowLoginSignup?.toInt() ?: 100
-                    rate = siteConfig?.rateLimitWindowSecondsLoginSignup?.toInt()?.seconds ?: 10.seconds
+                    capacity = siteConfig.rateLimitNumAllowedInWindowLoginSignup?.toInt() ?: 100
+                    rate = siteConfig.rateLimitWindowSecondsLoginSignup?.toInt()?.seconds ?: 10.seconds
                 }
             }
         }

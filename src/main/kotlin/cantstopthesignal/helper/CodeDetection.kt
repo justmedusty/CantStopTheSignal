@@ -4,7 +4,7 @@ fun isThisCode(content: String): Boolean {
     return content.contains("{")
             || content.contains("();")
             || content.contains("->")
-            || content.contains("    ")
+            || content.contains('\t')
             || content.contains("[")
             || content.contains("]")
 }
