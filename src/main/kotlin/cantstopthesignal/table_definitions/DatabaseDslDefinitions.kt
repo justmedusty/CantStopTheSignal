@@ -39,7 +39,7 @@ object Conversations : Table(name = "Conversations") {
     val id: Column<Long> = long("id").autoIncrement()
     val isGroup: Column<Boolean> = bool("is_group").default(false)
     val name: Column<String?> = varchar("name", Length.MAX_GROUPNAME_LENGTH.value.toInt()).nullable()  // null for DMs
-    val createdBy: Column<Long> = long("created_by").references(Users.id)
+    val createdBy: Column<Long> = long("created_by").references(Users.id,onDelete = ReferenceOption.CASCADE)
     val transientMessages: Column<Boolean> =
         bool("transient_messages").default(false) // This will schedule messages for deletion after so long
     val createdAt: Column<LocalDateTime> = datetime("created_at").defaultExpression(CurrentDateTime)
@@ -60,7 +60,7 @@ object PrivateMessageBlockList : Table(name = "MessageBlockList") {
 
 object ConversationMembers : Table(name = "ConversationMembers") {
     val conversationId: Column<Long> = long("conversation_id").references(Conversations.id, ReferenceOption.CASCADE)
-    val userId: Column<Long> = long("user_id").references(Users.id)
+    val userId: Column<Long> = long("user_id").references(Users.id,onDelete = ReferenceOption.CASCADE)
     val joinedAt: Column<LocalDateTime> = datetime("joined_at").defaultExpression(CurrentDateTime)
 
     override val primaryKey = PrimaryKey(conversationId, userId)  // composite key
@@ -82,7 +82,7 @@ object Notifications : Table(name = "Notifications") {
     val read: Column<Boolean> = bool("read").default(false)
     val postId: Column<Long?> = long("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE).nullable()
     val commentId: Column<Long?> =
-        long("comment_id").references(Comments.id).nullable().default(null)  // only if a comment reply
+        long("comment_id").references(Comments.id, onDelete = ReferenceOption.CASCADE).nullable().default(null)  // only if a comment reply
     val userId: Column<Long> = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val userWhoInteracted: Column<Long> =
         long("user_who_interacted").references(Users.id, onDelete = ReferenceOption.CASCADE)
@@ -115,7 +115,7 @@ object Posts : Table(name = "Posts") {
 object PostLikes : Table(name = "Likes") {
     val id: Column<Long> = long("id").autoIncrement()
     val postId: Column<Long> = long("post_id").references(Posts.id, ReferenceOption.CASCADE)
-    val likedById: Column<Long> = long("likedById").references(Users.id)
+    val likedById: Column<Long> = long("likedById").references(Users.id, onDelete = ReferenceOption.CASCADE)
 
 
     init {
@@ -127,7 +127,7 @@ object PostLikes : Table(name = "Likes") {
 
 object PostEdits : Table(name = "PostEdits") {
     val id: Column<Long> = long("id").autoIncrement()
-    val postId: Column<Long> = long("post_id").references(Posts.id)
+    val postId: Column<Long> = long("post_id").references(Posts.id,onDelete = ReferenceOption.CASCADE)
     val lastEdited: Column<LocalDateTime> = datetime("lastEdited")
 
 
@@ -137,7 +137,7 @@ object PostEdits : Table(name = "PostEdits") {
 object PostDislikes : Table(name = "Dislikes") {
     val id: Column<Long> = long("id").autoIncrement()
     val postId: Column<Long> = long("post").references(Posts.id, ReferenceOption.CASCADE)
-    val dislikedById: Column<Long> = long("dislikedBy").references(Users.id)
+    val dislikedById: Column<Long> = long("dislikedBy").references(Users.id, onDelete = ReferenceOption.CASCADE)
 
     init {
         index(true, postId, dislikedById)
@@ -160,7 +160,7 @@ object Comments : Table(name = "Comments") {
     val id: Column<Long> = long("id").autoIncrement()
     val content: Column<String> = text("commentContent")
     val postId: Column<Long> = long("post").references(Posts.id, ReferenceOption.CASCADE)
-    val commenterId: Column<Long> = long("commenterId").references(Users.id)
+    val commenterId: Column<Long> = long("commenterId").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val isReply: Column<Boolean> = bool("isReply").default(false)
     val parentCommentId: Column<Long?> =
         long("parentCommentId").references(id, onDelete = ReferenceOption.CASCADE).nullable().default(null)
@@ -175,7 +175,7 @@ object Comments : Table(name = "Comments") {
 object CommentLikes : Table(name = "CommentLikes") {
     val id: Column<Long> = long("id").autoIncrement()
     val commentId: Column<Long> = long("commentId").references(Comments.id, ReferenceOption.CASCADE)
-    val likedById: Column<Long> = long("likedById").references(Users.id)
+    val likedById: Column<Long> = long("likedById").references(Users.id,onDelete = ReferenceOption.CASCADE)
 
     init {
         index(true, commentId, likedById)
@@ -214,7 +214,7 @@ object CommentDislikes : Table(name = "CommentDislikes") {
 object AdminLogs : Table(name = "AdminLogs") {
     val id: Column<Long> = long("id").autoIncrement()
     val timestamp: Column<LocalDateTime> = datetime("timestamp")
-    val doneById: Column<Long> = long("done_by_id").references(Users.id)
+    val doneById: Column<Long> = long("done_by_id").references(Users.id,onDelete = ReferenceOption.CASCADE)
     val actionString: Column<String> =
         text("action_string") // I will just construct an action string this will be for things like deleting someones post or comment etc
 
@@ -228,8 +228,8 @@ object SuspendLog : Table(name = "SuspendLog") {
     val id: Column<Long> = long("id").autoIncrement()
     val suspend: Column<Boolean> = bool("suspend").default(false)
     val timestamp: Column<LocalDateTime> = datetime("suspend_time")
-    val adminId: Column<Long> = long("admin_id").references(Users.id)
-    val suspendedUserId: Column<Long> = long("suspended_user_id").references(Users.id)
+    val adminId: Column<Long> = long("admin_id").references(Users.id,onDelete = ReferenceOption.CASCADE)
+    val suspendedUserId: Column<Long> = long("suspended_user_id").references(Users.id,onDelete = ReferenceOption.CASCADE)
     val reason: Column<String> = text("reason")
     override val primaryKey = PrimaryKey(id)
 }
