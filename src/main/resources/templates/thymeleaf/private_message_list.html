@@ -10,32 +10,83 @@
             padding: 0;
         }
 
+        a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
         :root {
-            --bg: #0f1117;
-            --surface: #181b24;
-            --surface-hover: #1e2130;
-            --border: #272b3a;
-            --accent: #5b8af5;
-            --accent-dim: #1e2d56;
-            --text: #e8eaf2;
-            --text-secondary: #7b82a0;
-            --dm-avatar: #1e3a2f;
-            --dm-pill: #1a3324;
-            --dm-pill-text: #4ecb82;
-            --enc-color: #f5c842;
-            --danger: #e55;
-            --danger-hover: #c44;
-            --radius: 10px;
-            --font: 'Segoe UI', system-ui, sans-serif;
+            --bg: #12141a;
+            --surface: #1c1f26;
+            --surface-hover: #252a33;
+            --border: #343a46;
+            --text-primary: #d1d5db;
+            --text-secondary: #a1a7b1;
+            --accent: #434491;
+            --accent-soft: #1e2a44;
+            --danger: #c04a4a;
+            --danger-soft: #3d1a1a;
+            --muted: #717a8c;
+            --notification: #ff0000;
+
+            --radius: 1px;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-serif: 'Georgia', serif;
         }
 
         body {
-            background: var(--bg);
-            color: var(--text);
             font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem 1rem 4rem;
             min-height: 100vh;
-            padding: 2rem 1rem;
+            line-height: 1.5;
         }
+
+        /* ── Site Banner ── */
+        .site_banner {
+            max-width: 760px;
+            margin: 0 auto 2rem;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            background: linear-gradient(180deg, var(--accent-soft), var(--surface));
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--accent);
+            color: var(--text-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-family: var(--font-serif);
+        }
+
+        .site_banner h1 {
+            margin: 0 0 0.6rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .site_banner h2 {
+            margin: 0 0 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .site_banner h3 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-family: var(--font);
+        }
+
 
         .page-layout {
             max-width: 56vw;
@@ -60,7 +111,7 @@
         .blocklist-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius);
             overflow: hidden;
             position: sticky;
             top: 2rem;
@@ -86,7 +137,7 @@
             min-width: 0;
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: var(--radius);
             color: var(--text);
             font-size: 0.78rem;
             padding: 0.3rem 0.5rem;
@@ -99,10 +150,10 @@
 
         .btn-block {
             padding: 0.3rem 0.65rem;
-            background: var(--danger);
+            background: var(--danger-soft);
             color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--radius);
             font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
@@ -110,7 +161,7 @@
         }
 
         .btn-block:hover {
-            background: var(--danger-hover);
+            background: var(--danger);
         }
 
         .blocklist-items {
@@ -142,7 +193,7 @@
             background: transparent;
             color: var(--text-secondary);
             border: 1px solid var(--border);
-            border-radius: 5px;
+            border-radius: var(--radius);
             font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
@@ -220,7 +271,7 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.45rem 1rem;
-            border-radius: 7px;
+            border-radius: var(--radius);
             font-size: 0.82rem;
             font-weight: 600;
             text-decoration: none;
@@ -243,7 +294,7 @@
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius);
             overflow: hidden;
         }
 
@@ -272,7 +323,7 @@
             font-size: 0.85rem;
             flex-shrink: 0;
             text-transform: uppercase;
-            background: var(--dm-avatar);
+            background: var(--accent);
             color: #4ecb82;
             line-height: 1;
             text-align: center;
@@ -300,7 +351,7 @@
             color: var(--text);
         }
 
-        .enc-icon { font-size: 0.75rem; color: var(--enc-color); }
+        .enc-icon { font-size: 0.75rem; color: var(--success); }
 
         .conv-time {
             font-size: 0.72rem;
@@ -329,11 +380,11 @@
             font-size: 0.68rem;
             font-weight: 700;
             padding: 0.15rem 0.5rem;
-            border-radius: 20px;
+            border-radius: var(--radius);
             text-transform: uppercase;
             letter-spacing: 0.04em;
-            background: var(--dm-pill);
-            color: var(--dm-pill-text);
+            background: var(--text-primary);
+            color: rgb(33 77 155 / 0.64);
         }
 
         .me-badge {
@@ -363,7 +414,7 @@
             font-size: 0.8rem;
             font-weight: 600;
             padding: 0.35rem 0.9rem;
-            border-radius: 6px;
+            border-radius: var(--radius);
             text-decoration: none;
             background: var(--border);
             color: var(--text);

@@ -11,30 +11,80 @@
             padding: 0;
         }
 
+        a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
         :root {
-            --bg: #0f1117;
-            --surface: #181b24;
-            --surface-hover: #1e2130;
-            --border: #272b3a;
-            --text-primary: #ffffff;
-            --text-secondary: #e8eaf2;
-            --accent: #5b8af5;
-            --accent-soft: #1e2d56;
-            --danger: #e06060;
-            --danger-soft: #2d1a1a;
-            --muted: #ffffff;
-            --radius: 10px;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-            --font: 'DM Sans', sans-serif;
-            --font-serif: 'Lora', serif;
+            --bg: #12141a;
+            --surface: #1c1f26;
+            --surface-hover: #252a33;
+            --border: #343a46;
+            --text-primary: #d1d5db;
+            --text-secondary: #a1a7b1;
+            --accent: #434491;
+            --accent-soft: #1e2a44;
+            --danger: #c04a4a;
+            --danger-soft: #3d1a1a;
+            --muted: #717a8c;
+
+            --radius: 1px;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-serif: 'Georgia', serif;
         }
 
         body {
             font-family: var(--font);
             background: var(--bg);
             color: var(--text-primary);
-            padding: 2.5rem 1rem 4rem;
+            margin: 0;
+            padding: 2rem 1rem 4rem;
             min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* ── Site Banner ── */
+        .site_banner {
+            max-width: 760px;
+            margin: 0 auto 2rem;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            background: linear-gradient(180deg, var(--accent-soft), var(--surface));
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--accent);
+            color: var(--text-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-family: var(--font-serif);
+        }
+
+        .site_banner h1 {
+            margin: 0 0 0.6rem;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .site_banner h2 {
+            margin: 0 0 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .site_banner h3 {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-family: var(--font);
         }
 
         .container {
@@ -90,7 +140,7 @@
             background: var(--accent-soft);
             color: var(--accent);
             padding: 0.25rem 0.6rem;
-            border-radius: 20px;
+            border-radius: var(--radius);
             white-space: nowrap;
         }
 
@@ -152,7 +202,7 @@
             align-items: center;
             gap: 0.35rem;
             padding: 0.42rem 0.875rem;
-            border-radius: 6px;
+            border-radius: var(--radius);
             font-family: var(--font);
             font-size: 0.82rem;
             font-weight: 600;
@@ -284,7 +334,7 @@
             background: #1a2d1f;
             color: #4ecb82;
             padding: 0.1rem 0.4rem;
-            border-radius: 20px;
+            border-radius: var(--radius);
             vertical-align: middle;
         }
 
@@ -317,7 +367,7 @@
             background: #13161f;
             border-left: 2px solid #313649; /* thinner/lighter than post's 3px */
             padding: 0.6rem 0.875rem;
-            border-radius: 0 5px 5px 0;
+            border-radius: var(--radius);
             margin-bottom: 0.5rem;
             font-family: var(--font-serif);
             letter-spacing: 0.01em;
@@ -335,7 +385,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.28rem 0.6rem;
-            border-radius: 5px;
+            border-radius: var(--radius);
             font-size: 0.75rem;
             font-weight: 600;
             border: 1px solid transparent;
@@ -376,7 +426,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.28rem 0.65rem;
-            border-radius: 5px;
+            border-radius: var(--radius);
             border: 1px solid #2d3f7a;
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
@@ -399,8 +449,7 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.28rem 0.65rem;
-            border-radius: 5px;
-            border: 1px solid #2d3f7a;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
@@ -426,7 +475,7 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.42rem 0.875rem;
-            border-radius: 6px;
+            border-radius: var(--radius);
             font-size: 0.8rem;
             font-weight: 600;
             border: 1.5px solid var(--border);
@@ -486,7 +535,7 @@
             margin: 0 auto 20px;
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: var(--radius);
             overflow: hidden;
         }
 
@@ -532,7 +581,7 @@
             padding: 5px 18px;
             font-size: 13px;
             font-weight: 500;
-            border-radius: 6px;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
             background: var(--accent);
             color: #fff;
@@ -573,7 +622,7 @@
             background: var(--surface-hover);
             color: var(--text-primary);
             padding: 0.42rem 0.7rem;
-            border-radius: 6px;
+            border-radius: var(--radius);
             font-size: 1.1rem;
             border: 1.5px solid var(--border);
             cursor: pointer;
@@ -673,7 +722,7 @@
             background: var(--bg);
             color: var(--text-primary);
             border: 1.5px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius);
             padding: 0.75rem 1rem;
             font-family: var(--font);
             font-size: 0.92rem;
@@ -748,11 +797,11 @@
             display: inline-flex;
             align-items: center;
             padding: 0.35rem 0.85rem;
-            border-radius: 20px;
+            border-radius: var(--radius);
             font-size: 0.78rem;
             font-weight: 600;
             text-decoration: none;
-            border: 1.5px solid var(--border);
+            border: 2px solid var(--border);
             background: var(--surface);
             color: var(--text-secondary);
             transition: background 0.15s, border-color 0.15s;
@@ -886,7 +935,7 @@
             font-size: 0.78rem;
             font-weight: 600;
             padding: 0.35rem 0.75rem;
-            border-radius: 7px;
+            border-radius: var(--radius);
             border: 1px solid var(--border);
             background: var(--bg);
             color: var(--text-secondary);
@@ -921,7 +970,7 @@
             font-size: 0.78rem;
             font-weight: 700;
             padding: 0.35rem 0.9rem;
-            border-radius: 7px;
+            border-radius: var(--radius);
             border: 1px solid;
             text-decoration: none;
             cursor: pointer;
@@ -1196,7 +1245,7 @@
                             <a th:if="${comment.numReplies > 0}"
                                class="btn-replies"
                                th:href="|/comments/${post.id}/replies/${comment.id}|"
-                               th:text="${'View Replies' + '(' + comment.numReplies + ')'}">>&#8618; Replies</a>
+                               th:text="${'View Replies' + '(' + comment.numReplies + ')'}">&#8618; Replies</a>
 
                             <!-- Reply label stays here with the other buttons -->
                             <label class="btn-blue"

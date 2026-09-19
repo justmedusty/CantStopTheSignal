@@ -4,36 +4,45 @@
     <meta charset="UTF-8"/>
     <title>Notifications</title>
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+
 
         :root {
             --bg: #0f1117;
             --surface: #181b24;
             --surface-hover: #1e2130;
             --border: #272b3a;
-            --accent: #5b8af5;
-            --accent-dim: #1e2d56;
+            --accent: #516db4;
+            --accent-soft: #1e2d56;
+            --danger: #e06060;
+            --danger-soft: #2d1a1a;
+            --muted: #4a5068;
+            --radius: 1px;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            --font: 'DM Sans', sans-serif;
+            --font-serif: 'Lora', serif;
             --text: #e8eaf2;
             --text-secondary: #ffffff;
             --unread-bg: #161c2e;
             --unread-border: #2a3560;
             --new-bg: #1e2d56;
             --new-text: #7ba4f5;
-            --font: 'Segoe UI', system-ui, sans-serif;
-            --radius: 10px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background: var(--bg);
-            color: var(--text);
             font-family: var(--font);
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2.5rem 1rem 4rem;
             min-height: 100vh;
-            padding: 2rem 1rem;
         }
+
 
         .container {
             max-width: 680px;
@@ -64,7 +73,7 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.45rem 1rem;
-            border-radius: 7px;
+            border-radius: var(--radius);
             font-size: 0.82rem;
             font-weight: 600;
             text-decoration: none;
@@ -89,7 +98,7 @@
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius);
             overflow: hidden;
         }
 
@@ -152,7 +161,7 @@
             font-size: 0.65rem;
             font-weight: 700;
             padding: 0.1rem 0.45rem;
-            border-radius: 20px;
+            border-radius: var(--radius);
             background: var(--new-bg);
             color: var(--new-text);
             text-transform: uppercase;
@@ -202,7 +211,7 @@
             align-items: center;
             gap: 0.3rem;
             padding: 0.42rem 0.875rem;
-            border-radius: 6px;
+            border-radius: var(--radius);
             font-size: 0.8rem;
             font-weight: 600;
             border: 1.5px solid var(--border);

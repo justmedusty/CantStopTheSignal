@@ -11,45 +11,52 @@
             padding: 0;
         }
 
+        a {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
         :root {
-            --bg: #0f1117;
-            --surface: #181b24;
-            --surface-hover: #1e2130;
-            --border: #272b3a;
-            --accent: #5b8af5;
-            --accent-dim: #1e2d56;
-            --text: #e8eaf2;
-            --text-secondary: #7b82a0;
-            --danger: #c93030;
-            --radius: 10px;
-            --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-            --font: 'Segoe UI', system-ui, sans-serif;
-            --font-serif: 'Lora', serif;
+            --bg: #12141a;
+            --surface: #1c1f26;
+            --surface-hover: #252a33;
+            --border: #343a46;
+            --text-primary: #d1d5db;
+            --text-secondary: #a1a7b1;
+            --accent: #434491;
+            --accent-soft: #1e2a44;
+            --danger: #c04a4a;
+            --danger-soft: #3d1a1a;
+            --muted: #717a8c;
+
+            --radius: 1px;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-serif: 'Georgia', serif;
         }
 
         body {
             font-family: var(--font);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-            justify-content: center;
             background: var(--bg);
-            padding: 2rem;
-            gap: 0;
-            color: var(--text);
+            color: var(--text-primary);
+            margin: 0;
+            align-content: center;
+            padding: 2rem 1rem 4rem;
+            min-height: 100vh;
+            line-height: 1.5;
         }
 
         /* ── Site Banner ── */
         .site_banner {
             max-width: 760px;
-            width: 100%;
             margin: 0 auto 2rem;
             padding: 2rem 2.5rem;
             text-align: center;
-            background: var(--accent-dim);
-            border: 1px solid var(--accent);
-            color: var(--text);
+            background: linear-gradient(180deg, var(--accent-soft), var(--surface));
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--accent);
+            color: var(--text-primary);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             font-family: var(--font-serif);
@@ -57,29 +64,27 @@
 
         .site_banner h1 {
             margin: 0 0 0.6rem;
-            font-size: 2rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            line-height: 1.15;
-            color: var(--text);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
         }
 
         .site_banner h2 {
             margin: 0 0 0.8rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            line-height: 1.3;
-            color: var(--text);
-            opacity: 0.95;
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
         .site_banner h3 {
             margin: 0;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
             font-family: var(--font);
         }
 
@@ -90,9 +95,12 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
+            align-content: center;
             text-align: center;
             min-width: 320px;
+            max-width: 500px;
             color: var(--text);
+            margin: auto;
             font-size: 0.95rem;
             line-height: 1.6;
         }
