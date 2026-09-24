@@ -140,20 +140,6 @@
             opacity: .8;
         }
 
-        .topbar-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius);
-            background: var(--dm-avatar);
-            color: #4ecb82;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            flex-shrink: 0;
-        }
 
         .topbar-info {
             flex: 1;
@@ -178,7 +164,7 @@
 
         .enc-icon {
             font-size: 0.75rem;
-            color: var(--enc-color);
+            color: var(--warning);
         }
 
         /* ── Topbar action buttons ── */
@@ -189,27 +175,12 @@
             flex-shrink: 0;
         }
 
-        /*
-         * ── Confirm-on-click pattern (pure CSS) ──
-         *
-         * Each .confirm-wrap contains:
-         *   1. A real <a> (the confirm action) — hidden by default via the checkbox trick
-         *   2. A <label> styled as the "idle" button (dummy trigger)
-         *   3. A hidden <input type="checkbox"> that acts as the toggle
-         *
-         * When the checkbox is :checked, the idle label hides and the
-         * confirm anchor appears in its place.  No JavaScript required.
-         *
-         * Markup order inside .confirm-wrap must be:
-         *   input[type=checkbox]  →  label.idle-btn  →  a.confirm-btn
-         */
         .confirm-wrap {
             position: relative;
             display: inline-flex;
             align-items: center;
         }
 
-        /* Hide the real checkbox visually but keep it in the tab order */
         .confirm-wrap input[type="checkbox"].confirm-toggle {
             position: absolute;
             opacity: 0;
@@ -218,7 +189,6 @@
             pointer-events: none;
         }
 
-        /* Idle (dummy) button — the label the user sees first */
         .idle-btn {
             display: inline-flex;
             align-items: center;
@@ -238,22 +208,19 @@
 
         .idle-btn:hover {
             border-color: var(--text-secondary);
-            color: var(--text);
+            color: var(--text-primary);
         }
 
-        /* Danger variant idle button */
         .idle-btn.danger:hover {
             border-color: var(--danger);
             color: var(--danger);
         }
 
-        /* Warn variant idle button */
         .idle-btn.warn:hover {
             border-color: var(--warn);
             color: var(--warn);
         }
 
-        /* Confirm button — hidden until checkbox is :checked */
         .confirm-btn {
             display: none;
             align-items: center;
@@ -282,24 +249,24 @@
 
         /* Danger confirm */
         .confirm-btn.danger {
-            background: var(--danger-dim);
-            border-color: var(--danger-border);
             color: var(--danger);
+            background: var(--danger-soft);
         }
 
         .confirm-btn.danger:hover {
-            background: #3d1f1f;
+            background: var(--danger);
+            color: var(--danger-soft);
         }
 
         /* Warn confirm */
         .confirm-btn.warn {
-            background: var(--warn-dim);
-            border-color: var(--warn-border);
             color: var(--warn);
+            background: var(--warning-soft);
         }
 
         .confirm-btn.warn:hover {
-            background: #3d2810;
+            background: var(--warning);
+            color: var(--warning-soft);
         }
 
         /*
@@ -337,7 +304,7 @@
             border-radius: var(--radius);
             text-decoration: none;
             background: var(--border);
-            color: var(--text);
+            color: var(--text-primary);
             transition: background .15s;
         }
 
@@ -405,7 +372,6 @@
             width: 28px;
             height: 28px;
             border-radius: var(--radius);
-            background: var(--dm-avatar);
             color: #4ecb82;
             display: flex;
             align-items: center;
@@ -417,7 +383,6 @@
         }
 
         .msg-avatar.me-avatar {
-            background: var(--accent-dim);
             color: var(--accent);
         }
 
@@ -445,16 +410,15 @@
         .bubble {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: 8px;
             padding: 0.55rem 0.85rem;
             font-size: 0.875rem;
             line-height: 1.5;
             word-break: break-word;
-            color: var(--text);
+            color: var(--text-primary);
         }
 
         .msg-row.me .bubble {
-            background: var(--accent-dim);
             border-color: #2a3f7a;
             color: #c8d8ff;
         }
@@ -540,7 +504,7 @@
 
         body {
             background: var(--bg);
-            color: var(--text);
+            color: var(--text-primary);
             font-family: var(--font);
             height: 100vh;
             width: 100%;
