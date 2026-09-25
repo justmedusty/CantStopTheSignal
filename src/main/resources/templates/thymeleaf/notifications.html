@@ -6,6 +6,13 @@
     <style>
 
 
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         :root {
             --bg: #12141a;
             --surface: #1c1f26;
@@ -18,22 +25,20 @@
             --danger: #c04a4a;
             --danger-soft: #3d1a1a;
             --muted: #717a8c;
-
+            --warning: #d4a04a;
+            --warning-soft: #2a1f0a;
+            --success: #4ecb82;
+            --success-soft: #1a2d1f;
             --radius: 1px;
             --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 
             --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             --font-serif: 'Georgia', serif;
-        }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
         }
 
         body {
-            font-family: var(--font);
+            font-family: var(--font),sans-serif;
             background: var(--bg);
             color: var(--text-primary);
             margin: 0;
@@ -130,12 +135,12 @@
         }
 
         .notification-item.unread {
-            background: var(--unread-bg);
+            background: var(--accent);
             border-left: 3px solid var(--accent);
         }
 
         .notification-item.unread:hover {
-            background: color-mix(in srgb, var(--unread-bg) 80%, var(--accent));
+            background: color-mix(in srgb, var(--accent) 80%, var(--accent));
         }
 
         .notification-main {
@@ -160,8 +165,8 @@
             font-weight: 700;
             padding: 0.1rem 0.45rem;
             border-radius: var(--radius);
-            background: var(--new-bg);
-            color: var(--new-text);
+            background: var(--bg);
+            color: var(--text-primary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }

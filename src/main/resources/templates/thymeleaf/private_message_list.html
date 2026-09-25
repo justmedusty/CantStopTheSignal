@@ -27,13 +27,16 @@
             --danger: #c04a4a;
             --danger-soft: #3d1a1a;
             --muted: #717a8c;
-            --notification: #ff0000;
-
+            --warning: #d4a04a;
+            --warning-soft: #2a1f0a;
+            --success: #4ecb82;
+            --success-soft: #1a2d1f;
             --radius: 1px;
             --shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 
             --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             --font-serif: 'Georgia', serif;
+            --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
         }
 
         body {
@@ -138,7 +141,7 @@
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            color: var(--text);
+            color: var(--text-primary);
             font-size: 0.78rem;
             padding: 0.3rem 0.5rem;
             outline: none;
@@ -182,7 +185,7 @@
 
         .blocklist-username {
             font-size: 0.82rem;
-            color: var(--text);
+            color: var(--text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -203,7 +206,7 @@
 
         .btn-unblock:hover {
             background: var(--surface-hover);
-            color: var(--text);
+            color: var(--text-primary);
         }
 
         .blocklist-empty {
@@ -348,7 +351,7 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
-            color: var(--text);
+            color: var(--text-primary);
         }
 
         .enc-icon { font-size: 0.75rem; color: var(--success); }
@@ -417,7 +420,7 @@
             border-radius: var(--radius);
             text-decoration: none;
             background: var(--border);
-            color: var(--text);
+            color: var(--text-primary);
             transition: background .15s;
         }
 
