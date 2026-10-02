@@ -1079,6 +1079,8 @@
                 by <a th:href="|/profile/${post.posterId}|" th:text="${post.posterUserName}">username</a>
                 &nbsp;·&nbsp;
                 <span th:text="|Posted: ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
+                &nbsp;·&nbsp;
+                <span class=comment-time th:text="| ID:${post.id}|"></span>
                 ·&nbsp;
                 <span class="post-edited" th:if="${post.numEdits > 0}"
                       th:text="|Edited ${post.numEdits} time(s)|"></span>
@@ -1211,6 +1213,7 @@
                           th:text="|Edited ${comment.numEdits} time(s), |"></span>
                             <span class="comment-edited" th:if="${comment.lastEdited != null}"
                                   th:text="|Last edited at ${#temporals.format(comment.lastEdited, 'MMMM d yyyy HH:mm')}UTC|">Not edited  </span>
+                    <span class=comment-time th:text="| ID:${comment.id}|"></span>
                     </span>
                         </div>
 
