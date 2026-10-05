@@ -1,6 +1,7 @@
 package cantstopthesignal.routing.admin
 
 import cantstopthesignal.database.admin.*
+import cantstopthesignal.database.comments.getCommentById
 import cantstopthesignal.database.invite_only.generateNewInviteCode
 import cantstopthesignal.database.invite_only.getAllValidLoginCodes
 import cantstopthesignal.database.posts.fetchPostById
@@ -202,7 +203,7 @@ fun Application.configureAdminRoutes() {
                     logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
                     return@post call.respond(HttpStatusCode.NotFound)
                 }
-                if (siteConfig?.inviteOnly == true) {
+                if (siteConfig.inviteOnly == true) {
                     val error =
                         "Invite only is set at the application config level, this cannot be overridden. Talk to the site owner if you wish to change this."
                     return@post call.respondRedirect("/admin?error=$error")
@@ -497,14 +498,14 @@ fun Application.configureAdminRoutes() {
                     val error = "Invalid parameter lengths"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
-               val post = fetchPostById(postId,user)
+                val post = fetchPostById(postId, user)
 
                 if (post.isNullOrEmpty()) {
                     val error = "This post (ID: $postId) was not found"
                     return@post call.respondRedirect("/admin?error=$error")
                 }
 
-                val ret = takeDownPost(postId,user,reason)
+                val ret = takeDownPost(postId, user, reason)
 
                 if (!ret) {
                     val error = "An error occurred while removing post of id ${postId}"
@@ -512,6 +513,103 @@ fun Application.configureAdminRoutes() {
                 }
 
                 val success = "Successfully removed post"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+
+            post("/admin/post/hardDelete") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+                val params = call.receiveParameters()
+                val postId = params["postId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (reason.length > Length.MAX_REASON_LENGTH.value) {
+                    val error = "Invalid parameter lengths"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+                val post = fetchPostById(postId, user)
+
+                if (post.isNullOrEmpty()) {
+                    val error = "This post (ID: $postId) was not found"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val ret = hardDeletePost(postId, user, reason)
+
+                if (!ret) {
+                    val error = "An error occurred while hard removing post of id ${postId}"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully removed post"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+
+
+
+            post("/admin/comment/delete") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+                val params = call.receiveParameters()
+                val commentId = params["commentId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (reason.length > Length.MAX_REASON_LENGTH.value) {
+                    val error = "Invalid parameter lengths"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+                val comment = getCommentById(commentId, user)
+
+                if (comment == null) {
+                    val error = "This comment (ID: $commentId) was not found"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val ret = takeDownComment(commentId, user, reason)
+
+                if (!ret) {
+                    val error = "An error occurred while removing comment of id ${commentId}"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully removed comment"
+                return@post call.respondRedirect("/admin?success=$success")
+            }
+
+            post("/admin/comment/hardDelete") {
+                val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                if (!isUserAdminOrModerator(user!!)) {
+                    logger.warn { "User ${getUserName(user)} is not a valid admin user and is attempting to access protected material!" }
+                    return@post call.respond(HttpStatusCode.NotFound)
+                }
+                val params = call.receiveParameters()
+                val commentId = params["commentId"]?.toLong() ?: return@post call.respond(HttpStatusCode.BadRequest)
+                val reason = params["reason"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                if (reason.length > Length.MAX_REASON_LENGTH.value) {
+                    val error = "Invalid parameter lengths"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+                val comment = getCommentById(commentId, user)
+
+                if (comment == null) {
+                    val error = "This comment (ID: $commentId) was not found"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val ret = hardDeleteComment(commentId, user, reason)
+                if (!ret) {
+                    val error = "An error occurred while removing comment of id ${commentId}"
+                    return@post call.respondRedirect("/admin?error=$error")
+                }
+
+                val success = "Successfully removed comment"
                 return@post call.respondRedirect("/admin?success=$success")
             }
 
