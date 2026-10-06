@@ -22,6 +22,7 @@ data class SiteConfig(
     val signupsDisabled: Boolean,
     val pgpLoginOnly: Boolean,
     val hoursBetweenMessageDeletionJobs: Long,
+    val rules: String
 )
 
 
@@ -47,6 +48,7 @@ fun Application.loadSiteConfig() {
             .getString().toLong(),
         signupsDisabled = config.property("signups_disabled").getString().toBoolean(),
         pgpLoginOnly = config.property("pgp_login_only").getString().toBoolean(),
-        hoursBetweenMessageDeletionJobs = config.property("message_deletion_window_hours").getString().toLong()
+        hoursBetweenMessageDeletionJobs = config.property("message_deletion_window_hours").getString().toLong(),
+        rules = config.property("rules").getString()
     )
 }
