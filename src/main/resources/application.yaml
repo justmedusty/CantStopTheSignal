@@ -50,7 +50,7 @@ site:
   signups_disabled: "false" # This can be done from the admin panel, but we will make a superceding config option for it. If it is enabled here it cannot be overridden by admins
   pgp_login_only: "false" # If this is enabled, there are no passwords and users must sign via PGP signature challenge. This option should not be changed later, it should be decided when you first decide to host an instance of this service. Note: I have since updated this to allow passwordless users in a non forced pgp login context, so it is safe(r) to change this once you have a userbase.
   rules: | 
-    Put your rules here
-    Rule 1: Have fun
+    Put your rules here          
+    Rule 1: Have fun             
     Rule 2: No spam
   anonymous_viewing: "false"

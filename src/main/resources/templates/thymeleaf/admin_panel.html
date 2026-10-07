@@ -1149,6 +1149,28 @@
                 </form>
             </div>
 
+            <div class="action-form-cell">
+                <div class="action-form-label">Hard Delete Post by ID</div>
+                <form th:action="'/admin/post/hardDelete'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="postId" placeholder="Post ID" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="action-form-cell">
+                <div class="action-form-label">Hard Delete Comment by ID</div>
+                <form th:action="'/admin/comment/hardDelete'" method="post">
+                    <div class="action-form-row">
+                        <input class="input-sm" type="text" name="postId" placeholder="Comment ID" required>
+                        <input class="input-sm" type="text" name="reason" placeholder="Reason">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </form>
+            </div>
+
             <div class="action-form-cell" style="background:rgba(255,255,255,0.005)"></div>
 
         </div>
