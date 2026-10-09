@@ -53,4 +53,5 @@ site:
     Put your rules here          
     Rule 1: Have fun             
     Rule 2: No spam
-  anonymous_viewing: "false"
+  anonymous_viewing: "false" #Not yet implemented
+  anonymous_commenting: "false" #Not yet implemented
