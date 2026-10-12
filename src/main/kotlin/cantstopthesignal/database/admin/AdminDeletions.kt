@@ -80,7 +80,7 @@ fun hardDeletePost(postId: Long, adminId: Long, reason: String): Boolean {
 fun hardDeleteComment(commentId: Long, adminId: Long, reason: String): Boolean {
     return try {
         transaction {
-            Comments.deleteWhere{ Posts.id eq commentId } > 0 && insertAdminLogEntry(adminId,reason,"Admin ${getUserName(adminId)} ID $adminId HARD deleted comment $commentId for reason: $reason")
+            Comments.deleteWhere{ Comments.id eq commentId } > 0 && insertAdminLogEntry(adminId,reason,"Admin ${getUserName(adminId)} ID $adminId HARD deleted comment $commentId for reason: $reason")
         }
 
     } catch (e: Exception) {

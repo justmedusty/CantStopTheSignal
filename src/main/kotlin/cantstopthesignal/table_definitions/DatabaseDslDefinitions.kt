@@ -186,7 +186,7 @@ object CommentLikes : Table(name = "CommentLikes") {
 
 object CommentEdits : Table(name = "CommentEdits") {
     val id: Column<Long> = long("id").autoIncrement()
-    val commentId: Column<Long> = long("commentId").references(Comments.id)
+    val commentId: Column<Long> = long("commentId").references(Comments.id, onDelete = ReferenceOption.CASCADE)
     val posterId: Column<Long> = long("posterId").references(Users.id)
     val lastEdited: Column<LocalDateTime> = datetime("lastEdited")
 
