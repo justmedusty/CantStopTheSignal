@@ -809,6 +809,16 @@
            th:href="${'/feed?page=1&orderBy=comments' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
             💬 Most Comments
         </a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'liked_by_me'} ? 'active'"
+           th:href="${'/feed?page=1&orderBy=liked_by_me' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+            👍 Liked By Me
+        </a>
+        <a class="sort-pill"
+           th:classappend="${sort == 'disliked_by_me'} ? 'active'"
+           th:href="${'/feed?page=1&orderBy=disliked_by_me' + (search_text != null and search_text != '' and search_field != null and search_field != '' ? '&searchField=' + search_field + '&searchText=' + search_text : '')}">
+            👎 Disliked By Me
+        </a>
     </div>
     <div class="search-wrapper">
         <div class="search-inner">

@@ -128,21 +128,16 @@ fun verifyUserId(userId: Long, postId: Long): Boolean {
 }
 
 fun deletePost(userId: Long, postId: Long, reason: String): Boolean {
-    return if (verifyUserId(userId, postId) || isUserAdmin(userId)) {
-        try {
-            transaction {
-                Posts.update({ Posts.id eq postId }) {
-                    it[deletedReason] = reason
-                    it[deleted] = true
-                }
-                true
+    return (verifyUserId(userId, postId) || isUserAdmin(userId)) && try {
+        transaction {
+            Posts.update({ Posts.id eq postId }) {
+                it[deletedReason] = reason
+                it[deleted] = true
             }
-        } catch (e: Exception) {
-            logger.error { e.message }
-            false
+            true
         }
-
-    } else {
+    } catch (e: Exception) {
+        logger.error { e.message }
         false
     }
 }
@@ -488,7 +483,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
             val commentCountCoalesced = coalesce(commentCountSubquery[commentCount], longLiteral(0))
 
 
-            val baseQuery = Posts
+            var baseQuery = Posts
                 .innerJoin(PostContents, { Posts.id }, { PostContents.postId })
                 .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
                 .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
@@ -513,6 +508,55 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                 "liked" -> baseQuery.orderBy(likeCountCoalesced to SortOrder.DESC)
                 "disliked" -> baseQuery.orderBy(dislikeCountCoalesced to SortOrder.DESC)
                 "comments" -> baseQuery.orderBy(commentCountCoalesced to SortOrder.DESC)
+                "liked_by_me" -> {
+                    val column: Column<Long> = PostLikes.likedById
+
+                    baseQuery = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).innerJoin(PostLikes)
+                    .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                        .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                        .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
+                        .select(
+                            Posts.id,
+                            Posts.posterId,
+                            Posts.topic,
+                            Posts.timestamp,
+                            PostContents.title,
+                            PostContents.content,
+                            Posts.deleted,
+                            Posts.deletedReason,
+                            likeCountCoalesced,
+                            dislikeCountCoalesced,
+                            commentCountCoalesced,
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
+
+                    baseQuery.orderBy(Posts.id, SortOrder.DESC)
+
+                }
+
+                "disliked_by_me" -> {
+                    val column: Column<Long> = PostDislikes.dislikedById
+                    baseQuery = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).innerJoin(
+                        PostDislikes)
+                        .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                        .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                        .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
+                        .select(
+                            Posts.id,
+                            Posts.posterId,
+                            Posts.topic,
+                            Posts.timestamp,
+                            PostContents.title,
+                            PostContents.content,
+                            Posts.deleted,
+                            Posts.deletedReason,
+                            likeCountCoalesced,
+                            dislikeCountCoalesced,
+                            commentCountCoalesced,
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
+
+                    baseQuery.orderBy(Posts.id, SortOrder.DESC)
+                }
+
                 else -> baseQuery.orderBy(Posts.id, SortOrder.DESC)
             }
 
