@@ -527,7 +527,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                             likeCountCoalesced,
                             dislikeCountCoalesced,
                             commentCountCoalesced,
-                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content,likeCountCoalesced,dislikeCountCoalesced,commentCountCoalesced)
 
                     baseQuery.orderBy(Posts.id, SortOrder.DESC)
 
@@ -552,7 +552,7 @@ fun fetchPosts(page: Int, limit: Int, userId: Long, order: String?): List<Post>?
                             likeCountCoalesced,
                             dislikeCountCoalesced,
                             commentCountCoalesced,
-                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content)
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content,likeCountCoalesced,dislikeCountCoalesced,commentCountCoalesced)
 
                     baseQuery.orderBy(Posts.id, SortOrder.DESC)
                 }
