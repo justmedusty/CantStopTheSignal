@@ -1081,10 +1081,10 @@
                 <span th:text="|Posted: ${#temporals.format(post.timeStamp, 'MMMM d yyyy HH:mm')}UTC|">timestamp</span>
                 &nbsp;·&nbsp;
                 <span class=comment-time th:text="| ID:${post.id}|"></span>
-                ·&nbsp;
+                &nbsp;·&nbsp;
                 <span class="post-edited" th:if="${post.numEdits > 0}"
                       th:text="|Edited ${post.numEdits} time(s)|"></span>
-                ·&nbsp;
+                &nbsp;·&nbsp;
                 <span class="post-edited" th:if="${post.lastEdited != null}"
                       th:text="|Last edited at ${#temporals.format(post.lastEdited, 'MMMM d yyyy HH:mm')}UTC|"></span>
             </p>
