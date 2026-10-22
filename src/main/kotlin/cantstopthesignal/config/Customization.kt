@@ -22,7 +22,9 @@ data class SiteConfig(
     val signupsDisabled: Boolean,
     val pgpLoginOnly: Boolean,
     val hoursBetweenMessageDeletionJobs: Long,
-    val rules: String
+    val rules: String,
+    val anonymousViewing: Boolean,
+    val anonymousCommenting: Boolean,
 )
 
 
@@ -49,6 +51,8 @@ fun Application.loadSiteConfig() {
         signupsDisabled = config.property("signups_disabled").getString().toBoolean(),
         pgpLoginOnly = config.property("pgp_login_only").getString().toBoolean(),
         hoursBetweenMessageDeletionJobs = config.property("message_deletion_window_hours").getString().toLong(),
-        rules = config.property("rules").getString()
+        rules = config.property("rules").getString(),
+        anonymousViewing = config.property("anonymous_viewing").getString().toBoolean(),
+        anonymousCommenting = config.property("anonymous_commenting").getString().toBoolean(),
     )
 }
