@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 
 
 data class ProfileDataEntry(
+    val id: Long,
     val userName: String,
     val bio: String?,
     val publicKey: String?,
@@ -169,6 +170,7 @@ fun getProfileDataEntry(userId: Long): ProfileDataEntry? {
                         .count() + PostDislikes.leftJoin(Posts).selectAll().where { Posts.posterId eq userId }.count()
 
                 profileDataEntry = ProfileDataEntry(
+                    id = userId,
                     userName = getUserName(userId) ?: "Could not get username",
                     bio = it[ProfileData.bio] ?: "No bio for this user",
                     publicKey = it[ProfileData.publicKey] ?: "No public key for this user",

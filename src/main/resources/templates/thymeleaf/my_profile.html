@@ -489,6 +489,10 @@
                   th:if="${#strings.isEmpty(profile_data.bio)}">No biography set.</span>
             <a class="btn btn-secondary btn-sm" href="/profile/edit/bio">✏ Edit</a>
         </div>
+        <div class="field-row">
+            <span class="field-label">View Posts By User</span>
+            <a class="btn btn-primary" th:href="|/posts/user/${profile_data.id}|">View Posts</a>
+        </div>
     </div>
 
     <!-- PGP / Security card -->
