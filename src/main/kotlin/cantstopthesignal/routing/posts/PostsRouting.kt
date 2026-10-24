@@ -4,6 +4,7 @@ import cantstopthesignal.database.comments.getCommentsByPost
 import cantstopthesignal.database.notifications.getUnreadNotificationsCount
 import cantstopthesignal.database.notifications.numUnreadMessages
 import cantstopthesignal.database.posts.*
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
@@ -63,8 +64,15 @@ fun Application.configurePostRouting() {
                         "disliked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
                         "old" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
                         "comments" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_COMMENTS.value)
-                        "liked_by_me" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED_BY_ME.value)
-                        "disliked_by_me" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED_BY_ME.value)
+                        "liked_by_me" -> put(
+                            ThymeLeafMapKeys.SORT_ORDER.value,
+                            ThymeLeafMapKeys.SORT_ORDER_LIKED_BY_ME.value
+                        )
+
+                        "disliked_by_me" -> put(
+                            ThymeLeafMapKeys.SORT_ORDER.value,
+                            ThymeLeafMapKeys.SORT_ORDER_DISLIKED_BY_ME.value
+                        )
                     }
                     /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
                     * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
@@ -139,6 +147,75 @@ fun Application.configurePostRouting() {
 
                 return@get call.respond(
                     ThymeleafContent("post", model)
+                )
+            }
+
+            get("/posts/user/{id}") {
+                val page = call.request.queryParameters["page"]?.toInt()?.coerceAtLeast(1) ?: 1
+                val limit: Int = Length.MAX_PAGE_LIMIT.value.toInt()
+                val sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
+                val callingUser = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+                val error = call.request.queryParameters["error"]
+                val success = call.request.queryParameters["success"]
+                val currentPath = call.request.uri
+                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+                if(getUserName(id) == null) {
+                    val error = "No user with id $id was found"
+                    return@get call.respondRedirect("/feed?error=$error")
+                }
+
+                val postList = fetchPostsFromUser(callingUser,page,limit,id, sortOrder)
+
+                if (postList == null) {
+                    val model = buildMap {
+                        put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                        put(ThymeLeafMapKeys.ERROR.value, "An error occurred while fetching posts.")
+                    }
+                    return@get call.respond(
+                        ThymeleafContent("posts_feed", model)
+                    )
+
+                }
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.POSTS.value, postList)
+                    put(ThymeLeafMapKeys.TOTAL_PAGES.value, if (postList.isEmpty()) 0 else postList[0].totalPages)
+                    put(ThymeLeafMapKeys.CURRENT_PAGE.value, page)
+                    put(ThymeLeafMapKeys.NOTIFICATION_COUNT.value, getUnreadNotificationsCount(callingUser))
+                    put(ThymeLeafMapKeys.UNREAD_MESSAGE_COUNT.value, numUnreadMessages(callingUser))
+                    put(ThymeLeafMapKeys.REDIRECT_URI.value, redirect)
+
+                    when (sortOrder) {
+                        "liked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_LIKED.value)
+                        "disliked" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_DISLIKED.value)
+                        "old" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_OLD.value)
+                        "comments" -> put(ThymeLeafMapKeys.SORT_ORDER.value, ThymeLeafMapKeys.SORT_ORDER_COMMENTS.value)
+                        "liked_by_me" -> put(
+                            ThymeLeafMapKeys.SORT_ORDER.value,
+                            ThymeLeafMapKeys.SORT_ORDER_LIKED_BY_ME.value
+                        )
+
+                        "disliked_by_me" -> put(
+                            ThymeLeafMapKeys.SORT_ORDER.value,
+                            ThymeLeafMapKeys.SORT_ORDER_DISLIKED_BY_ME.value
+                        )
+                    }
+                    /* These can passed in from other errors that could happen which will allow us to do a return@httpmethod call.respondRedirect { /route/uri?error="Error fetching post" }
+                    * instead of doing all of that state setup and database queries in a different call, this will clean things up a lot
+                    *
+                    */
+                    if (error != null) {
+                        put(ThymeLeafMapKeys.ERROR.value, error)
+                    }
+
+                    if (success != null) {
+                        put(ThymeLeafMapKeys.SUCCESS.value, success)
+                    }
+                }
+                return@get call.respond(
+                    ThymeleafContent("posts_feed", model)
                 )
             }
 

@@ -284,62 +284,154 @@ fun fetchPostsByTopic(
     }
 }
 
-fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long): List<Post>? {
-    return try {
-        transaction {
-            val totalPages = Posts.selectAll().where(Posts.posterId eq userId).count() / limit
-            (Posts innerJoin PostLikes innerJoin PostDislikes innerJoin PostContents leftJoin PostEdits).select(
-                Posts.id,
-                Posts.posterId,
-                Posts.topic,
-                PostContents.title,
-                Posts.timestamp,
-                Posts.deleted,
-                Posts.deletedReason,
-                PostContents.content,
-                PostLikes.postId.countDistinct(),
-                PostDislikes.postId.countDistinct(),
-                Comments.postId.countDistinct(),
-            ).where(Posts.posterId eq userId).groupBy(Posts.id).orderBy(PostLikes.id.count(), SortOrder.DESC)
-                .limit(limit).offset(((page - 1) * limit).toLong()).map {
-                    val postId = it[Posts.id]
-                    val posterUsername = it[Posts.posterId]
-                    val username = getUserName(posterUsername) ?: return@transaction emptyList<Post>()
-                    val isPostLikedByMe = isPostLikedByUser(postId, userId)
-                    val isPostDislikedByMe = isPostDislikedByUser(postId, userId)
-                    val lastEdited = checkLastPostEdit(postId)
-                    val commentCount = Comments.selectAll().where { Comments.postId eq postId }.count()
-                    Post(
-                        postId,
-                        username,
-                        it[Posts.posterId],
-                        it[Posts.topic],
-                        it[Posts.timestamp],
-                        if (!it[Posts.deleted]) {
-                            it[PostContents.title]
-                        } else "*Deleted Post*",
-                        if (!it[Posts.deleted]) {
-                            it[PostContents.content]
-                        } else "This post was removed because :" + it[Posts.deletedReason]!!,
-                        it[PostLikes.postId.count()],
-                        it[PostDislikes.postId.count()],
-                        isPostLikedByMe,
-                        isPostDislikedByMe,
-                        lastEdited,
-                        PostEdits.selectAll().where { PostEdits.postId eq postId }.count(),
-                        commentCount,
-                        it[Posts.deleted],
-                        if (!it[Posts.deleted]) null else (it[Posts.deletedReason]!!),
-                        it[Posts.posterId] == callerId,
-                        isThisCode(it[PostContents.content]),
-                        totalPages,
+fun fetchPostsFromUser(callerId: Long, page: Int, limit: Int, userId: Long, order: String?): List<Post>? {
+    try {
+        return transaction {
 
-                        )
+            val likeCount = PostLikes.postId.count().alias("like_count")
+            val likesSubquery = PostLikes
+                .select(PostLikes.postId, likeCount)
+                .groupBy(PostLikes.postId)
+                .alias("likes_sub")
+
+            val dislikeCount = PostDislikes.postId.count().alias("dislike_count")
+            val dislikesSubquery = PostDislikes
+                .select(PostDislikes.postId, dislikeCount)
+                .groupBy(PostDislikes.postId)
+                .alias("dislikes_sub")
+
+            val commentCount = Comments.postId.count().alias("comment_count")
+            val commentCountSubquery = Comments.select(Comments.postId, commentCount)
+                .groupBy(Comments.postId)
+                .alias("comment_sub")
+
+            val likeCountCoalesced = coalesce(likesSubquery[likeCount], longLiteral(0))
+            val dislikeCountCoalesced = coalesce(dislikesSubquery[dislikeCount], longLiteral(0))
+            val commentCountCoalesced = coalesce(commentCountSubquery[commentCount], longLiteral(0))
+
+
+            var baseQuery = Posts
+                .innerJoin(PostContents, { Posts.id }, { PostContents.postId })
+                .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
+                .select(
+                    Posts.id,
+                    Posts.posterId,
+                    Posts.topic,
+                    Posts.timestamp,
+                    PostContents.title,
+                    PostContents.content,
+                    Posts.deleted,
+                    Posts.deletedReason,
+                    likeCountCoalesced,
+                    dislikeCountCoalesced,
+                    commentCountCoalesced,
+                ).where { (Posts.deleted eq false) and (Posts.posterId eq userId)}
+
+
+            val sortedQuery = when (order) {
+                "old" -> baseQuery.orderBy(Posts.id, SortOrder.ASC)
+                "liked" -> baseQuery.orderBy(likeCountCoalesced to SortOrder.DESC)
+                "disliked" -> baseQuery.orderBy(dislikeCountCoalesced to SortOrder.DESC)
+                "comments" -> baseQuery.orderBy(commentCountCoalesced to SortOrder.DESC)
+                "liked_by_me" -> {
+                    val column: Column<Long> = PostLikes.likedById
+
+                    baseQuery = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).innerJoin(PostLikes)
+                        .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                        .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                        .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
+                        .select(
+                            Posts.id,
+                            Posts.posterId,
+                            Posts.topic,
+                            Posts.timestamp,
+                            PostContents.title,
+                            PostContents.content,
+                            Posts.deleted,
+                            Posts.deletedReason,
+                            likeCountCoalesced,
+                            dislikeCountCoalesced,
+                            commentCountCoalesced,
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content,likeCountCoalesced,dislikeCountCoalesced,commentCountCoalesced)
+
+                    baseQuery.orderBy(Posts.id, SortOrder.DESC)
+
                 }
+
+                "disliked_by_me" -> {
+                    val column: Column<Long> = PostDislikes.dislikedById
+                    baseQuery = Posts.innerJoin(PostContents, { Posts.id }, { PostContents.postId }).innerJoin(
+                        PostDislikes)
+                        .leftJoin(likesSubquery, { Posts.id }, { likesSubquery[PostLikes.postId] })
+                        .leftJoin(dislikesSubquery, { Posts.id }, { dislikesSubquery[PostDislikes.postId] })
+                        .leftJoin(commentCountSubquery, { Posts.id }, { commentCountSubquery[Comments.postId] })
+                        .select(
+                            Posts.id,
+                            Posts.posterId,
+                            Posts.topic,
+                            Posts.timestamp,
+                            PostContents.title,
+                            PostContents.content,
+                            Posts.deleted,
+                            Posts.deletedReason,
+                            likeCountCoalesced,
+                            dislikeCountCoalesced,
+                            commentCountCoalesced,
+                        ).where(column eq userId).groupBy(Posts.id, PostContents.title, PostContents.content,likeCountCoalesced,dislikeCountCoalesced,commentCountCoalesced)
+
+                    baseQuery.orderBy(Posts.id, SortOrder.DESC)
+                }
+
+                else -> baseQuery.orderBy(Posts.id, SortOrder.DESC)
+            }
+
+            val totalPages = ceil(sortedQuery.count().toDouble() / limit.toDouble()).toLong()
+
+
+            val pagedQuery = sortedQuery
+                .limit(limit)
+                .offset((page - 1) * limit.toLong())
+
+            pagedQuery.map {
+                val postId = it[Posts.id]
+                val posterId = it[Posts.posterId]
+
+
+                val username = getUserName(posterId) ?: "Could not get username"
+                val isLikedByMe = isPostLikedByUser(postId, userId)
+                val isDislikedByMe = isPostDislikedByUser(postId, userId)
+                val lastEdited = checkLastPostEdit(postId)
+                val isDeleted = it[Posts.deleted]
+
+                Post(
+                    id = postId,
+                    posterUserName = username,
+                    posterId = posterId,
+                    topic = it[Posts.topic],
+                    timeStamp = it[Posts.timestamp],
+                    title = if (!isDeleted) it[PostContents.title] else "*Deleted Post*",
+                    content = if (!isDeleted) it[PostContents.content]
+                    else "This post was removed because : ${it[Posts.deletedReason]!!}",
+                    likeCount = it[likeCountCoalesced],
+                    dislikeCount = it[dislikeCountCoalesced],
+                    likedByMe = isLikedByMe,
+                    dislikedByMe = isDislikedByMe,
+                    lastEdited = lastEdited,
+                    PostEdits.selectAll().where { PostEdits.postId eq postId }.count(),
+                    commentCount = it[commentCountCoalesced],
+                    deleted = isDeleted,
+                    deletedReason = if (!isDeleted) null else it[Posts.deletedReason],
+                    myPost = posterId == userId,
+                    isCode = isThisCode(it[PostContents.content]),
+                    totalPages = totalPages,
+                )
+            }
         }
     } catch (e: Exception) {
-        logger.error { e.message }
-        null
+        logger.error { "Error fetching posts: ${e.message}" }
+        return null
     }
 }
 
