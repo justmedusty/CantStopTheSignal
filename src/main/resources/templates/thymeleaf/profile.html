@@ -478,6 +478,10 @@
             <span class="field-label">View Posts By User</span>
             <a class="btn btn-primary" th:href="|/posts/user/${profile_data.id}|">View Posts</a>
         </div>
+        <div class="field-row">
+            <span class="field-label">Send User A Message</span>
+            <a class="btn btn-primary" th:href="|/messages/conversation/create/${profile_data.id}|">Send Message</a>
+        </div>
     </div>
 
     <!-- PGP / Security card -->

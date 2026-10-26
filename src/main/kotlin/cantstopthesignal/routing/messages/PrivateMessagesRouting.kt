@@ -4,6 +4,7 @@ import cantstopthesignal.cryptography.convertPgpMessageOrKey
 import cantstopthesignal.cryptography.isPgpMessageOrPgpKey
 import cantstopthesignal.database.messages.*
 import cantstopthesignal.database.users.getUserId
+import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RegexPatterns
 import cantstopthesignal.enums.RetValues
@@ -65,6 +66,28 @@ fun Application.configureMessageRouting() {
 
                 val model = buildMap {
                     put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                }
+
+                return@get call.respond(
+                    ThymeleafContent("create_new_message", model)
+                )
+
+            }
+
+            get("/messages/conversation/create/{id}") {
+                val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+
+                val username = getUserName(call.pathParameters["id"]?.toLong() ?: return@get call.respond(HttpStatusCode.BadRequest)) ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+                val conversationDraft : ConversationDraft = ConversationDraft(
+                    members = username,
+                    groupName = null,
+                    selfDeleting = null,
+                    message = null,
+                )
+                val model = buildMap {
+                    put(ThymeLeafMapKeys.SERVER_CONFIG.value, siteConfig)
+                    put(ThymeLeafMapKeys.PRIVATE_MESSAGE_CONVERSATION_DRAFT.value, conversationDraft)
                 }
 
                 return@get call.respond(
