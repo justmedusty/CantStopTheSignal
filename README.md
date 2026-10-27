@@ -129,32 +129,3 @@ more malleable. Sharing your observations, principles, and beliefs can help othe
 the chrysalis by taking the front door, there is no door. It escapes the chrysalis by growing to the point where it can
 be no longer be contained by it. With that moment giving birth to something the caterpillar could not have ever
 imagined.
-
-## Screenshots
-
-![img.png](img.png)
-
-![img_13.png](img_13.png)
-
-![img_3.png](img_3.png)
-
-![img_4.png](img_4.png)
-
-![img_5.png](img_5.png)
-
-![img_6.png](img_6.png)
-
-![img_7.png](img_7.png)
-
-![img_8.png](img_8.png)
-
-![img_9.png](img_9.png)
-
-![img_10.png](img_10.png)
-
-![img_11.png](img_11.png)
-
-![img_12.png](img_12.png)
-
-![img_14.png](img_14.png)
-
