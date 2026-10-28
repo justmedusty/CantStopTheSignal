@@ -621,7 +621,6 @@
             background: transparent;
             color: var(--text-secondary);
             border-color: var(--border);
-            background: var(--accent);
         }
 
         .btn-muted:hover {
@@ -677,7 +676,7 @@
         .btn-replies {
             font-size: 0.77rem;
             font-weight: 600;
-            color: var(--accent);
+            color: var(--text-primary);
             background: var(--accent-soft);
             border-color: #2d3f7a;
             text-decoration: none;
@@ -924,6 +923,115 @@
             background: var(--surface-hover);
         }
 
+        .confirm-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Hide the real checkbox visually but keep it in the tab order */
+        .confirm-wrap input[type="checkbox"].confirm-toggle {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        /* Idle (dummy) button — the label the user sees first */
+        .idle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: border-color .15s, color .15s;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .idle-btn:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Danger variant idle button */
+        .idle-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Warn variant idle button */
+        .idle-btn.warn:hover {
+            border-color: var(--warning);
+            color: var(--warning-soft);
+        }
+
+        /* Confirm button — hidden until checkbox is :checked */
+        .confirm-btn {
+            display: none;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.35rem 0.9rem;
+            border-radius: var(--radius);
+            border: 1px solid;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+            animation: confirm-pop .12s ease-out;
+        }
+        @keyframes confirm-pop {
+            from {
+                opacity: 0;
+                transform: scale(.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        /* Danger confirm */
+        .confirm-btn.danger {
+            background: var(--danger-soft);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .confirm-btn.danger:hover {
+            background: #3d1f1f;
+        }
+
+        /* Warn confirm */
+        .confirm-btn.warn {
+            background: var(--warning-soft);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .confirm-btn.warn:hover {
+            background: #3d2810;
+        }
+
+        /*
+         * The magic: when the checkbox is checked,
+         * hide the idle label and show the confirm anchor.
+         */
+        .confirm-toggle:checked ~ .idle-btn {
+            display: none;
+        }
+
+        .confirm-toggle:checked ~ .confirm-btn {
+            display: inline-flex;
+        }
+
     </style>
 </head>
 <body>
@@ -996,11 +1104,24 @@
                 </div>
             </div>
             <!-- Reaction / action bar -->
-            <div class="post-actions-right" th:if="${post.myPost}">
-                <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
-                <a class="btn delete" th:href="|/posts/delete/${post.id}|">🗑️ Delete</a>
-            </div>
+            <div class="post-actions">
+                <div class="post-actions-right" th:if="${post.myPost}">
+                    <a class="btn edit" th:href="|/posts/edit/${post.id}|">✏️ Edit</a>
 
+                    <div class="confirm-wrap">
+                        <form th:action="|/posts/delete/${post.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                            <input type="checkbox" class="confirm-toggle" id="toggle-delete">
+                            <label class="idle-btn danger" for="toggle-delete"
+                                   title="Delete this post">
+                                ✕ Delete
+                            </label>
+                            <button type="submit" class="confirm-btn danger">
+                                ⚠ Are you sure?
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1071,7 +1192,7 @@
 
 
                 <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${focal_comment.id}">
-                <label class="btn-blue reply-btn" th:for="'reply-toggle-' + ${focal_comment.id}">Reply</label>
+                <label class="btn-replies" th:for="'reply-toggle-' + ${focal_comment.id}">Reply</label>
 
                 <div class="reply-box" th:id="'reply-box-' + ${focal_comment.id}">
                     <form th:action="|/comments/${focal_comment.id}/reply|" method="post">
@@ -1086,7 +1207,7 @@
                 </div>
 
                 <th:block th:if="${focal_comment.isReply}">
-                    <a class="btn btn-blue"
+                    <a class="btn-replies"
                        th:href="|/comments/${post.id}/replies/${focal_comment.parentCommentId}|">See Parent
                         Comment</a>
                 </th:block>
@@ -1175,7 +1296,7 @@
                         </a>
 
                         <input type="checkbox" class="reply-toggle" th:id="'reply-toggle-' + ${reply.id}">
-                        <label class="btn-blue reply-btn" th:for="'reply-toggle-' + ${reply.id}">Reply</label>
+                        <label class="btn-replies" th:for="'reply-toggle-' + ${reply.id}">Reply</label>
 
                         <div class="reply-box" th:id="'reply-box-' + ${reply.id}">
                             <form th:action="|/comments/${reply.id}/reply|" method="post">
@@ -1191,7 +1312,7 @@
 
                         <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
-                            <a class="btn-tiny"
+                            <a class="btn-replies"
                                th:href="|/comments/edit/${reply.id}?redirect=${redirect_uri}|">Edit</a>
                             <form th:action="|/comments/delete/${reply.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
                                 <button type="submit"

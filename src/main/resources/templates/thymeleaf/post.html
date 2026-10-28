@@ -453,6 +453,7 @@
             gap: 0.25rem;
             padding: 0.28rem 0.65rem;
             border-radius: var(--radius);
+            border: 1px solid #2d3f7a;
             cursor: pointer;
             transition: background 0.15s, color 0.15s;
         }
@@ -903,20 +904,6 @@
         }
 
 
-        /*
-         * ── Confirm-on-click pattern (pure CSS) ──
-         *
-         * Each .confirm-wrap contains:
-         *   1. A real <a> (the confirm action) — hidden by default via the checkbox trick
-         *   2. A <label> styled as the "idle" button (dummy trigger)
-         *   3. A hidden <input type="checkbox"> that acts as the toggle
-         *
-         * When the checkbox is :checked, the idle label hides and the
-         * confirm anchor appears in its place.  No JavaScript required.
-         *
-         * Markup order inside .confirm-wrap must be:
-         *   input[type=checkbox]  →  label.idle-btn  →  a.confirm-btn
-         */
         .confirm-wrap {
             position: relative;
             display: inline-flex;
@@ -952,7 +939,7 @@
 
         .idle-btn:hover {
             border-color: var(--text-secondary);
-            color: var(--text);
+            color: var(--text-primary);
         }
 
         /* Danger variant idle button */
