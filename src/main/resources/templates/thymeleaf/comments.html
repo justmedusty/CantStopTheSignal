@@ -1020,15 +1020,46 @@
             background: #3d2810;
         }
 
-        /*
-         * The magic: when the checkbox is checked,
-         * hide the idle label and show the confirm anchor.
-         */
         .confirm-toggle:checked ~ .idle-btn {
             display: none;
         }
 
         .confirm-toggle:checked ~ .confirm-btn {
+            display: inline-flex;
+        }
+
+        .delete-button-group {
+            position: relative;
+        }
+
+        .delete-button-group .confirm-toggle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        .delete-button-group .confirm-toggle:checked ~ .idle-btn {
+            display: none;
+        }
+
+        .delete-button-group .confirm-toggle:checked ~ .confirm-btn {
+            display: inline-flex;
+        }
+
+        .comment .confirm-wrap input[type="checkbox"].confirm-toggle {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .comment .confirm-toggle:checked ~ .idle-btn {
+            display: none;
+        }
+
+        .comment .confirm-toggle:checked ~ .confirm-btn {
             display: inline-flex;
         }
 
@@ -1314,11 +1345,14 @@
                         <th:block th:if="${reply.myComment}">
                             <a class="btn-replies"
                                th:href="|/comments/edit/${reply.id}?redirect=${redirect_uri}|">Edit</a>
-                            <form th:action="|/comments/delete/${reply.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
-                                <button type="submit"
-                                        class="btn delete"
-                                        style="color: var(--danger); border-color: #f3c6c6;">
-                                    Delete
+
+                            <form th:action="|/comments/delete/{reply.id}?redirect={redirect_uri}|" method="post" style="display:inline;">
+                                <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${reply.id}">
+                                <label class="idle-btn danger" th:for="'toggle-delete-' + ${reply.id}" title="Delete this reply">
+                                    ✕ Delete
+                                </label>
+                                <button type="submit" class="confirm-btn danger">
+                                    ⚠ Are you sure?
                                 </button>
                             </form>
                         </th:block>
