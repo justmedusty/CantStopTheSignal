@@ -1343,18 +1343,17 @@
 
                         <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
-                            <a class="btn-replies"
-                               th:href="|/comments/edit/${reply.id}?redirect=${redirect_uri}|">Edit</a>
-
-                            <form th:action="|/comments/delete/{reply.id}?redirect={redirect_uri}|" method="post" style="display:inline;">
-                                <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${reply.id}">
-                                <label class="idle-btn danger" th:for="'toggle-delete-' + ${reply.id}" title="Delete this reply">
-                                    ✕ Delete
-                                </label>
-                                <button type="submit" class="confirm-btn danger">
-                                    ⚠ Are you sure?
-                                </button>
-                            </form>
+                            <div class="delete-button">
+                                <form th:action="|/comments/delete/{reply.id}?redirect={redirect_uri}|" method="post" style="display:inline;">
+                                    <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${reply.id}">
+                                    <label class="idle-btn danger" th:for="'toggle-delete-' + ${reply.id}" title="Delete this reply">
+                                        ✕ Delete
+                                    </label>
+                                    <button type="submit" class="confirm-btn danger">
+                                        ⚠ Are you sure?
+                                    </button>
+                                </form>
+                            </div>
                         </th:block>
                     </div>
                 </div>
