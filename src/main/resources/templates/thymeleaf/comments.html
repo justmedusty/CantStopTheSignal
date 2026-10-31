@@ -932,7 +932,7 @@
         /* Hide the real checkbox visually but keep it in the tab order */
         .confirm-wrap input[type="checkbox"].confirm-toggle {
             position: absolute;
-            display: none;
+            display: none !important;
             opacity: 0;
             width: 0;
             height: 0;
@@ -1050,6 +1050,7 @@
 
         .comment .confirm-wrap input[type="checkbox"].confirm-toggle {
             position: absolute;
+            display: none !important;
             opacity: 0;
             width: 0;
             height: 0;
@@ -1345,7 +1346,7 @@
                         <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
                             <div class="delete-button">
-                                <form th:action="|/comments/delete/{reply.id}?redirect={redirect_uri}|" method="post" style="display:inline;">
+                                <form th:action="|/comments/delete/${reply.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
                                     <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${reply.id}">
                                     <label class="idle-btn danger" th:for="'toggle-delete-' + ${reply.id}" title="Delete this reply">
                                         ✕ Delete
