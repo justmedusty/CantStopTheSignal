@@ -13,6 +13,9 @@ import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.RetValues
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.helper.errorSanitization
+import cantstopthesignal.helper.redirectSanitization
+import cantstopthesignal.helper.successSanitization
 import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
@@ -94,7 +97,12 @@ fun Application.configureCommentsRouting() {
                     HttpStatusCode.BadRequest
                 )
                 val params = call.receiveParameters()
-                val redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                var redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+                //Strip out past error or success messages for cleanliness
+                redirect = redirectSanitization(redirect)
+
+
                 val commentId =
                     call.parameters["commentId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = call.parameters["reason"]
@@ -128,13 +136,18 @@ fun Application.configureCommentsRouting() {
 
                 if (!ret) {
                     val error = "An error occurred while deleting comment"
-                    return@post call.respondRedirect("$redirect?error=$error")
+                    when (redirect.contains("?")) {
+                        true -> return@post call.respondRedirect("$redirect&error=$error")
+                        false -> return@post call.respondRedirect("$redirect?error=$error")
+                    }
+
                 }
 
                 val success = "Comment deleted successfully."
-                return@post call.respondRedirect("/comments/$commentId?success=$success")
-
-
+                when (redirect.contains("?")) {
+                    true -> return@post call.respondRedirect("$redirect&success=$success")
+                    false -> return@post call.respondRedirect("$redirect?success=$success")
+                }
             }
 
 
@@ -150,7 +163,7 @@ fun Application.configureCommentsRouting() {
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
-                val postList = fetchPostById(id, userId!!)
+                val postList = fetchPostById(id, userId)
                 val currentPath = call.request.uri
                 val redirect = URLEncoder.encode(currentPath, "UTF-8")
 
@@ -163,7 +176,7 @@ fun Application.configureCommentsRouting() {
                     return@get call.respond(ThymeleafContent("post", model))
                 }
 
-                val post = postList?.get(0)
+                val post = postList.get(0)
 
                 val comments = getCommentsByPost(post!!.id, limit, page, userId, sortOrder)
 
