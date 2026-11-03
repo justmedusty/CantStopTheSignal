@@ -8,6 +8,7 @@ import cantstopthesignal.database.users.getUserName
 import cantstopthesignal.database.users.isUserAdminOrModerator
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.helper.redirectSanitization
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -36,7 +37,8 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 val postList = fetchPosts(page, limit, callingUser!!, sortOrder)
 
@@ -99,7 +101,8 @@ fun Application.configurePostRouting() {
                 val sortOrder = call.request.queryParameters["orderBy"] ?: "likes"
                 val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 if (userId == null) {
                     return@get call.respondRedirect("/logout")
@@ -158,7 +161,8 @@ fun Application.configurePostRouting() {
                 val error = call.request.queryParameters["error"]
                 val success = call.request.queryParameters["success"]
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
                 val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respond(HttpStatusCode.BadRequest)
 
                 if(getUserName(id) == null) {
@@ -226,7 +230,8 @@ fun Application.configurePostRouting() {
                     "/logout"
                 )
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 val page = call.request.queryParameters["page"]?.toInt() ?: 1
 
@@ -262,7 +267,8 @@ fun Application.configurePostRouting() {
                     HttpStatusCode.BadRequest
                 )
                 val params = call.receiveParameters()
-                val redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                var redirect = call.queryParameters["redirect"] ?: return@post call.respond(HttpStatusCode.BadRequest)
+                redirect = redirectSanitization(redirect)
                 val postId =
                     call.parameters["postId"]?.toLongOrNull() ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val reason = params["reason"]

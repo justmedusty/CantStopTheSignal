@@ -3,6 +3,7 @@ package cantstopthesignal.routing.posts
 import cantstopthesignal.database.posts.dislikePost
 import cantstopthesignal.database.posts.likePost
 import cantstopthesignal.database.posts.verifyPostId
+import cantstopthesignal.helper.redirectSanitization
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -26,7 +27,8 @@ fun Application.configurePostLikesRouting() {
                 }
                 val success = likePost(userId!!, postId)
                 val successMessage = "Operation successful"
-                val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                var redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                redirect = redirectSanitization(redirect)
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"
@@ -48,7 +50,8 @@ fun Application.configurePostLikesRouting() {
                 val validPostId = verifyPostId(postId) ?: return@post call.respond(HttpStatusCode.BadRequest)
                 val success = dislikePost(userId!!, postId)
                 val successMessage = "Operation successful"
-                val redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                var redirect = call.request.queryParameters["redirect"] ?: "/posts/$postId"
+                redirect = redirectSanitization(redirect)
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"

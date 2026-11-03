@@ -4,6 +4,7 @@ import cantstopthesignal.database.comments.dislikeComment
 import cantstopthesignal.database.comments.likeComment
 import cantstopthesignal.database.comments.verifyCommentId
 import cantstopthesignal.database.posts.verifyPostId
+import cantstopthesignal.helper.redirectSanitization
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -35,7 +36,8 @@ fun Application.configureCommentLikesRouting() {
                 }
                 val success = likeComment(userId, commentId)
                 val successMessage = "Comment liked"
-                val redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                var redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                redirect = redirectSanitization(redirect)
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"
@@ -72,7 +74,8 @@ fun Application.configureCommentLikesRouting() {
                     the user clicks off that particular page. The pages are not that massive, so I do not care to write finicky stripping logic to look and strip error or success if theyre there.
                     It will just piggy back off the last one if they are liking many from the same page.
                  */
-                val redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                var redirect = call.request.queryParameters["redirect"] ?: "/comments/$postId/replies/$commentId"
+                redirect = redirectSanitization(redirect)
                 val separator = if (redirect.contains("?")) "&" else "?"
                 if (!success) {
                     val errorMessage = "An error occurred"

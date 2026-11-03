@@ -4,6 +4,7 @@ import cantstopthesignal.database.comments.getCommentById
 import cantstopthesignal.database.comments.updateComment
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.helper.redirectSanitization
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -22,7 +23,8 @@ fun Application.configureCommentEditRouting() {
                 val user = call.principal<JWTPrincipal>()?.subject?.toLongOrNull() ?: return@get call.respond(
                     HttpStatusCode.Forbidden
                 )
-                val redirect = call.queryParameters["redirect"] ?: "/feed"
+                var redirect = call.queryParameters["redirect"] ?: "/feed"
+                redirect = redirectSanitization(redirect)
                 val error = call.queryParameters["error"]
                 val success = call.queryParameters["success"]
 
@@ -71,7 +73,8 @@ fun Application.configureCommentEditRouting() {
                     return@post call.respond(HttpStatusCode.Forbidden)
                 }
 
-                val redirect = call.request.queryParameters["redirect"] ?: "/feed"
+                var redirect = call.request.queryParameters["redirect"] ?: "/feed"
+                redirect = redirectSanitization(redirect)
 
                 val commentContent = params["content"] ?: return@post call.respond(HttpStatusCode.BadRequest)
 

@@ -7,6 +7,7 @@ import cantstopthesignal.database.posts.fetchPostById
 import cantstopthesignal.database.posts.verifyPostId
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.helper.redirectSanitization
 import cantstopthesignal.log.logger
 import cantstopthesignal.siteConfig
 import io.ktor.http.*
@@ -55,7 +56,8 @@ fun Application.configureCommentRepliesRouting() {
                 val page = call.queryParameters["page"]?.toIntOrNull() ?: 1
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 if (postId == null) {
                     postId = getPostIdFromComment(commentId) ?: return@get call.respond(HttpStatusCode.BadRequest)

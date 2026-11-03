@@ -1015,6 +1015,10 @@
             display: inline-flex;
         }
 
+        input[type="checkbox"]{
+            display: none;
+        }
+
     </style>
 </head>
 <body>
@@ -1251,11 +1255,10 @@
                                 <a class="btn-replies"
                                    th:href="|/comments/edit/${comment.id}?redirect=${redirect_uri}|">Edit</a>
 
-                                <div class="confirm-wrap">
+                                <div class="delete-button">
                                     <form th:action="|/comments/delete/${comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
-                                        <input type="checkbox" class="confirm-toggle" id="toggle-leave">
-                                        <label class="idle-btn danger" for="toggle-leave"
-                                               title="Delete This Comment">
+                                        <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${comment.id}">
+                                        <label class="idle-btn danger" th:for="'toggle-delete-' + ${comment.id}" title="Delete this reply">
                                             ✕ Delete
                                         </label>
                                         <button type="submit" class="confirm-btn danger">

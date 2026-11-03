@@ -7,6 +7,7 @@ import cantstopthesignal.database.posts.fetchPostsByTopic
 import cantstopthesignal.database.posts.searchPostByTitleOrContents
 import cantstopthesignal.enums.Length
 import cantstopthesignal.enums.ThymeLeafMapKeys
+import cantstopthesignal.helper.redirectSanitization
 import cantstopthesignal.siteConfig
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -27,8 +28,8 @@ fun Application.configurePostSearchRouting() {
                 val searchField = call.request.queryParameters["searchField"] ?: return@get call.respondRedirect("/feed?error=You must specify a search field (topic,title, or contents")
                 var sortOrder = call.request.queryParameters["orderBy"] ?: "newest"
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
-
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 if(sortOrder != "newest" && sortOrder != "old" && sortOrder != "liked" && sortOrder != "disliked" && sortOrder != "comments") {
                     sortOrder = "newest"

@@ -938,6 +938,9 @@
             height: 0;
             pointer-events: none;
         }
+        input[type="checkbox"]{
+            display: none;
+        }
 
         /* Idle (dummy) button — the label the user sees first */
         .idle-btn {
@@ -1214,13 +1217,18 @@
                 <th:block th:if="${focal_comment.myComment}">
                     <a class="btn-tiny"
                        th:href="|/comments/edit/${focal_comment.id}?redirect=${redirect_uri}|">Edit</a>
-                    <form th:action="|/comments/delete/${focal_comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
-                        <button type="submit"
-                                class="btn delete"
-                                style="color: var(--danger); border-color: #f3c6c6;">
-                            Delete
-                        </button>
-                    </form>
+                                         <!-- Edit / Delete (only for comment owner) -->
+                        <div class="delete-button">
+                            <form th:action="|/comments/delete/${focal_comment.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
+                                <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${focal_comment.id}">
+                                <label class="idle-btn danger" th:for="'toggle-delete-' + ${focal_comment.id}" title="Delete this reply">
+                                    ✕ Delete
+                                </label>
+                                <button type="submit" class="confirm-btn danger">
+                                    ⚠ Are you sure?
+                                </button>
+                            </form>
+                        </div>
                 </th:block>
 
 
@@ -1345,6 +1353,8 @@
 
                         <!-- Edit / Delete (only for comment owner) -->
                         <th:block th:if="${reply.myComment}">
+                            <a class="btn-replies"
+                               th:href="|/comments/edit/${reply.id}?redirect=${redirect_uri}|">Edit</a>
                             <div class="delete-button">
                                 <form th:action="|/comments/delete/${reply.id}?redirect=${redirect_uri}|" method="post" style="display:inline;">
                                     <input type="checkbox" class="confirm-toggle" th:id="'toggle-delete-' + ${reply.id}">

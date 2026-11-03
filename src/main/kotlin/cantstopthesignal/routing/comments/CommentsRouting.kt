@@ -165,7 +165,8 @@ fun Application.configureCommentsRouting() {
                 val limit = Length.MAX_PAGE_LIMIT.value.toInt()
                 val postList = fetchPostById(id, userId)
                 val currentPath = call.request.uri
-                val redirect = URLEncoder.encode(currentPath, "UTF-8")
+                var redirect = URLEncoder.encode(currentPath, "UTF-8")
+                redirect = redirectSanitization(redirect)
 
                 if (postList == null) {
 
