@@ -712,10 +712,7 @@
     <input type="checkbox" id="searchToggle" style="display:none">
 
     <div class="topbar">
-        <a href="/feed">
             <h1>Posts</h1>
-        </a>
-
 
         <div class="topbar-actions">
 
@@ -736,7 +733,7 @@
                 ✉️
                 <span class="badge" th:if="${unread_message_count > 0}" th:text="${unread_message_count}"></span>
             </a>
-
+            <a class="btn btn-primary" th:href="|/feed|">Home Feed</a>
             <a class="btn btn-primary" href="/profile">My Profile</a>
             <a class="btn btn-primary" href="/posts/create">Create Post</a>
             <a class="btn btn-primary" href="/logout">Logout</a>
