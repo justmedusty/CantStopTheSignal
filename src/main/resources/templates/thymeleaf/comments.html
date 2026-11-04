@@ -1074,7 +1074,7 @@
 <div class="container" th:with="post=${posts != null and not #lists.isEmpty(posts) ? posts[0] : null}">
 
     <!-- ── Back navigation ── -->
-    <a class="back-link" th:href="|/feed|">&#8592; Back to Posts</a>
+    <a class="back-link" th:href="|/feed|">&#8592; Back to Feed</a>
     <div class="error" th:if="${error}" th:text="${error}"></div>
     <div class="success" th:if="${success}" th:text="${success}"></div>
     <!-- ═══════════════════════════════════════════
