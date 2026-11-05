@@ -93,11 +93,11 @@ fun Application.configureCommentEditRouting() {
 
                 if (!ret) {
                     val error = "An error occurred while trying to update your comment"
-                    return@post call.respondRedirect("/comments/edit/${id}?error=$error")
+                    return@post call.respondRedirect("$redirect?error=$error")
                 }
 
                 val success = "Comment successfully updated"
-                return@post call.respondRedirect("/comments/edit/${id}?success=$success")
+                return@post call.respondRedirect("$redirect?success=$success")
 
 
             }
